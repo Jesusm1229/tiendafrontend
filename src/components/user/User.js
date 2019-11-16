@@ -4,23 +4,39 @@ import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
+import {withRouter} from 'react-router-dom';
+// Base de Datos.
+import firebase from 'firebase/app';
+import 'firebase/database';
+import 'firebase/auth';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
-const User = () => {
+const User = ({history, user, onLogout}) => {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
+  // Evento para abrir el menu del usuario.
   const handleMenu = event => {
     setAnchorEl(event.currentTarget);
   };
 
+  // Evento para cerrar el menu del usuario.
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  /*const handleLogout = () => {
-    
-  };*/
+  // Cierre de Sesion de Usuario.
+  const handleLogout = () => {
+
+    setAnchorEl(null);
+
+     firebase.auth().signOut().then(() =>{
+        if(onLogout) onLogout();
+        // Te redirecciona a la pagina del Login.
+        history.push('/login');
+     });
+  };
 
     return(
         <div>
@@ -48,12 +64,11 @@ const User = () => {
                 open={open}
                 onClose={handleClose}
               >
-                <MenuItem disabled>Jesus Gonzalez</MenuItem>
-                <MenuItem onClick={handleClose}>Salir</MenuItem>
+                <MenuItem disabled>{user.name + " " + user.lastname}</MenuItem>
+                <MenuItem onClick={handleLogout}><ExitToAppIcon/>Cerrar Sesión</MenuItem>
               </Menu>
             </div>
-
     );
 };
 
-export default User;
+export default withRouter(User);

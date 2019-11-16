@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -12,8 +12,17 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { Link as RouterLink } from 'react-router-dom';
-
+import { Link as RouterLink, withRouter} from 'react-router-dom';
+// Base de Datos.
+import firebase from 'firebase/app';
+import 'firebase/database';
+import 'firebase/auth';
+// Icono de inicio de sesion via link.
+import LockOpenIcon from '@material-ui/icons/LockOpen';
+// Avatar Uploaded.
+import AvatarUploader from 'react-avatar-uploader';
+// Label de Material-ui
+import FormLabel from '@material-ui/core/FormLabel';
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
@@ -29,6 +38,7 @@ function Copyright() {
     </Typography>
   );
 }
+
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -47,7 +57,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: '100%',
     marginTop: theme.spacing(3),
   },
   submit: {
@@ -55,8 +65,41 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const Signup = () => {
+const Signup = (props) => {
   const classes = useStyles();
+
+  const [user, setUser] = useState({
+      name: '',
+      lastname: '',
+      email: '',
+      password: '',
+      avatar: '',
+  });
+
+  const handleChange = (e) => {
+    setUser({
+      ...user,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Autenticar el usuario.
+    firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+    .then(response => {
+        // Guardar los datos del usuario.
+        delete user.password;
+        firebase.database().ref(`/users/${response.user.uid}`).set(user);
+        alert('Bienvenido a Tienda E-Commerce');
+        props.history.push('/');
+    })
+    .catch(error => {
+      console.log(error);
+      alert(error.message);
+    });
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -68,18 +111,20 @@ const Signup = () => {
         <Typography component="h1" variant="h5">
           Registro de Usuario
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
                 autoComplete="fname"
-                name="firstName"
+                name="name"
                 variant="outlined"
                 required
                 fullWidth
-                id="firstName"
-                label="First Name"
+                id="name"
+                label="Nombre"
                 autoFocus
+                value={user.name}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -87,21 +132,40 @@ const Signup = () => {
                 variant="outlined"
                 required
                 fullWidth
-                id="lastName"
-                label="Last Name"
-                name="lastName"
-                autoComplete="lname"
+                id="lastname"
+                label="Apellido"
+                name="lastname"
+                //autoComplete="lname"
+                value={user.lastname}
+                onChange={handleChange}
               />
+            </Grid>
+            <Grid container justify="center" alignItems="center">
+                <FormLabel>Selecciona un avatar</FormLabel>
+            </Grid>
+            <Grid container justify="center" alignItems="center">
+            <AvatarUploader
+              size={80}
+              uploadURL="http://localhost:3000"
+              fileType={""}
+              accept=".jpg, .png"
+              id="avatar"
+              name="avatar"
+              src={user.avatar}
+              onChange={handleChange}
+            />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 variant="outlined"
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
                 name="email"
                 autoComplete="email"
+                label="Correo Electronico"
+                id="email"
+                value={user.email}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -110,10 +174,12 @@ const Signup = () => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label="Contraseña"
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                value={user.password}
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -135,7 +201,7 @@ const Signup = () => {
           <Grid container justify="flex-end">
             <Grid item>
               <Link to="/login" component={MyLink} variant="body2">
-                Ya posees cuenta? Inicia Sesión.
+              <LockOpenIcon/>Ya posees cuenta? Inicia Sesión.
               </Link>
             </Grid>
           </Grid>
@@ -148,4 +214,4 @@ const Signup = () => {
   );
 }
 
-export default Signup;
+export default withRouter(Signup);
