@@ -20,6 +20,8 @@ import 'firebase/database';
 import 'firebase/auth';
 // Icono para el link -> No tengo una cuenta.
 import CancelIcon from '@material-ui/icons/Cancel';
+// Firebase autenticacion con Google y Facebook.
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -64,6 +66,26 @@ const useStyles = makeStyles(theme => ({
 
 const Login = (props) => {
   const classes = useStyles();
+
+  // Login con Facebook y Google.
+    //const state = { isSignedIn: false }
+    const uiConfig = {
+      signInFlow: "popup",
+      signInOptions: [
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        firebase.auth.FacebookAuthProvider.PROVIDER_ID
+      ],
+      callbacks: {
+        signInSuccess: () => false,
+        signInSuccessWithAuthResult: (authResult, redirectUrl) => {
+          console.log('signInSuccessWithAuthResult', authResult, redirectUrl);
+          props.history.push('/');
+          return false
+      }
+    }
+  };
+
+  // Aca finaliza el Login por Facebook y Google.
 
   const [user, setUser] = useState({
     email: '',
@@ -158,6 +180,13 @@ const Login = (props) => {
           </Grid>
         </form>
       </div>
+      <Grid container justify="center" alignItems="center">
+      {/*Modulo de Login con Google y Facebook*/}
+      <StyledFirebaseAuth 
+          uiConfig={uiConfig} 
+          firebaseAuth={firebase.auth()}
+      />
+      </Grid>
       <Box mt={5}>
         <Copyright />
       </Box>

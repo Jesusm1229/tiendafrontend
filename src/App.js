@@ -8,6 +8,12 @@ import Routes from './Routes';
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
+import Button from '@material-ui/core/Button';
+import { Link as RouterLink } from 'react-router-dom';
+// Icono para el boton de registro.
+import HowToRegIcon from '@material-ui/icons/HowToReg';
+// Icono para el boton de login.
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCo6KH8xYCLGpQEBUjYcmNm4qfS3CnIlPE",
@@ -20,6 +26,9 @@ const firebaseConfig = {
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
+
+
+const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
 function App() {
 
@@ -51,11 +60,15 @@ function App() {
 
       <CssBaseLine/>
 
-      <Header>
+  <Header>
 
-        {user && <User user={user} onLogout={onLogout} />}
+  {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKeyIcon/>Login</Button>}
+  {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToRegIcon/>Signup</Button>}
+  
+  {user && <User user={user} onLogout={onLogout} />}
 
-      </Header>
+  </Header>
+      
 
       <Routes/>
  
