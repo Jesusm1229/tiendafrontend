@@ -57,21 +57,14 @@ function App() {
 
   return (
     <Router>
-
       <CssBaseLine/>
-
-  <Header>
-
-  {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKeyIcon/>Login</Button>}
-  {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToRegIcon/>Signup</Button>}
+          <Header>
+              {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKeyIcon/>Login</Button>}
+              {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToRegIcon/>Signup</Button>}
   
-  {user && <User user={user} onLogout={onLogout} />}
-
-  </Header>
-      
-
-      <Routes/>
- 
+              {user && <User user={user} onLogout={onLogout} />}
+          </Header>
+          <Routes/>
     </Router>
   );
 }
