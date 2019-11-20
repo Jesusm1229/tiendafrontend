@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 // Parametro props es el componente del usuario.
-const Header = (props, showMe) =>{
+const Header = (props) =>{
 
   const classes = useStyles();
 

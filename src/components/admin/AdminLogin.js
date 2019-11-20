@@ -12,16 +12,14 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-// Para el manejo de Links de tipo componentes.
+
+// Redireccionamientos.
 import { Link as RouterLink, withRouter} from 'react-router-dom';
+
 // Base de Datos.
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
-// Icono para el link -> No tengo una cuenta.
-import CancelIcon from '@material-ui/icons/Cancel';
-// Firebase autenticacion con Google y Facebook.
-import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -31,7 +29,7 @@ function Copyright() {
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
       <Link color="inherit" href="https://material-ui.com/">
-        Tienda E-Commerce
+        Privado Sólo Administradores - Tienda E-Commerce
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -64,68 +62,48 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const Login = (props) => {
+const AdminLogin = (props) => {
   const classes = useStyles();
 
-  // Login con Facebook y Google.
-    //const state = { isSignedIn: false }
-    const uiConfig = {
-      signInFlow: "popup",
-      signInOptions: [
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        firebase.auth.FacebookAuthProvider.PROVIDER_ID
-      ],
-      callbacks: {
-        signInSuccess: () => false,
-        signInSuccessWithAuthResult: (authResult, redirectUrl) => {
-          console.log('signInSuccessWithAuthResult', authResult, redirectUrl);
-          props.history.push('/');
-          return false
-      }
-    }
-  };
-
-  // Aca finaliza el Login por Facebook y Google.
-
-  const [user, setUser] = useState({
+  const [admin, setAdmin] = useState({
     email: '',
     password: ''
   });
 
-  // Cambio en la tarjeta del usuario, cada vez que alguien inicia sesion.
+  // Cambio en la tarjeta del administrador, cada vez que alguien inicia sesion.
   const handleChange = (e) => {
-    setUser({
-      ...user,
+    setAdmin({
+      ...admin,
       [e.target.name]: e.target.value
     });
   };
 
   // Funcion para autenticar a un usuario e ingresar al sistema.
   const handleLogin = (e) => {
-    e.preventDefault();
-
-    // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
-    var ref = firebase.database().ref("users");
-    ref.orderByChild("email").equalTo(user.email).on("child_added", function(snapshot) {
-      
-      // Si el role es 'false', iniciara sesion como usuario, sino no podrá iniciar sesion por ser administrador.
-      if(!snapshot.val().role){
+        e.preventDefault();
     
-          firebase.auth().signInWithEmailAndPassword(user.email, user.password)
-          .then(response => {
-              // Una vez autenticado el usuario, redirecciona a la home.
-              props.history.push('/');
-          })
-          .catch(error => {
-          console.log(error);
-          alert(error.message);
-          });
-      }
-      else{
-          alert("No puedes iniciar sesión, posees cuenta de administrador.");
-      }
-    });
-  };
+        // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
+        var ref = firebase.database().ref("users");
+        ref.orderByChild("email").equalTo(admin.email).on("child_added", function(snapshot) {
+          
+          // Si el role es 'true', iniciara sesion como administrador, sino no podrá iniciar sesion por ser usuario.
+          if(snapshot.val().role){
+        
+              firebase.auth().signInWithEmailAndPassword(admin.email, admin.password)
+              .then(response => {
+                  // Una vez autenticado el administrador, redirecciona a la home.
+                  props.history.push('/');
+              })
+              .catch(error => {
+              console.log(error);
+              alert(error.message);
+              });
+          }
+          else{
+              alert("No puedes iniciar sesión, posees cuenta de usuario.");
+          }
+        });
+      };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -135,7 +113,7 @@ const Login = (props) => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Ingresar a Tienda E-Commerce
+          Ingreso de Administrador
         </Typography>
         <form className={classes.form} onSubmit={handleLogin}>
           <TextField
@@ -148,7 +126,7 @@ const Login = (props) => {
             name="email"
             autoComplete="email"
             autoFocus
-            defaultValue={user.email}
+            defaultValue={admin.email}
             onChange={handleChange}
           />
           <TextField
@@ -161,7 +139,7 @@ const Login = (props) => {
             type="password"
             id="password"
             autoComplete="current-password"
-            defaultValue={user.password}
+            defaultValue={admin.password}
             onChange={handleChange}
           />
           <FormControlLabel
@@ -183,21 +161,9 @@ const Login = (props) => {
                 Olvidaste tu contraseña?
               </Link>
             </Grid>
-            <Grid item>
-              <Link to="/signup" component={MyLink} variant="body2">
-              <CancelIcon/>{"No tengo una cuenta"}
-              </Link>
-            </Grid>
           </Grid>
         </form>
       </div>
-      <Grid container justify="center" alignItems="center">
-      {/*Modulo de Login con Google y Facebook*/}
-      <StyledFirebaseAuth 
-          uiConfig={uiConfig} 
-          firebaseAuth={firebase.auth()}
-      />
-      </Grid>
       <Box mt={5}>
         <Copyright />
       </Box>
@@ -205,4 +171,4 @@ const Login = (props) => {
   );
 }
 
-export default withRouter(Login);
+export default withRouter(AdminLogin);

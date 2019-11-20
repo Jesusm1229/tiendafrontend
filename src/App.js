@@ -1,19 +1,27 @@
 import React, {useState, useEffect} from 'react';
-import {BrowserRouter as Router} from 'react-router-dom';
-import CssBaseLine from '@material-ui/core/CssBaseLine';
 
-import Header from './components/header/Header';
-import User from './components/user/User';
-import Routes from './Routes';
-import firebase from 'firebase/app';
-import 'firebase/database';
-import 'firebase/auth';
-import Button from '@material-ui/core/Button';
+// Rediccionamientos.
+import {BrowserRouter as Router} from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
+
+// Estilos e Iconos.
+import CssBaseLine from '@material-ui/core/CssBaseLine';
+import Button from '@material-ui/core/Button';
 // Icono para el boton de registro.
 import HowToRegIcon from '@material-ui/icons/HowToReg';
 // Icono para el boton de login.
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
+
+// Componentes.
+import Header from './components/header/Header';
+import User from './components/user/User';
+import Routes from './Routes';
+
+// Base de Datos Firebase.
+import firebase from 'firebase/app';
+import 'firebase/database';
+import 'firebase/auth';
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCo6KH8xYCLGpQEBUjYcmNm4qfS3CnIlPE",
@@ -26,7 +34,6 @@ const firebaseConfig = {
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
 
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
@@ -59,10 +66,13 @@ function App() {
     <Router>
       <CssBaseLine/>
           <Header>
+              {/* Si no se encuentra un usuario logueado, entonces se mostrarán los botones de Login y Signup.*/}
               {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKeyIcon/>Login</Button>}
               {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToRegIcon/>Signup</Button>}
   
+              {/* Mostrar icono de usuario o administrador y opciones al momento de iniciar sesion. */}
               {user && <User user={user} onLogout={onLogout} />}
+
           </Header>
           <Routes/>
     </Router>

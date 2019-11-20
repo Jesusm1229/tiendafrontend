@@ -32,9 +32,15 @@ const User = ({history, user, onLogout}) => {
     setAnchorEl(null);
 
      firebase.auth().signOut().then(() =>{
-        if(onLogout) onLogout();
-        // Te redirecciona a la pagina del Login.
-        history.push('/login');
+        if(onLogout){ 
+          
+          onLogout();
+          // Te redirecciona a la pagina del Login.
+          if(user.role)
+            history.push('/adminlogin');
+          else
+            history.push('login');
+        }
      });
   };
 
@@ -47,7 +53,16 @@ const User = ({history, user, onLogout}) => {
                 onClick={handleMenu}
                 color="inherit"
               >
-                <Icon>account_circle</Icon>
+                {/* Si es verdadero es un administrador, si es falso es un usuario del sistema*/}
+                {user.role === true?
+                    <div>
+                        <Icon>supervised_user_circle_icon</Icon>
+                    </div>
+                    :
+                    <div>
+                        <Icon>account_circle</Icon>
+                    </div>
+                }
               </IconButton>
               <Menu
                 id="menu-appbar"

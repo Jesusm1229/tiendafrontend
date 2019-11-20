@@ -13,16 +13,19 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { Link as RouterLink, withRouter} from 'react-router-dom';
+
 // Base de Datos.
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
+
 // Icono de inicio de sesion via link.
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 // Avatar Uploaded.
 import AvatarUploader from 'react-avatar-uploader';
 // Label de Material-ui
 import FormLabel from '@material-ui/core/FormLabel';
+
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
@@ -38,7 +41,6 @@ function Copyright() {
     </Typography>
   );
 }
-
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -65,7 +67,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const Signup = (props) => {
+const AdminSignup = (props) => {
   const classes = useStyles();
 
   const [user, setUser] = useState({
@@ -74,7 +76,7 @@ const Signup = (props) => {
       email: '',
       password: '',
       avatar: '',
-      role: false
+      role: true
   });
 
   const handleChange = (e) => {
@@ -87,13 +89,13 @@ const Signup = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Autenticar el usuario.
+    // Autenticar el administrador.
     firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
     .then(response => {
-        // Guardar los datos del usuario.
+        // Guardar los datos del nuevo administrador.
         delete user.password;
         firebase.database().ref(`/users/${response.user.uid}`).set(user);
-        alert('Bienvenido a Tienda E-Commerce');
+        alert('Ya puede gestionar la tienda E-Commerce');
         props.history.push('/');
     })
     .catch(error => {
@@ -110,7 +112,7 @@ const Signup = (props) => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Registro de Usuario
+          Registro de Administrador
         </Typography>
         <form className={classes.form} onSubmit={handleSubmit}>
           <Grid container spacing={2}>
@@ -201,8 +203,8 @@ const Signup = (props) => {
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link to="/login" component={MyLink} variant="body2">
-              <LockOpenIcon/>Ya posees cuenta? Inicia Sesión.
+              <Link to="/adminlogin" component={MyLink} variant="body2">
+              <LockOpenIcon/>Ya posees cuenta de Administrador? Inicia Sesión.
               </Link>
             </Grid>
           </Grid>
@@ -215,4 +217,4 @@ const Signup = (props) => {
   );
 }
 
-export default withRouter(Signup);
+export default withRouter(AdminSignup);
