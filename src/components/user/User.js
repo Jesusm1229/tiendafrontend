@@ -1,9 +1,5 @@
 import React from 'react';
-
-import IconButton from '@material-ui/core/IconButton';
-import Icon from '@material-ui/core/Icon';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
+import {IconButton, Icon, MenuItem, Menu} from '@material-ui/core';
 import {withRouter} from 'react-router-dom';
 // Base de Datos.
 import firebase from 'firebase/app';

@@ -1,28 +1,11 @@
 import React, {useState} from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
+import {Link, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Typography, Container, makeStyles, Checkbox} from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-
-// Redireccionamientos.
-import { Link as RouterLink, withRouter} from 'react-router-dom';
 
 // Base de Datos.
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
-
-// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
 function Copyright() {
   return (
@@ -171,4 +154,4 @@ const AdminLogin = (props) => {
   );
 }
 
-export default withRouter(AdminLogin);
+export default AdminLogin;

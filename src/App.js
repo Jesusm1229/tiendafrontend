@@ -5,12 +5,11 @@ import {BrowserRouter as Router} from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 
 // Estilos e Iconos.
-import CssBaseLine from '@material-ui/core/CssBaseLine';
 import Button from '@material-ui/core/Button';
-// Icono para el boton de registro.
-import HowToRegIcon from '@material-ui/icons/HowToReg';
-// Icono para el boton de login.
-import VpnKeyIcon from '@material-ui/icons/VpnKey';
+import CssBaseLine from '@material-ui/core/CssBaseline'
+
+// Icono para el boton de registro y login.
+import {HowToReg, VpnKey} from '@material-ui/icons';
 
 // Componentes.
 import Header from './components/header/Header';
@@ -67,8 +66,8 @@ function App() {
       <CssBaseLine/>
           <Header>
               {/* Si no se encuentra un usuario logueado, entonces se mostrarán los botones de Login y Signup.*/}
-              {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKeyIcon/>Login</Button>}
-              {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToRegIcon/>Signup</Button>}
+              {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKey/>Login</Button>}
+              {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToReg/>Signup</Button>}
   
               {/* Mostrar icono de usuario o administrador y opciones al momento de iniciar sesion. */}
               {user && <User user={user} onLogout={onLogout} />}
