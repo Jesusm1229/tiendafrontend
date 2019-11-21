@@ -22,16 +22,16 @@ import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
 
-
 const firebaseConfig = {
-  apiKey: "AIzaSyCo6KH8xYCLGpQEBUjYcmNm4qfS3CnIlPE",
-  authDomain: "tienda-database-99a8e.firebaseapp.com",
-  databaseURL: "https://tienda-database-99a8e.firebaseio.com",
-  projectId: "tienda-database-99a8e",
-  storageBucket: "tienda-database-99a8e.appspot.com",
-  messagingSenderId: "161923805569",
-  appId: "1:161923805569:web:a39dffc22c7fbd9f62b880"
+  apiKey: "AIzaSyDyCRZge5ATfhgPZpGFbcZrZLPmmqWDcLI",
+  authDomain: "tienda-database-a1d33.firebaseapp.com",
+  databaseURL: "https://tienda-database-a1d33.firebaseio.com",
+  projectId: "tienda-database-a1d33",
+  storageBucket: "tienda-database-a1d33.appspot.com",
+  messagingSenderId: "413071785371",
+  appId: "1:413071785371:web:ac337bac22ff2195f2f53e"
 };
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
