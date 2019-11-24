@@ -6,10 +6,13 @@ import { Link as RouterLink, withRouter} from 'react-router-dom';
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
+import 'firebase/storage';
 // Icono de inicio de sesion via link.
 import LockOpenIcon from '@material-ui/icons/LockOpen';
-// Avatar Uploaded.
-import AvatarUploader from 'react-avatar-uploader';
+// Componente para el Selector de Avatar de Usuario.
+import AvatarEdit from 'react-avatar-edit';
+// Encriptar y Desencriptar credenciales.
+import { Base64 } from 'js-base64';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -26,7 +29,6 @@ function Copyright() {
     </Typography>
   );
 }
-
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -56,14 +58,20 @@ const useStyles = makeStyles(theme => ({
 const Signup = (props) => {
   const classes = useStyles();
 
-  const [user, setUser] = useState({
-      name: '',
-      lastname: '',
-      email: '',
-      password: '',
-      avatar: '',
-      role: false
+  const [avatarC, setAvatar] = useState({
+    image: null,
+    preview: null,
+    avatarURL: null
   });
+
+  const [user, setUser] = useState({
+    name: '',
+    lastname: '',
+    email: '',
+    password: '',
+    avatar: '',
+    role: false
+});
 
   const handleChange = (e) => {
     setUser({
@@ -75,19 +83,60 @@ const Signup = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Autenticar el usuario.
-    firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-    .then(response => {
-        // Guardar los datos del usuario.
-        delete user.password;
-        firebase.database().ref(`/users/${response.user.uid}`).set(user);
-        alert('Bienvenido a Tienda E-Commerce');
-        props.history.push('/');
-    })
-    .catch(error => {
-      console.log(error);
-      alert(error.message);
-    });
+    if(avatarC.image != null){
+         // AVATAR.
+         console.log(avatarC.image.name);
+         const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
+         storageRef.put(avatarC.image).then(function(result){
+
+             storageRef.getDownloadURL().then(function(url){
+                console.log("URL: " + url);
+                avatarC.avatarURL = url;
+
+                // Asignando la URL sacada del Firebase Storage al avatar del usuario.
+                user.avatar = avatarC.avatarURL;
+
+                // Registrando y autenticando al nuevo usuario.
+                firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+                .then(response => {
+                    // Encriptando la contraseña del registro de usuario.
+                    user.password = Base64.encode(user.password);
+
+                    firebase.database().ref(`/users/${response.user.uid}`).set(user);
+                    alert('Bienvenido a Tienda E-Commerce');
+                    props.history.push('/');
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert(error.message);
+                });
+            });
+        });
+    }else
+      alert("Debes introducir un avatar.");
+}
+
+  // Funcion para quitar la foto elegida.
+  const onClose = () => {
+    avatarC.preview = null;
+}
+
+// Fijando el nuevo previo a la foto del user.
+const onCrop = (preview) => {
+    avatarC.preview = preview;
+    console.log(preview.name);
+    console.log(avatarC.image.name);
+}
+
+// Verificando el tamaño de la imagen y 
+const onBeforeFileLoad = (elem) => {
+    if(elem.target.files[0].size > 71680){
+      alert("La imagen es demasiado grande, elija otra.");
+      elem.target.value = "";
+    };
+
+    // Fijando la imagen tomada al state.
+    avatarC.image = elem.target.files[0];
   }
 
   return (
@@ -133,15 +182,12 @@ const Signup = (props) => {
                 <FormLabel>Selecciona un avatar</FormLabel>
             </Grid>
             <Grid container justify="center" alignItems="center">
-            <AvatarUploader
-              size={80}
-              uploadURL="http://localhost:3000"
-              fileType={""}
-              accept=".jpg, .png"
-              id="avatar"
-              name="avatar"
-              src={user.avatar}
-              onChange={handleChange}
+            <AvatarEdit
+              width={130}
+              height={130}
+              onCrop={onCrop}
+              onClose={onClose}
+              onBeforeFileLoad={onBeforeFileLoad}
             />
             </Grid>
             <Grid item xs={12}>

@@ -9,8 +9,10 @@ import { Link as RouterLink, withRouter} from 'react-router-dom';
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
-// Avatar Uploaded.
-import AvatarUploader from 'react-avatar-uploader';
+// Encriptar y Desencriptar credenciales.
+import { Base64 } from 'js-base64';
+// Componente para el Selector de Avatar de Administrador.
+import AvatarEdit from 'react-avatar-edit';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -56,6 +58,12 @@ const useStyles = makeStyles(theme => ({
 const AdminSignup = (props) => {
   const classes = useStyles();
 
+  const [avatarC, setAvatar] = useState({
+    image: null,
+    preview: null,
+    avatarURL: null
+  });
+
   const [user, setUser] = useState({
       name: '',
       lastname: '',
@@ -72,22 +80,64 @@ const AdminSignup = (props) => {
     });
   };
 
+  // Funcion de Registro de Administrador.
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Autenticar el administrador.
-    firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-    .then(response => {
-        // Guardar los datos del nuevo administrador.
-        delete user.password;
-        firebase.database().ref(`/users/${response.user.uid}`).set(user);
-        alert('Ya puede gestionar la tienda E-Commerce');
-        props.history.push('/');
-    })
-    .catch(error => {
-      console.log(error);
-      alert(error.message);
-    });
+    if(avatarC.image != null){
+         // AVATAR.
+         console.log(avatarC.image.name);
+         const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
+         storageRef.put(avatarC.image).then(function(result){
+
+             storageRef.getDownloadURL().then(function(url){
+                console.log("URL: " + url);
+                avatarC.avatarURL = url;
+
+                // Asignando la URL sacada del Firebase Storage al avatar del administrador.
+                user.avatar = avatarC.avatarURL;
+
+                // Registrando y autenticando al nuevo administrador.
+                firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+                .then(response => {
+                    // Encriptando la contraseña del registro de administrador.
+                    user.password = Base64.encode(user.password);
+
+                    firebase.database().ref(`/users/${response.user.uid}`).set(user);
+                    alert('Ya puedes administrar la Tienda E-commerce');
+                    props.history.push('/');
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert(error.message);
+                });
+            });
+        });
+    }else
+      alert("Debes introducir un avatar.");
+}
+
+   // Funcion para quitar la foto elegida.
+   const onClose = () => {
+    avatarC.preview = null;
+  }
+
+   // Fijando el nuevo previo a la foto del user.
+   const onCrop = (preview) => {
+      avatarC.preview = preview;
+      console.log(preview.name);
+      console.log(avatarC.image.name);
+   }
+
+   // Verificando el tamaño de la imagen y 
+   const onBeforeFileLoad = (elem) => {
+      if(elem.target.files[0].size > 71680){
+         alert("La imagen es demasiado grande, elija otra.");
+         elem.target.value = "";
+      };
+
+    // Fijando la imagen tomada al state.
+    avatarC.image = elem.target.files[0];
   }
 
   return (
@@ -133,15 +183,12 @@ const AdminSignup = (props) => {
                 <FormLabel>Selecciona un avatar</FormLabel>
             </Grid>
             <Grid container justify="center" alignItems="center">
-            <AvatarUploader
-              size={80}
-              uploadURL="http://localhost:3000"
-              fileType={""}
-              accept=".jpg, .png"
-              id="avatar"
-              name="avatar"
-              src={user.avatar}
-              onChange={handleChange}
+            <AvatarEdit
+              width={130}
+              height={130}
+              onCrop={onCrop}
+              onClose={onClose}
+              onBeforeFileLoad={onBeforeFileLoad}
             />
             </Grid>
             <Grid item xs={12}>
