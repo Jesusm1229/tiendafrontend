@@ -1,16 +1,25 @@
 import React from 'react';
-import {IconButton, Icon, MenuItem, Menu} from '@material-ui/core';
+import {IconButton, Icon, MenuItem, Menu, Avatar, makeStyles} from '@material-ui/core';
 import {withRouter} from 'react-router-dom';
 // Base de Datos.
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+
+const useStyles = makeStyles({
+  avatar: {
+    margin: 10,
+    height: 40,
+    width: 40,
+  },
+});
 
 const User = ({history, user, onLogout}) => {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+
+  const classes = useStyles();
 
   // Evento para abrir el menu del usuario.
   const handleMenu = event => {
@@ -49,16 +58,7 @@ const User = ({history, user, onLogout}) => {
                 onClick={handleMenu}
                 color="inherit"
               >
-                {/* Si es verdadero es un administrador, si es falso es un usuario del sistema*/}
-                {user.role === true?
-                    <div>
-                        <Icon>supervised_user_circle_icon</Icon>
-                    </div>
-                    :
-                    <div>
-                        <Icon>account_circle</Icon>
-                    </div>
-                }
+                <Avatar alt="Remy Sharp" src={user.avatar} className={classes.bigAvatar} />
               </IconButton>
               <Menu
                 id="menu-appbar"
@@ -75,8 +75,17 @@ const User = ({history, user, onLogout}) => {
                 open={open}
                 onClose={handleClose}
               >
-                <MenuItem disabled>{user.name + " " + user.lastname}</MenuItem>
-                <MenuItem onClick={handleLogout}><ExitToAppIcon/>Cerrar Sesión</MenuItem>
+              {/* Si es verdadero es un administrador, si es falso es un usuario del sistema*/}
+               {user.role === true?
+                    <div>
+                        <MenuItem disabled><Icon>supervised_user_circle_icon</Icon>{user.name + " " + user.lastname}</MenuItem>
+                    </div>
+                    :
+                    <div>
+                        <MenuItem disabled><Icon>account_circle</Icon>{user.name + " " + user.lastname}</MenuItem>
+                    </div>
+                }
+                <MenuItem onClick={handleLogout}><Icon>exit_to_app_icon</Icon>Cerrar Sesión</MenuItem>
               </Menu>
             </div>
     );
