@@ -68,10 +68,9 @@ function App() {
               {/* Si no se encuentra un usuario logueado, entonces se mostrarán los botones de Login y Signup.*/}
               {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKey/>Login</Button>}
               {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToReg/>Signup</Button>}
-  
+                
               {/* Mostrar icono de usuario o administrador y opciones al momento de iniciar sesion. */}
               {user && <User user={user} onLogout={onLogout} />}
-
           </Header>
           <Routes/>
     </Router>

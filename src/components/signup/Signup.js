@@ -70,7 +70,7 @@ const Signup = (props) => {
     email: '',
     password: '',
     avatar: '',
-    role: false
+    role: false,
 });
 
   const handleChange = (e) => {
