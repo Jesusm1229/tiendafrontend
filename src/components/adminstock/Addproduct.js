@@ -1,17 +1,14 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, makeStyles, Container, FormLabel, MenuItem, FormControl, InputLabel, Select, OutlinedInput, InputAdornment, FormHelperText} from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { Link as RouterLink, withRouter} from 'react-router-dom';
 // Base de Datos.
 import firebase from 'firebase/app';
 import 'firebase/database';
-import 'firebase/auth';
 import 'firebase/storage';
+import 'firebase/auth';
 // Componente para el Selector de Avatar de Usuario.
 import AvatarEdit from 'react-avatar-edit';
 import clsx from 'clsx';
-
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
 // Funcion de CopyRight para el footer de la pagina.
 function Copyright() {
@@ -69,7 +66,7 @@ const Addproduct = () => {
   // Hook para las propiedades del producto.
   const [product, setProduct] = useState({
     name: '',
-    price: null,
+    price: '',
     image: '',
     category: '',
     description: '',
@@ -87,7 +84,7 @@ const handleChange = (e) => {
       [e.target.category]: e.target.value,
       [e.target.price]: e.target.price,
     });
-  };
+};
 
   const inputLabel = useRef(null);
   const [labelWidth, setLabelWidth] = React.useState(0);
@@ -116,12 +113,38 @@ const onBeforeFileLoad = (elem) => {
 
 // Funcion para suministrar todos los datos a la base de datos.
 const handleSubmit = (e) => {
-    console.log(product.name);
-    console.log(product.category);
-    console.log(product.image.name);
-    console.log(product.price);
-    console.log(product.description);
-    alert("");
+    e.preventDefault();
+
+    if(product.image !== '' && product.category !== ''){
+        // Imagen del producto.
+        console.log(product.image.name);
+        const storageRef = firebase.storage().ref(`products/${product.image.name}`);
+        storageRef.put(product.image).then(function(result){
+
+            storageRef.getDownloadURL().then(function(url){
+               // Asignando la URL sacada del Firebase Storage al avatar del administrador.
+
+                const newProduct = {
+                    name: product.name,
+                    image: url,
+                    price: product.price,
+                    category: product.category,
+                    description: product.description
+                };
+
+                firebase.database().ref('/products').push(newProduct)
+                .then(response =>{
+                    alert("Producto Agregado con Exito.");  
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert(error.message);
+                });
+            });
+        });
+    }
+    else
+        alert("Complete el formulario.");
 }
 
   return (
@@ -160,7 +183,7 @@ const handleSubmit = (e) => {
                      labelId="demo-simple-select-outlined-label"
                      id="demo-simple-select-outlined"
                      required
-                     value={product.category}
+                     value={category}
                      onChange={handleModified}
                      labelWidth={labelWidth}
                 >
@@ -187,10 +210,11 @@ const handleSubmit = (e) => {
             />
             </Grid>
             <Grid container justify="center" alignItems="center">
-                <FormControl className={clsx(classes.margin, classes.textField), classes.priceModule} variant="outlined">
+                <FormControl className={clsx(classes.margin, classes.textField, classes.priceModule)} variant="outlined">
                 <OutlinedInput
                     id="outlined-adornment-weight"
                     name="price"
+                    required
                     value={product.price}
                     onChange={handleChange}
                     endAdornment={<InputAdornment position="end">Bs</InputAdornment>}
@@ -206,8 +230,9 @@ const handleSubmit = (e) => {
             <Grid container justify="center" alignItems="center">
             <TextField
                 id="outlined-multiline-static"
-                label="Descripción producto*"
+                label="Descripción producto"
                 multiline
+                required
                 rows="5"
                 value={product.description}
                 className={classes.textField}
@@ -243,4 +268,4 @@ const handleSubmit = (e) => {
   );
 }
 
-export default withRouter(Addproduct);
+export default Addproduct;

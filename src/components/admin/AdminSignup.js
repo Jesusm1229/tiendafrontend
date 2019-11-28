@@ -119,6 +119,10 @@ const AdminSignup = (props) => {
 
    // Funcion para quitar la foto elegida.
    const onClose = () => {
+    setAvatar({
+      preview: null
+    });
+    
     avatarC.preview = null;
   }
 
