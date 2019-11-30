@@ -55,6 +55,17 @@ const AdminLogin = (props) => {
 
   // Cambio en la tarjeta del administrador, cada vez que alguien inicia sesion.
   const handleChange = (e) => {
+
+    var key = e.target.value.charCodeAt(e.target.value.length - 1);
+
+    // Validación del campo email.
+    if(e.target.name === 'email')
+      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key > 64 && key < 95) || (key > 122 || key === 47 || key === 96)) return;
+    
+     // Validación del campo contraseña.
+    if(e.target.name === 'password')
+      if((key > 126 || key === 32)) return;
+
     setAdmin({
       ...admin,
       [e.target.name]: e.target.value

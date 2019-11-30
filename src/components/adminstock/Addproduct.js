@@ -77,6 +77,17 @@ const [category, setCategory] = useState('');
 
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
+
+  var key = e.target.value.charCodeAt(e.target.value.length - 1);
+
+    // Validación del campo Nombre y Descripción, solo se podrán introducir letras.
+    if(e.target.name === 'name' || e.target.name === 'description')
+        if( key !== 32 && (key < 97 || key > 122)) return;
+
+    // Validación del campo Precio, solo se podrán introducir numeros y un maximo de 5 digitos.
+    if(e.target.name === 'price')
+            if(key < 48 || key > 57) return;
+
     setProduct({
       ...product,
       [e.target.name]: e.target.value,

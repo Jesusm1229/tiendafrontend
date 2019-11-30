@@ -74,6 +74,21 @@ const AdminSignup = (props) => {
   });
 
   const handleChange = (e) => {
+
+    var key = e.target.value.charCodeAt(e.target.value.length - 1);
+
+    // Validación del campo Nombre y Apellido, solo se podrán introducir letras.
+    if(e.target.name === 'name' || e.target.name === 'lastname')
+        if(key < 97 || key > 122) return;
+
+    // Validación del campo email.
+    if(e.target.name === 'email')
+      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key > 64 && key < 95) || (key > 122 || key === 47 || key === 96)) return;
+
+     // Validación del campo contraseña.
+    if(e.target.name === 'password')
+      if((key > 126 || key === 32)) return;
+
     setUser({
       ...user,
       [e.target.name]: e.target.value
