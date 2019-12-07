@@ -112,7 +112,7 @@ const handleModified = (event) => {
 
 // Verificando el tamaño de la imagen y 
 const onBeforeFileLoad = (elem) => {
-    if(elem.target.files[0].size > 71680){
+    if(elem.target.files[0].size > 91680){
       alert("La imagen es demasiado grande, elija otra.");
       elem.target.value = "";
     };
