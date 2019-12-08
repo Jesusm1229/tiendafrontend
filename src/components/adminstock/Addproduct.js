@@ -1,66 +1,29 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, makeStyles, Container, FormLabel, MenuItem, FormControl, InputLabel, Select, OutlinedInput, InputAdornment, FormHelperText} from '@material-ui/core';
+// Componentes de Material-UI.
+import {Avatar, Button, CssBaseline, TextField, Grid, Box, Typography, Container, FormLabel, MenuItem, FormControl, InputLabel, Select, OutlinedInput, InputAdornment, FormHelperText} from '@material-ui/core';
+// Iconos de Materia-UI.
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-// Base de Datos.
-import firebase from 'firebase/app';
-import 'firebase/database';
-import 'firebase/storage';
-import 'firebase/auth';
+// Base de Datos Firebase.
+import firebase from '../../FirebaseConfig';
 // Componente para el Selector de Avatar de Usuario.
 import AvatarEdit from 'react-avatar-edit';
 import clsx from 'clsx';
+// Importando los Estilos.
+import {useStyles} from './styles';
 
 // Funcion de CopyRight para el footer de la pagina.
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Tienda E-Commerce
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
     </Typography>
   );
 }
 
-// Estilos de material UI para las interfaces.
-const useStyles = makeStyles(theme => ({
-  '@global': {
-    body: {
-      backgroundColor: theme.palette.common.white,
-    },
-  },
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(3),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-  formControl: {
-    margin: theme.spacing(0),
-    width: '100%',
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
-  },
-  priceModule: {
-      marginTop: theme.spacing(2),
-  }
-}));
-
+// Componente Funcional Addproduct.
 const Addproduct = () => {
+
+  // Llamado de la función de Estilos.
   const classes = useStyles();
 
   // Hook para las propiedades del producto.
@@ -78,6 +41,7 @@ const [category, setCategory] = useState('');
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
 
+  // Transforma el caracter ingresado a código ASCII.
   var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
     // Validación del campo Nombre y Descripción, solo se podrán introducir letras.
@@ -88,6 +52,7 @@ const handleChange = (e) => {
     if(e.target.name === 'price')
             if(key < 48 || key > 57) return;
 
+    // Almacenando en el Hook el producto.
     setProduct({
       ...product,
       [e.target.name]: e.target.value,
@@ -97,6 +62,7 @@ const handleChange = (e) => {
     });
 };
 
+  // Labels y Hooks para las categorias de productos.
   const inputLabel = useRef(null);
   const [labelWidth, setLabelWidth] = React.useState(0);
   
@@ -110,7 +76,7 @@ const handleModified = (event) => {
     setCategory(event.target.value);
   };
 
-// Verificando el tamaño de la imagen y 
+// Verificando el tamaño de la imagen y almacenando la propiedad image del Hook.
 const onBeforeFileLoad = (elem) => {
     if(elem.target.files[0].size > 91680){
       alert("La imagen es demasiado grande, elija otra.");
@@ -122,11 +88,16 @@ const onBeforeFileLoad = (elem) => {
     console.log(product.image.name);
 }
 
+ // Funcion para quitar la foto elegida.
+ const onClose = () => {
+    product.image = '';
+}
+
 // Funcion para suministrar todos los datos a la base de datos.
 const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(product.image !== '' && product.category !== ''){
+    if(product.image && product.category !== ''){
         // Imagen del producto.
         console.log(product.image.name);
         const storageRef = firebase.storage().ref(`products/${product.image.name}`);
@@ -158,16 +129,14 @@ const handleSubmit = (e) => {
         alert("Complete el formulario.");
 }
 
-  return (
+return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h5">
-          Agregar un producto
-        </Typography>
+        <Typography align="center" component="h1" variant="h5"> Agregar un producto </Typography>
         <form className={classes.form} onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -184,7 +153,6 @@ const handleSubmit = (e) => {
                 onChange={handleChange}
               />
             </Grid>
-       
             <Grid item xs={12} sm={6}>
             <FormControl variant="outlined" className={classes.formControl}>
                 <InputLabel ref={inputLabel} id="demo-simple-select-outlined-label">
@@ -217,6 +185,7 @@ const handleSubmit = (e) => {
             <AvatarEdit
               width={250}
               height={130}
+              onClose={onClose}
               onBeforeFileLoad={onBeforeFileLoad}
             />
             </Grid>
@@ -272,9 +241,7 @@ const handleSubmit = (e) => {
           </Grid>
         </form>
       </div>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
+      <Box mt={5}><Copyright /></Box>
     </Container>
   );
 }

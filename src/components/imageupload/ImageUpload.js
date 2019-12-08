@@ -1,15 +1,16 @@
 import React, {useState} from 'react'
-import 'firebase/storage';
-import firebase from 'firebase/app';
-import 'firebase/database';
-import 'firebase/auth';
+// Base de Datos Firebase.
+import firebase from '../../FirebaseConfig';
+// Componentes de Material-UI.
 import { Button } from '@material-ui/core';
+// Componente de Avatar-Selector.
 import AvatarEdit from 'react-avatar-edit';
 
+// Componente Funcion ImageUpload.
 const ImageUpload = () => {
 
-    // Usando Hooks.
-    const [avatar, setAvatar] = useState({
+  // Hook para almacenar Avatar.
+  const [avatar, setAvatar] = useState({
       image: null,
       preview: null,
       src: "",
@@ -17,22 +18,22 @@ const ImageUpload = () => {
   });
 
     // Variable state con propiedades: image, preview y src inicializadas en null.
-    const state = {image: null, preview: null, src: "", avatarURL: null}
+  const state = {image: null, preview: null, src: "", avatarURL: null}
 
-    // Funcion para quitar la foto elegida.
-    const onClose = () => {
+  // Funcion para quitar la foto elegida.
+  const onClose = () => {
         state.preview = null;
-    }
+  }
     
-    // Fijando el nuevo previo a la foto del user.
-    const onCrop = (preview) => {
+  // Fijando el nuevo previo a la foto del user.
+  const onCrop = (preview) => {
         state.preview = preview;
         console.log(preview.name);
         console.log(state.image.name);
-    }
+  }
     
-    // Verificando el tamaño de la imagen y 
-    const onBeforeFileLoad = (elem) => {
+  // Verificando el tamaño de la imagen y 
+  const onBeforeFileLoad = (elem) => {
         if(elem.target.files[0].size > 71680){
           alert("La imagen es demasiado grande, elija otra.");
           elem.target.value = "";
@@ -40,10 +41,10 @@ const ImageUpload = () => {
 
         // Fijando la imagen tomada al state.
         state.image = elem.target.files[0];
-      }
+  }
     
-    // Método para subir la imagen al storage de Firebase.
-    const handleUpload = (e) => {
+  // Método para subir la imagen al storage de Firebase.
+  const handleUpload = (e) => {
         console.log(state.image.name);
         const storageRef = firebase.storage().ref(`avatars/${state.image.name}`);
         storageRef.put(state.image).then(function(result){
@@ -54,9 +55,9 @@ const ImageUpload = () => {
                 console.log("state.avatarURL: " + state.avatarURL);
             });
         });
-    }
+  }
 
-    return (
+  return (
         <div>
         <AvatarEdit
           width={150}

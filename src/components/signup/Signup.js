@@ -1,69 +1,45 @@
 import React, {useState} from 'react';
-import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, makeStyles, Container, FormLabel} from '@material-ui/core';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+// Componentes de Material-UI.
+import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, Container, FormLabel} from '@material-ui/core';
+// Iconos de Material-UI.
+import {LockOutlined, LockOpen} from '@material-ui/icons';
+// Redireccionamientos.
 import { Link as RouterLink, withRouter} from 'react-router-dom';
-// Base de Datos.
-import firebase from 'firebase/app';
-import 'firebase/database';
-import 'firebase/auth';
-import 'firebase/storage';
-// Icono de inicio de sesion via link.
-import LockOpenIcon from '@material-ui/icons/LockOpen';
+// Base de Datos Firebase.
+import firebase from '../../FirebaseConfig';
 // Componente para el Selector de Avatar de Usuario.
 import AvatarEdit from 'react-avatar-edit';
 // Encriptar y Desencriptar credenciales.
 import { Base64 } from 'js-base64';
+// Importando Estilos.
+import {useStyles} from './styles';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
+// Footer de CopyRight.
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Tienda E-Commerce
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
     </Typography>
   );
 }
 
-const useStyles = makeStyles(theme => ({
-  '@global': {
-    body: {
-      backgroundColor: theme.palette.common.white,
-    },
-  },
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(3),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}));
-
+// Componente Funcional Signup.
 const Signup = (props) => {
+
+  //Llamado de la Función de Estilos.
   const classes = useStyles();
 
+  // Hook para almacenar la imagen del usuario.
   const [avatarC, setAvatar] = useState({
-    image: null,
-    preview: null,
-    avatarURL: null
+    image: '',
+    preview: '',
+    avatarURL: ''
   });
 
+  // Hook para almacenar el usuario.
   const [user, setUser] = useState({
     name: '',
     lastname: '',
@@ -73,8 +49,10 @@ const Signup = (props) => {
     role: false,
 });
 
+  // Evento HandleChange para modificar y asignar los datos al Hook.
   const handleChange = (e) => {
 
+    // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
     // Validación del campo Nombre y Apellido, solo se podrán introducir letras.
@@ -89,16 +67,18 @@ const Signup = (props) => {
     if(e.target.name === 'password')
       if((key > 126 || key === 32)) return;
     
+    // Almacenando el usuario en el Hook.
     setUser({
       ...user,
       [e.target.name]: e.target.value
     });
   };
 
+  // Función principal para registrar usuario.
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(avatarC.image != null){
+    if(avatarC.image !== ''){
          // AVATAR.
          console.log(avatarC.image.name);
          const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
@@ -131,12 +111,13 @@ const Signup = (props) => {
       alert("Debes introducir un avatar.");
 }
 
-  // Funcion para quitar la foto elegida.
-  const onClose = () => {
-    setAvatar({
-      preview: null
-    });
-    avatarC.preview = null;
+// Funcion para quitar la foto elegida.
+const onClose = () => {
+  setAvatar({
+    image: '',
+    preview: '',
+    avatarURL: ''
+  });
 }
 
 // Fijando el nuevo previo a la foto del user.
@@ -155,16 +136,16 @@ const onBeforeFileLoad = (elem) => {
 
     // Fijando la imagen tomada al state.
     avatarC.image = elem.target.files[0];
-  }
+}
 
-  return (
+return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
+          <LockOutlined />
         </Avatar>
-        <Typography component="h1" variant="h5">
+        <Typography align="center" component="h1" variant="h5">
           Registro de Usuario
         </Typography>
         <form className={classes.form} onSubmit={handleSubmit}>
@@ -191,7 +172,7 @@ const onBeforeFileLoad = (elem) => {
                 id="lastname"
                 label="Apellido"
                 name="lastname"
-                //autoComplete="lname"
+                autoComplete="lname"
                 value={user.lastname}
                 onChange={handleChange}
               />
@@ -254,15 +235,13 @@ const onBeforeFileLoad = (elem) => {
           <Grid container justify="flex-end">
             <Grid item>
               <Link to="/login" component={MyLink} variant="body2">
-              <LockOpenIcon/>Ya posees cuenta? Inicia Sesión.
+              <LockOpen/>Ya posees cuenta? Inicia Sesión.
               </Link>
             </Grid>
           </Grid>
         </form>
       </div>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
+      <Box mt={5}><Copyright /></Box>
     </Container>
   );
 }

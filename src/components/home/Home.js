@@ -1,73 +1,15 @@
-import React, {useState, useEffect ,Fragment} from 'react'
-import firebase from 'firebase/app';
-import 'firebase/database';
-import 'firebase/auth';
-import 'firebase/storage';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton, Typography, Grid, ListItemText, ListItemIcon, Menu, MenuItem} from '@material-ui/core';
-import { blue } from '@material-ui/core/colors';
+import React, {useState, useEffect , Fragment} from 'react'
+// Base de Datos Firebase.
+import firebase from '../../FirebaseConfig';
+// Componentes de Material-UI.
+import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton, Typography, Grid, ListItemText, ListItemIcon} from '@material-ui/core';
+// Iconos de Material-UI.
 import {Favorite, AddShoppingCart, Edit, Delete, Settings} from '@material-ui/icons';
+// Importando Estilos.
+import {useStyles, StyledMenu, StyledMenuItem} from './styles';
 
-// Estilo para las tarjetas.
-const useStyles = makeStyles(theme => ({
-    card: {
-      maxWidth: 265,
-      maxHeight: 340,
-      backgroundColor: '#EEF1F3',
-      marginTop: theme.spacing(2),
-      marginLeft: theme.spacing(3),
-      marginRight: theme.spacing(3),
-    },
-    root: {
-        '& > *': {
-          margin: theme.spacing(1),
-          width: 35,
-          height: 25,
-        },
-    },
-    media: {
-      height: 150,
-      width: 270,
-      paddingTop: '56.25%', // 16:9
-    },
-    avatar: {
-      backgroundColor: blue[500],
-    },
-  }));
-
-  // Estilos para el Menu Selector.
-  const StyledMenu = withStyles({
-    paper: {
-      border: '1px solid #d3d4d5',
-    },
-  })(props => (
-    <Menu
-      elevation={0}
-      getContentAnchorEl={null}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'center',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'center',
-      }}
-      {...props}
-    />
-  ));
-  
-  const StyledMenuItem = withStyles(theme => ({
-    root: {
-      '&:focus': {
-        backgroundColor: theme.palette.primary.main,
-        '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
-          color: theme.palette.common.white,
-        },
-      },
-    },
-  }))(MenuItem);
-
-const Home = () =>{
+// Componente Funcional Home.
+const Home = (props) =>{
 
     const classes = useStyles();
 
@@ -115,23 +57,26 @@ const Home = () =>{
       // Funcion para obtener el role del usuario logueado.
       function obtainRoleUser(){
 
-        firebase.auth().onAuthStateChanged(response =>{
-            // Si ocurre un response, hay un usuario autenticado.
-            if(response){
-              // Leer los datos del usuario, extraer el role y guardarlo en el Hook.
-              firebase.database().ref(`/users/${response.uid}`)
-              .once('value')
-              .then(snapshot =>{
-                setRole(snapshot.val().role);
-              });
-            }
+          firebase.auth().onAuthStateChanged(response =>{
+              // Si ocurre un response, hay un usuario autenticado.
+              if(response){
+                // Leer los datos del usuario, extraer el role y guardarlo en el Hook.
+                firebase.database().ref(`/users/${response.uid}`)
+                .once('value')
+                .then(snapshot =>{
+                  if(snapshot.exists())
+                    setRole(snapshot.val().role);
+                  else
+                    props.history.push('/login');
+                });
+              }
           });
 
         return role;
       }
 
 return( 
-    <Fragment>
+  <Fragment>
     <ul>
     <Grid container justify="center" alignItems="center">
         {/*Si hay productos almacenados en el Hook se itera sobre ese arreglo Hook donde estarán almacenados todos los productos.*/}
@@ -175,7 +120,7 @@ return(
                                 </StyledMenuItem>
                             </StyledMenu>
                         </div>
-                        :
+                        : 
                         <div/>
                     }
                     title={item.name}
@@ -192,6 +137,7 @@ return(
                     </Typography>
                   </CardContent>
                   <CardActions disableSpacing>
+                <h5>{item.price + "Bs"}</h5>
                   <Grid container justify="center" alignItems="center">
                       <IconButton color="primary" aria-label="add to favorites">
                          <Favorite />
@@ -207,8 +153,8 @@ return(
         }
     </Grid>
     </ul>
-    </Fragment>
-   );
+  </Fragment>
+  );
 }
 
 export default Home;

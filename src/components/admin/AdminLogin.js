@@ -1,53 +1,32 @@
 import React, {useState} from 'react';
-import {Link, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Typography, Container, makeStyles, Checkbox} from '@material-ui/core';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import {Link, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Typography, Container, Checkbox} from '@material-ui/core';
+import {LockOutlined, Cancel} from '@material-ui/icons';
+// Base de Datos Firebase.
+import firebase from '../../FirebaseConfig';
+// Redireccionamientos.
+import { Link as RouterLink, withRouter} from 'react-router-dom';
+// Importando los Estilos. (Se importa el mismo estilo del Login de Usuario para resumir código).
+import {useStyles} from '../login/styles';
 
-// Base de Datos.
-import firebase from 'firebase/app';
-import 'firebase/database';
-import 'firebase/auth';
+// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
+const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
+// Footer CopyRight.
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Privado Sólo Administradores - Tienda E-Commerce
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      {'Copyright © Administradores - Tienda E-Commerce ' + new Date().getFullYear()}
     </Typography>
   );
 }
 
-const useStyles = makeStyles(theme => ({
-  '@global': {
-    body: {
-      backgroundColor: theme.palette.common.white,
-    },
-  },
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}));
-
+// Componente Funcional AdminLogin.
 const AdminLogin = (props) => {
+
+  // Llamando a la función del estilo.
   const classes = useStyles();
 
+  // Hook para almacenar las credenciales del administrador.
   const [admin, setAdmin] = useState({
     email: '',
     password: ''
@@ -56,6 +35,7 @@ const AdminLogin = (props) => {
   // Cambio en la tarjeta del administrador, cada vez que alguien inicia sesion.
   const handleChange = (e) => {
 
+    // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
     // Validación del campo email.
@@ -66,6 +46,7 @@ const AdminLogin = (props) => {
     if(e.target.name === 'password')
       if((key > 126 || key === 32)) return;
 
+    // Almacenando el administrador dentro del Hook.
     setAdmin({
       ...admin,
       [e.target.name]: e.target.value
@@ -93,22 +74,19 @@ const AdminLogin = (props) => {
               alert(error.message);
               });
           }
-          else{
+          else
               alert("No puedes iniciar sesión, posees cuenta de usuario.");
-          }
         });
       };
 
   return (
     <Container component="main" maxWidth="xs">
-      <CssBaseline />
+      <CssBaseline/>
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
+          <LockOutlined />
         </Avatar>
-        <Typography component="h1" variant="h5">
-          Ingreso de Administrador
-        </Typography>
+        <Typography align="center" component="h1" variant="h5">Ingreso de Administrador</Typography>
         <form className={classes.form} onSubmit={handleLogin}>
           <TextField
             variant="outlined"
@@ -155,14 +133,17 @@ const AdminLogin = (props) => {
                 Olvidaste tu contraseña?
               </Link>
             </Grid>
+            <Grid item>
+              <Link to="/adminsignup" component={MyLink} variant="body2">
+              <Cancel/>{"No tengo cuenta"}
+              </Link>
+            </Grid>
           </Grid>
         </form>
       </div>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
+      <Box mt={5}><Copyright /></Box>
     </Container>
   );
 }
 
-export default AdminLogin;
+export default withRouter(AdminLogin);

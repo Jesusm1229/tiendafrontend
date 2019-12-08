@@ -1,63 +1,38 @@
 import React, {useState} from 'react';
-import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, makeStyles, Container} from '@material-ui/core';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-// Para el manejo de Links de tipo componentes.
+// Componentes de Material-UI.
+import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, Container} from '@material-ui/core';
+// Iconos de Material-UI.
+import {LockOutlined, Cancel} from '@material-ui/icons';
+// Redireccionamientos.
 import { Link as RouterLink, withRouter} from 'react-router-dom';
 // Base de Datos.
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
-// Icono para el link -> No tengo una cuenta.
-import CancelIcon from '@material-ui/icons/Cancel';
 // Firebase autenticacion con Google y Facebook.
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
+// Importando Función de Style.
+import {useStyles} from './styles';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
+// Footer de CopyRight.
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Tienda E-Commerce
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
     </Typography>
   );
 }
 
-const useStyles = makeStyles(theme => ({
-  '@global': {
-    body: {
-      backgroundColor: theme.palette.common.white,
-    },
-  },
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}));
-
+// Componente Funcional Login.
 const Login = (props) => {
+
+  // Llamado de la Funcion de Estilos.
   const classes = useStyles();
 
   // Login con Facebook y Google.
-    //const state = { isSignedIn: false }
     const uiConfig = {
       signInFlow: "popup",
       signInOptions: [
@@ -66,7 +41,7 @@ const Login = (props) => {
       ],
       callbacks: {
         signInSuccess: () => false,
-        signInSuccessWithAuthResult: (authResult, redirectUrl) => {
+        SignInSuccessWithAuthResult: (authResult, redirectUrl) => {
           console.log('signInSuccessWithAuthResult', authResult, redirectUrl);
           props.history.push('/');
           return false
@@ -74,8 +49,7 @@ const Login = (props) => {
     }
   };
 
-  // Aca finaliza el Login por Facebook y Google.
-
+  // Hook para almacenar las credenciales del usuario.
   const [user, setUser] = useState({
     email: '',
     password: ''
@@ -84,6 +58,7 @@ const Login = (props) => {
   // Cambio en la tarjeta del usuario, cada vez que alguien inicia sesion.
   const handleChange = (e) => {
 
+    // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
     // Validación del campo email.
@@ -94,6 +69,7 @@ const Login = (props) => {
     if(e.target.name === 'password')
       if((key > 126 || key === 32)) return;
       
+    // Se almacena en el Hook.
     setUser({
       ...user,
       [e.target.name]: e.target.value
@@ -121,22 +97,19 @@ const Login = (props) => {
           alert(error.message);
           });
       }
-      else{
+      else
           alert("No puedes iniciar sesión, posees cuenta de administrador.");
-      }
     });
   };
 
-  return (
+return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
+          <LockOutlined />
         </Avatar>
-        <Typography component="h1" variant="h5">
-          Ingresar a Tienda E-Commerce
-        </Typography>
+        <Typography align='center' component="h1" variant="h5">Ingresar a Tienda E-Commerce</Typography>
         <form className={classes.form} onSubmit={handleLogin}>
           <TextField
             variant="outlined"
@@ -185,7 +158,7 @@ const Login = (props) => {
             </Grid>
             <Grid item>
               <Link to="/signup" component={MyLink} variant="body2">
-              <CancelIcon/>{"No tengo una cuenta"}
+              <Cancel/>{"No tengo una cuenta"}
               </Link>
             </Grid>
           </Grid>
@@ -198,9 +171,7 @@ const Login = (props) => {
           firebaseAuth={firebase.auth()}
       />
       </Grid>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
+      <Box mt={5}><Copyright /> </Box>
     </Container>
   );
 }

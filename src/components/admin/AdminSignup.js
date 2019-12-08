@@ -1,69 +1,44 @@
 import React, {useState} from 'react';
-import {Link, Grid, Box, Typography, makeStyles, Container, FormLabel, Checkbox, FormControlLabel, TextField, CssBaseline, Button, Avatar} from '@material-ui/core';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-// Icono de inicio de sesion via link.
-import LockOpenIcon from '@material-ui/icons/LockOpen';
+import {Link, Grid, Box, Typography, Container, FormLabel, Checkbox, FormControlLabel, TextField, CssBaseline, Button, Avatar} from '@material-ui/core';
+// Iconos de material.
+import {LockOpen, LockOutlined} from '@material-ui/icons';
 // Redireccionamientos.
 import { Link as RouterLink, withRouter} from 'react-router-dom';
-// Base de Datos.
-import firebase from 'firebase/app';
-import 'firebase/database';
-import 'firebase/auth';
+// Base de Datos Firebase.
+import firebase from '../../FirebaseConfig';
 // Encriptar y Desencriptar credenciales.
 import { Base64 } from 'js-base64';
 // Componente para el Selector de Avatar de Administrador.
 import AvatarEdit from 'react-avatar-edit';
+// Importando los Estilos (Se importa el mismo estilo del Signup de Usuario para no repetir código.)
+import {useStyles} from '../signup/styles';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
+// Footer CopyRight.
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Tienda E-Commerce
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      {'Copyright © Administradores - Tienda E-Commerce ' + new Date().getFullYear()}
     </Typography>
   );
 }
 
-const useStyles = makeStyles(theme => ({
-  '@global': {
-    body: {
-      backgroundColor: theme.palette.common.white,
-    },
-  },
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(3),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}));
-
+// Componente Funcional AdminSignup.
 const AdminSignup = (props) => {
+
+  // Llamado de la Funcion de Estilo.
   const classes = useStyles();
 
+  // Hook para almacenar el avatar del admin.
   const [avatarC, setAvatar] = useState({
-    image: null,
-    preview: null,
-    avatarURL: null
+    image: '',
+    preview: '',
+    avatarURL: ''
   });
 
+  // Hook para almacenar los datos de registro del admin.
   const [user, setUser] = useState({
       name: '',
       lastname: '',
@@ -73,8 +48,10 @@ const AdminSignup = (props) => {
       role: true
   });
 
+  // Evento de cambio de campos de registro.
   const handleChange = (e) => {
 
+    // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
     // Validación del campo Nombre y Apellido, solo se podrán introducir letras.
@@ -89,6 +66,7 @@ const AdminSignup = (props) => {
     if(e.target.name === 'password')
       if((key > 126 || key === 32)) return;
 
+    // Se almacena en el Hook el admin.
     setUser({
       ...user,
       [e.target.name]: e.target.value
@@ -99,7 +77,7 @@ const AdminSignup = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(avatarC.image != null){
+    if(avatarC.image !== ''){
          // AVATAR.
          console.log(avatarC.image.name);
          const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
@@ -135,10 +113,10 @@ const AdminSignup = (props) => {
    // Funcion para quitar la foto elegida.
    const onClose = () => {
     setAvatar({
-      preview: null
+      image: '',
+      preview: '',
+      avatarURL: ''
     });
-    
-    avatarC.preview = null;
   }
 
    // Fijando el nuevo previo a la foto del user.
@@ -161,14 +139,12 @@ const AdminSignup = (props) => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <CssBaseline />
+      <CssBaseline/>
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
+          <LockOutlined/>
         </Avatar>
-        <Typography component="h1" variant="h5">
-          Registro de Administrador
-        </Typography>
+        <Typography align="center" component="h1" variant="h5">Registro de Administrador</Typography>
         <form className={classes.form} onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -193,7 +169,7 @@ const AdminSignup = (props) => {
                 id="lastname"
                 label="Apellido"
                 name="lastname"
-                //autoComplete="lname"
+                autoComplete="lname"
                 value={user.lastname}
                 onChange={handleChange}
               />
@@ -256,15 +232,13 @@ const AdminSignup = (props) => {
           <Grid container justify="flex-end">
             <Grid item>
               <Link to="/adminlogin" component={MyLink} variant="body2">
-              <LockOpenIcon/>Ya posees cuenta de Administrador? Inicia Sesión.
+              <LockOpen/>Ya posees cuenta de Administrador? Inicia Sesión.
               </Link>
             </Grid>
           </Grid>
         </form>
       </div>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
+      <Box mt={5}><Copyright /></Box>
     </Container>
   );
 }

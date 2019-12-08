@@ -1,24 +1,21 @@
 import React from 'react';
-import {IconButton, Icon, MenuItem, Menu, Avatar, makeStyles} from '@material-ui/core';
+// Componentes de Material-UI.
+import {IconButton, Icon, MenuItem, Menu, Avatar} from '@material-ui/core';
+// Redireccionamientos.
 import {withRouter} from 'react-router-dom';
-// Base de Datos.
-import firebase from 'firebase/app';
-import 'firebase/database';
-import 'firebase/auth';
+// Base de Datos Firebase.
+import firebase from '../../FirebaseConfig';
+// Importando estilos.
+import {useStyles} from './styles';
 
-const useStyles = makeStyles({
-  avatar: {
-    margin: 10,
-    height: 40,
-    width: 40,
-  },
-});
-
+// Componente Funcional User.
 const User = ({history, user, onLogout}) => {
 
+  // Hook y variable para abrir y cerrar el menú de avatar de usuario.
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
+  // Llamado de la Función de Estilos.
   const classes = useStyles();
 
   // Evento para abrir el menu del usuario.
@@ -49,7 +46,7 @@ const User = ({history, user, onLogout}) => {
      });
   };
 
-    return(
+  return(
         <div>
               <IconButton
                 aria-label="account of current user"
