@@ -2,11 +2,16 @@ import React, {useState, useEffect , Fragment} from 'react'
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Componentes de Material-UI.
-import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton, Typography, Grid, ListItemText, ListItemIcon} from '@material-ui/core';
+import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton, Typography, Grid, ListItemText, ListItemIcon, Link, Button} from '@material-ui/core';
 // Iconos de Material-UI.
 import {Favorite, AddShoppingCart, Edit, Delete, Settings} from '@material-ui/icons';
 // Importando Estilos.
 import {useStyles, StyledMenu, StyledMenuItem} from './styles';
+// Redireccionamientos.
+import { Link as RouterLink, withRouter} from 'react-router-dom';
+
+// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
+const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
 
 // Componente Funcional Home.
 const Home = (props) =>{
@@ -75,6 +80,18 @@ const Home = (props) =>{
         return role;
       }
 
+    // Funcion para que un Admin pueda eliminar un producto del Home.
+    function removeTarget(event, index){
+      event.preventDefault();
+
+      console.log(index);
+      console.log(products[index].id);
+
+      let userRef = firebase.database().ref('products/' + products[index].id);
+      userRef.remove();
+      window.location.reload(false);
+    }
+
 return( 
   <Fragment>
     <ul>
@@ -83,7 +100,7 @@ return(
         { products && products.map((item, index) => {
             return(
             // Comienza la tarjeta.
-                <Card className={classes.card}>
+                <Card className={classes.card} key={index}>
                   <CardHeader
                     avatar={
                       <Avatar aria-label="recipe" src={item.image} className={classes.avatar}/>
@@ -116,7 +133,7 @@ return(
                                     <ListItemIcon>
                                         <Delete fontSize="small" />
                                     </ListItemIcon>
-                                    <ListItemText primary="Borrar Producto" />
+                                    <ListItemText primary="Eliminar Producto" />
                                 </StyledMenuItem>
                             </StyledMenu>
                         </div>
@@ -145,6 +162,18 @@ return(
                       <IconButton color="primary" aria-label="add to shopping cart">
                          <AddShoppingCart />
                       </IconButton>
+                      {obtainRoleUser() === true?
+                      <div>
+                      <Link to="/" component={MyLink} variant="body2">
+                      <Button 
+                          onClick={(event) => removeTarget(event, index)}
+                          entry = {index}>
+                            <Delete color="primary"/>
+                      </Button>
+                      </Link>
+                      </div>
+                      : <div/>
+                      }
                   </Grid>
                   </CardActions>
                 </Card>
@@ -157,4 +186,4 @@ return(
   );
 }
 
-export default Home;
+export default withRouter(Home);
