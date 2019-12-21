@@ -2,16 +2,13 @@ import React, {useState, useEffect , Fragment} from 'react'
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Componentes de Material-UI.
-import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton, Typography, Grid, ListItemText, ListItemIcon, Link, Button} from '@material-ui/core';
+import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton, Typography, Grid, ListItemText, ListItemIcon, Button} from '@material-ui/core';
 // Iconos de Material-UI.
 import {Favorite, AddShoppingCart, Edit, Delete, Settings} from '@material-ui/icons';
 // Importando Estilos.
 import {useStyles, StyledMenu, StyledMenuItem} from './styles';
-// Redireccionamientos.
-import { Link as RouterLink, withRouter} from 'react-router-dom';
-
-// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
+// Componente EditProduct.
+//import Editproduct from '../adminstock/Editproduct';
 
 // Componente Funcional Home.
 const Home = (props) =>{
@@ -36,6 +33,9 @@ const Home = (props) =>{
 
     // Hook para almacenar el role del usuario logueado.
     const [role, setRole] = useState();
+
+    // Hook para controlar la visualizacion del componente Editproduct.
+    const [showEdit, setshowEdit] = useState(false);
 
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
@@ -90,6 +90,10 @@ const Home = (props) =>{
       let userRef = firebase.database().ref('products/' + products[index].id);
       userRef.remove();
       window.location.reload(false);
+    }
+
+    function handleEdit(event){
+      setshowEdit(!showEdit);
     }
 
 return( 
@@ -152,25 +156,30 @@ return(
                     <Typography variant="body2" color="textSecondary" component="p">
                       {item.description}
                     </Typography>
+                    <Typography variant="subtitle1" color="textSecondary" component="p">
+                      {item.price + "Bs"}
+                    </Typography>
                   </CardContent>
                   <CardActions disableSpacing>
-                <h5>{item.price + "Bs"}</h5>
                   <Grid container justify="center" alignItems="center">
                       <IconButton color="primary" aria-label="add to favorites">
-                         <Favorite />
+                         <Favorite fontSize="small"/>
                       </IconButton>
                       <IconButton color="primary" aria-label="add to shopping cart">
-                         <AddShoppingCart />
+                         <AddShoppingCart fontSize="small"/>
                       </IconButton>
                       {obtainRoleUser() === true?
                       <div>
-                      <Link to="/" component={MyLink} variant="body2">
                       <Button 
                           onClick={(event) => removeTarget(event, index)}
                           entry = {index}>
-                            <Delete color="primary"/>
+                            <Delete color="primary" fontSize="small"/>
                       </Button>
-                      </Link>
+                      <Button 
+                          onClick={handleEdit}
+                          entry = {index}>
+                            <Edit color="primary" fontSize="small"/>
+                      </Button>
                       </div>
                       : <div/>
                       }
@@ -186,4 +195,4 @@ return(
   );
 }
 
-export default withRouter(Home);
+export default Home;
