@@ -2,13 +2,17 @@ import React, {useState, useEffect , Fragment} from 'react'
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Componentes de Material-UI.
-import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton, Typography, Grid, ListItemText, ListItemIcon, Button} from '@material-ui/core';
+import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton, Typography, Grid, ListItemText, ListItemIcon, Button, FormControlLabel, Checkbox} from '@material-ui/core';
 // Iconos de Material-UI.
 import {Favorite, AddShoppingCart, Edit, Delete, Settings} from '@material-ui/icons';
 // Importando Estilos.
 import {useStyles, StyledMenu, StyledMenuItem} from './styles';
 // Componente EditProduct.
-//import Editproduct from '../adminstock/Editproduct';
+import Editproduct from '../adminstock/Editproduct';
+// Redireccionamientos.
+import { Redirect } from 'react-router-dom';
+// Icono de Favorite o Like.
+import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 
 // Componente Funcional Home.
 const Home = (props) =>{
@@ -31,17 +35,46 @@ const Home = (props) =>{
     // Arreglo Hook para almacenar los productos traidos desde la base de datos.
     const [products, setProduct] = useState([]);
 
+    // Arreglo Hook para almacenar los productos favoritos traidos desde la base de datos.
+    const [favorites, setFavorites] = useState([]);
+
     // Hook para almacenar el role del usuario logueado.
     const [role, setRole] = useState();
 
-    // Hook para controlar la visualizacion del componente Editproduct.
-    const [showEdit, setshowEdit] = useState(false);
+    // Hook para almacenar el usuario logueado.
+    const [userIn, setuserIn] = useState();
 
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
-        const referencia = firebase.database().ref().child('products').orderByKey();
+
+      /*firebase.auth().onAuthStateChanged(function(user) { 
+        if(user)
+          setuserIn(user.uid);
+        else
+          setuserIn(null);
+      });*/
+
+        // Cargando los favorites de los productos.
+        const refFavorites = firebase.database().ref().child('favorites').orderByKey();
+        let favoritesArray = []
+        refFavorites.once('value', snap => {
+        snap.forEach(child => {
+
+            var favoriteElement = {
+                id:          child.key, 
+                product_id:  child.val().product_id, 
+                user_id:     child.val().user_id
+            };
+
+            favoritesArray.push(favoriteElement);
+           });
+           setFavorites(favoritesArray);
+        });
+
+        // Cargando los productos en el Home.
+        const refProducts = firebase.database().ref().child('products').orderByKey();
         let productsArray = []
-        referencia.once('value', snap => {
+        refProducts.once('value', snap => {
         snap.forEach(child => {
 
             var productElement = {
@@ -92,9 +125,94 @@ const Home = (props) =>{
       window.location.reload(false);
     }
 
-    function handleEdit(event){
-      setshowEdit(!showEdit);
+    // Hook para verificar si hizo click para editar el producto o no.
+    const [buttonClicked, setButtonClicked] = useState(false);
+
+    // Fijando el click de edit en el Hook.
+    function handleButtonClick(){
+        setButtonClicked(true)
     }
+
+    // Funcion para agregar a favoritos un producto en especifico.
+    function addtoFavorites(e, productid){
+  
+       e.preventDefault();
+
+       firebase.auth().onAuthStateChanged(function(user) { 
+        if(!user){
+          props.history.push('/login');
+          setuserIn(null);
+        }
+      });
+
+       if(e.target.checked && userIn !== null){
+
+           const newFavorite = {
+                product_id: productid,
+                user_id: firebase.auth().currentUser.uid
+           };
+
+            firebase.database().ref('/favorites').push(newFavorite)
+            .then(response =>{
+              alert("Agregado a Favoritos");  
+            })
+            .catch(error => {
+              console.log(error);
+              alert(error.message);
+            });
+
+            // Actualizando el Hook con el ultimo favorito agregado mas reciente.
+            const refFavorites = firebase.database().ref().child('favorites').orderByKey();
+            let favoritesArray = []
+            refFavorites.once('value', snap => {
+            snap.forEach(child => {
+
+                var favoriteElement = {
+                    id:          child.key, 
+                    product_id:  child.val().product_id, 
+                    user_id:     child.val().user_id
+                };
+
+                favoritesArray.push(favoriteElement);
+              });
+              setFavorites(favoritesArray);
+            });
+        }else{ // Se eliminara el like de ese producto.
+
+          if(userIn !== null){
+            let userRef = firebase.database().ref('favorites/' + obtainIndex(productid));
+            userRef.remove();
+            alert("Removido de Favoritos.");
+          }
+       }
+    }
+
+    // Obtener el indice del producto a eliminar.
+    function obtainIndex(product_id){
+       for(var i = 0; i < favorites.length; i++){
+            if(favorites[i].product_id === product_id && favorites[i].user_id === firebase.auth().currentUser.uid)
+               return favorites[i].id;
+       }
+    }
+
+    // Conocer si el usuario posee un favorito en un producto.
+    function obtainFavorites(product_id){
+
+      firebase.auth().onAuthStateChanged(function(user) { 
+        if(user)
+          setuserIn(user.uid);
+        else
+          setuserIn(null);
+      });
+     
+      if(userIn !== null){
+        for(var i = 0; i < favorites.length; i++)
+          if(favorites[i].product_id === product_id && favorites[i].user_id === userIn)
+              return true;
+      }
+
+      return false;
+  }
 
 return( 
   <Fragment>
@@ -162,9 +280,22 @@ return(
                   </CardContent>
                   <CardActions disableSpacing>
                   <Grid container justify="center" alignItems="center">
-                      <IconButton color="primary" aria-label="add to favorites">
-                         <Favorite fontSize="small"/>
-                      </IconButton>
+                     {obtainFavorites(products[index].id)?
+                         
+                      <div>
+                          <FormControlLabel
+                            control={<Checkbox checked={true} icon={<FavoriteBorder />} checkedIcon={<Favorite />} value="checkedH" />}
+                            onChange={(event) => addtoFavorites(event, products[index].id)}
+                          />
+                      </div>
+                        : 
+                      <div>
+                          <FormControlLabel
+                            control={<Checkbox checked={false} icon={<FavoriteBorder />} checkedIcon={<Favorite />} value="checkedH" />}
+                            onChange={(event) => addtoFavorites(event, products[index].id)}
+                          />
+                      </div>
+                    }
                       <IconButton color="primary" aria-label="add to shopping cart">
                          <AddShoppingCart fontSize="small"/>
                       </IconButton>
@@ -176,10 +307,12 @@ return(
                             <Delete color="primary" fontSize="small"/>
                       </Button>
                       <Button 
-                          onClick={handleEdit}
+                          onClick={() => handleButtonClick()}
                           entry = {index}>
                             <Edit color="primary" fontSize="small"/>
                       </Button>
+                    
+                        {buttonClicked ? <Redirect to="/editproduct"> <Editproduct variable={true}/></Redirect> : null}
                       </div>
                       : <div/>
                       }

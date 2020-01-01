@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import CssBaseLine from '@material-ui/core/CssBaseline'
 // Icono para el boton de registro y login.
 import {HowToReg, VpnKey} from '@material-ui/icons';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 // Componentes del proyecto.
 import Header from './components/header/Header';
 import User from './components/user/User';
@@ -49,6 +50,8 @@ return (
               {/* Si no se encuentra un usuario logueado, entonces se mostrarán los botones de Login y Signup.*/}
               {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKey/>Login</Button>}
               {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToReg/>Signup</Button>}
+
+              {user && <Button to="/favorites" component={MyLink} color="inherit"><FavoriteIcon /></Button>}
                 
               {/* Mostrar icono de usuario o administrador y opciones al momento de iniciar sesion. */}
               {user && <User user={user} onLogout={onLogout} />}

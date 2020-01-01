@@ -9,6 +9,7 @@ import AdminSignup from './components/admin/AdminSignup';
 import Addproduct from './components/adminstock/Addproduct';
 import Home from './components/home/Home';
 import Editproduct from './components/adminstock/Editproduct';
+import Favorites from './components/favorites/Favorites';
 
 // Componente Funcional Routes.
 const Routes = () =>(
@@ -19,6 +20,7 @@ const Routes = () =>(
       <Route exact path = "/adminsignup" component={AdminSignup}/>
       <Route exact path = "/addproduct" component={Addproduct}/>
       <Route exact path = "/editproduct" component={Editproduct}/>
+      <Route exact path = "/favorites" component={Favorites}/>
       <Route exact path = "/" component={Home}/>
     </Switch>
 );
