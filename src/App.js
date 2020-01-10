@@ -46,7 +46,7 @@ function App() {
 return (
     <Router>
       <CssBaseLine/>
-          <Header>
+          <Header user={user}>
               {/* Si no se encuentra un usuario logueado, entonces se mostrarán los botones de Login y Signup.*/}
               {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKey/>Login</Button>}
               {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToReg/>Signup</Button>}
