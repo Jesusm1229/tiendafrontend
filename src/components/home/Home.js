@@ -120,8 +120,22 @@ const Home = (props) =>{
       console.log(index);
       console.log(products[index].id);
 
-      let userRef = firebase.database().ref('products/' + products[index].id);
-      userRef.remove();
+      // Eliminando el producto.
+      let productRef = firebase.database().ref('products/' + products[index].id);
+      productRef.remove();
+
+      // Eliminando los favoritos del producto.
+      const favoritesRef = firebase.database().ref().child('favorites').orderByKey();
+      favoritesRef.once('value', snap => {
+      snap.forEach(child => {
+
+         if(products[index].id === child.val().product_id){
+            let favoriteRef = firebase.database().ref('favorites/' + child.key);
+            favoriteRef.remove();
+         }
+        });
+      });
+
       window.location.reload(false);
     }
 
