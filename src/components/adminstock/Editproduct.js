@@ -12,6 +12,8 @@ import clsx from 'clsx';
 import {useStyles} from './styles';
 // Redireccionamientos.
 import { Link as RouterLink, withRouter} from 'react-router-dom';
+// Importando el useLocation para transferir states de un componente a otro.
+import { useLocation } from 'react-router-dom';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -26,13 +28,14 @@ function Copyright() {
 }
 
 // Componente Funcional Addproduct.
-const Editproduct = (props) => {
+const Editproduct = ({handleVariable}) => {
 
   // Llamado de la función de Estilos.
   const classes = useStyles();
 
   // Hook para las propiedades del producto.
   const [product, setProduct] = useState({
+    id: '',
     name: '',
     price: '',
     image: '',
@@ -57,20 +60,24 @@ const handleChange = (e) => {
     if(e.target.name === 'price')
             if(key < 48 || key > 57) return;
 
+    // Almacenando el ID del producto a editar dentro de la propiedad del Hook.
+    if(e.target.name === 'name')
+        product.id = e.target.id;
+
     // Almacenando en el Hook el producto.
     setProduct({
       ...product,
       [e.target.name]: e.target.value,
       [e.target.description]: e.target.value,
       [e.target.category]: e.target.value,
-      [e.target.price]: e.target.price,
+      [e.target.price]: e.target.value,
     });
 };
 
   // Labels y Hooks para las categorias de productos.
   const inputLabel = useRef(null);
   const [labelWidth, setLabelWidth] = React.useState(0);
-  
+
   useEffect(() => {
     setLabelWidth(inputLabel.current.offsetWidth);
   }, []);
@@ -98,40 +105,47 @@ const onBeforeFileLoad = (elem) => {
     product.image = '';
 }
 
-// Funcion para suministrar todos los datos a la base de datos.
+// Funcion para realizar la efectiva edicion de un producto en particular.
 const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(product.image && product.category !== ''){
-        // Imagen del producto.
-        console.log(product.image.name);
-        const storageRef = firebase.storage().ref(`products/${product.image.name}`);
-        storageRef.put(product.image).then(function(result){
+  if(product.category === "")
+    alert("Seleccione una categoria.");
+  
+      if(product.image !== ''){
+          const storageRef = firebase.storage().ref(`products/${product.image.name}`);
+          storageRef.put(product.image).then(function(result){
+  
+              storageRef.getDownloadURL().then(function(url){
 
-            storageRef.getDownloadURL().then(function(url){
-               // Asignando la URL sacada del Firebase Storage al avatar del administrador.
+                  const editProduct = {
+                      name: product.name,
+                      image: url,
+                      price: product.price,
+                      category: product.category,
+                      description: product.description
+                  };
 
-                const newProduct = {
-                    name: product.name,
-                    image: url,
-                    price: product.price,
-                    category: product.category,
-                    description: product.description
-                };
-
-                firebase.database().ref('/products').push(newProduct)
-                .then(response =>{
-                    alert("Producto Agregado con Exito.");  
-                })
-                .catch(error => {
-                    console.log(error);
-                    alert(error.message);
-                });
+                  firebase.database().ref(`products/${product.id}`).update(editProduct)
+                  .then(response =>{
+                      alert("Producto Editado con Exito.");  
+                  })
+                  .catch(error => {
+                      console.log(error);
+                      alert(error.message);
+                  });
+              });
+          });
+      } 
+      else{
+            firebase.database().ref(`products/${product.id}`).update({ 
+              name: product.name,
+              price: product.price,
+              category: product.category,
+              description: product.description,
             });
-        });
-    }
-    else
-        alert("Complete el formulario.");
+            alert("Producto Editado con Exito."); 
+      }
 }
 
 return (
@@ -151,8 +165,8 @@ return (
                 variant="outlined"
                 required
                 fullWidth
-                id="name"
-                label="Nombre Producto"
+                id={useLocation().state.product.id}
+                label={useLocation().state.product.name}
                 autoFocus
                 value={product.name}
                 onChange={handleChange}
@@ -161,7 +175,7 @@ return (
             <Grid item xs={12} sm={6}>
             <FormControl variant="outlined" className={classes.formControl}>
                 <InputLabel ref={inputLabel} id="demo-simple-select-outlined-label">
-                    Categoria*
+                    Categoria: {useLocation().state.product.category}
                 </InputLabel>
                 <Select
                      labelId="demo-simple-select-outlined-label"
@@ -184,7 +198,7 @@ return (
             </FormControl>
             </Grid>
             <Grid container justify="center" alignItems="center">
-                <FormLabel>Selecciona un imagen del producto.</FormLabel>
+                <FormLabel>Selecciona una imagen del producto.</FormLabel>
             </Grid>
             <Grid container justify="center" alignItems="center">
             <AvatarEdit
@@ -192,6 +206,7 @@ return (
               height={130}
               onClose={onClose}
               onBeforeFileLoad={onBeforeFileLoad}
+              src={useLocation().state.product.image}
             />
             </Grid>
             <Grid container justify="center" alignItems="center">
@@ -209,13 +224,13 @@ return (
                     }}
                     labelWidth={0}
                 />
-                    <FormHelperText id="outlined-weight-helper-text">Precio</FormHelperText>
+                <FormHelperText id="outlined-weight-helper-text">Precio: {useLocation().state.product.price}</FormHelperText>
                 </FormControl>
             </Grid>
             <Grid container justify="center" alignItems="center">
             <TextField
                 id="outlined-multiline-static"
-                label="Descripción producto"
+                label={useLocation().state.product.description}
                 multiline
                 required
                 rows="5"

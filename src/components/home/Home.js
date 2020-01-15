@@ -7,12 +7,10 @@ import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton
 import {Favorite, AddShoppingCart, Edit, Delete, Settings} from '@material-ui/icons';
 // Importando Estilos.
 import {useStyles, StyledMenu, StyledMenuItem} from './styles';
-// Componente EditProduct.
-import Editproduct from '../adminstock/Editproduct';
-// Redireccionamientos.
-import { Redirect } from 'react-router-dom';
 // Icono de Favorite o Like.
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+// Redireccionamientos.
+import { Redirect } from 'react-router-dom';
 
 // Componente Funcional Home.
 const Home = (props) =>{
@@ -43,6 +41,9 @@ const Home = (props) =>{
 
     // Hook para almacenar el usuario logueado.
     const [userIn, setuserIn] = useState();
+
+    // Hook para almacenar el index seleccionado del producto a editar.
+    const [indexEdit, setIndexEdit] = useState(null);
 
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
@@ -143,8 +144,10 @@ const Home = (props) =>{
     const [buttonClicked, setButtonClicked] = useState(false);
 
     // Fijando el click de edit en el Hook.
-    function handleButtonClick(){
-        setButtonClicked(true)
+    function handleButtonClick(index){
+        console.log(index);
+        setIndexEdit(index);
+        setButtonClicked(true);
     }
 
     // Funcion para agregar a favoritos un producto en especifico.
@@ -320,13 +323,20 @@ return(
                           entry = {index}>
                             <Delete color="primary" fontSize="small"/>
                       </Button>
-                      <Button 
-                          onClick={() => handleButtonClick()}
-                          entry = {index}>
-                            <Edit color="primary" fontSize="small"/>
+                        
+                      <Button onClick={() => handleButtonClick(index)} entry={index}>
+                          <Edit color="primary" fontSize="small" />
                       </Button>
-                    
-                        {buttonClicked ? <Redirect to="/editproduct"> <Editproduct variable={true}/></Redirect> : null}
+
+                      {buttonClicked? (
+                          <Redirect
+                            to={{
+                                pathname: '/editproduct',
+                                state: { product: products[indexEdit] }
+                            }}
+                          />
+
+                      ) : null}
                       </div>
                       : <div/>
                       }
