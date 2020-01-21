@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 // Componentes y Estilo makeStyle de Material-UI.
 import {AppBar, Toolbar, Typography, Button, Drawer, CssBaseline, List, Divider, IconButton, ListItem, ListItemIcon, ListItemText} from '@material-ui/core';
 // Icono de Tienda en el Header.
-import {Storefront, Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder} from '@material-ui/icons';
+import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse} from '@material-ui/icons';
 // Redireccionamientos.
 import { Link as RouterLink, withRouter, Link} from 'react-router-dom';
 // Importando los Estilos.
@@ -76,7 +76,7 @@ const Header = (props) =>{
               </div>
               : <div/>
               }
-          <Button to="/" component={MyLink} color="inherit"><Storefront/></Button>
+          <Button to="/" component={MyLink} color="inherit"><Home/></Button>
           <Typography variant="h6" className={classes.title}>
             Tienda E-Commerce
           </Typography>
@@ -119,6 +119,12 @@ const Header = (props) =>{
             <ListItem button key="Ver Favoritos" component={props => <Link to='/favorites' {...props} />}>
               <ListItemIcon ><FavoriteBorder/></ListItemIcon>
               <ListItemText primary="Ver Favoritos" />
+            </ListItem>
+        </List>
+        <List>
+            <ListItem button key="Productos casi Agotados" component={props => <Link to='/lastproducts' {...props} />}>
+              <ListItemIcon ><Timelapse/></ListItemIcon>
+              <ListItemText primary="Productos casi Agotados" />
             </ListItem>
         </List>
         <Divider />

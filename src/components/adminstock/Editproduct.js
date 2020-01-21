@@ -41,6 +41,7 @@ const Editproduct = ({handleVariable}) => {
     image: '',
     category: '',
     description: '',
+    stock: '',
 });
 
 // Hook para la categoria de los productos.
@@ -57,7 +58,7 @@ const handleChange = (e) => {
         if( key !== 32 && (key < 97 || key > 122)) return;
 
     // Validación del campo Precio, solo se podrán introducir numeros y un maximo de 5 digitos.
-    if(e.target.name === 'price')
+    if(e.target.name === 'price' || e.target.name === 'stock')
             if(key < 48 || key > 57) return;
 
     // Almacenando el ID del producto a editar dentro de la propiedad del Hook.
@@ -71,6 +72,7 @@ const handleChange = (e) => {
       [e.target.description]: e.target.value,
       [e.target.category]: e.target.value,
       [e.target.price]: e.target.value,
+      [e.target.stock]: e.target.value,
     });
 };
 
@@ -123,7 +125,8 @@ const handleSubmit = (e) => {
                       image: url,
                       price: product.price,
                       category: product.category,
-                      description: product.description
+                      description: product.description,
+                      stock: product.stock,
                   };
 
                   firebase.database().ref(`products/${product.id}`).update(editProduct)
@@ -143,6 +146,7 @@ const handleSubmit = (e) => {
               price: product.price,
               category: product.category,
               description: product.description,
+              stock: product.stock,
             });
             alert("Producto Editado con Exito."); 
       }
@@ -225,6 +229,23 @@ return (
                     labelWidth={0}
                 />
                 <FormHelperText id="outlined-weight-helper-text">Precio: {useLocation().state.product.price}</FormHelperText>
+                </FormControl>
+            </Grid>
+            <Grid container justify="center" alignItems="center">
+                <FormControl className={clsx(classes.margin, classes.textField, classes.priceModule)} variant="outlined">
+                <OutlinedInput
+                    id="outlined-adornment-weight"
+                    name="stock"
+                    required
+                    value={product.stock}
+                    onChange={handleChange}
+                    aria-describedby="outlined-weight-helper-text"
+                    inputProps={{
+                    'aria-label': 'weight',
+                    }}
+                    labelWidth={0}
+                />
+                    <FormHelperText id="outlined-weight-helper-text">Stock del Producto: {useLocation().state.product.stock}</FormHelperText>
                 </FormControl>
             </Grid>
             <Grid container justify="center" alignItems="center">

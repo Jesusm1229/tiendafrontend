@@ -48,13 +48,6 @@ const Home = (props) =>{
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
 
-      /*firebase.auth().onAuthStateChanged(function(user) { 
-        if(user)
-          setuserIn(user.uid);
-        else
-          setuserIn(null);
-      });*/
-
         // Cargando los favorites de los productos.
         const refFavorites = firebase.database().ref().child('favorites').orderByKey();
         let favoritesArray = []
@@ -84,7 +77,8 @@ const Home = (props) =>{
                 price:       child.val().price,
                 image:       child.val().image,
                 category:    child.val().category,
-                description: child.val().description
+                description: child.val().description,
+                stock:       child.val().stock,
             };
 
             productsArray.push(productElement);
@@ -291,6 +285,14 @@ return(
                     <Typography variant="body2" color="textSecondary" component="p">
                       {item.description}
                     </Typography>
+                    {obtainRoleUser() === true?
+                    <div>
+                    <Typography variant="subtitle1" color="textSecondary" component="p">
+                      {"Stock: " + item.stock}
+                    </Typography>
+                    </div>
+                    : <div/>
+                    }
                     <Typography variant="subtitle1" color="textSecondary" component="p">
                       {item.price + "Bs"}
                     </Typography>
