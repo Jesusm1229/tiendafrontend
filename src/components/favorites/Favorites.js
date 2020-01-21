@@ -13,25 +13,27 @@ const Favorites = () => {
   const [products, setProducts] = useState([]);
 
    useEffect(() =>{
-       
-       const refProducts = firebase.database().ref().child('products').orderByKey();
-       let productsArray = []
-       refProducts.once('value', snap => {
-       snap.forEach(child => {
 
-           var productElement = {
-               id:          child.key, 
-               name:        child.val().name, 
-               price:       child.val().price,
-               image:       child.val().image,
-               category:    child.val().category,
-               description: child.val().description
-           };
+    firebase.auth().onAuthStateChanged((user) => {
+      let productsArray = []
+      if (user) {
+          // Buscamos los favoritos del usuario logueado en la coleccion 'favorites'.
+          const refFavorites = firebase.database().ref().child('favorites').orderByKey();
+          refFavorites.once('value', snap => {
+          snap.forEach(child => {
 
-           productsArray.push(productElement);
+                if(child.val().user_id === user.uid){
+                   firebase.database().ref('products/' + child.val().product_id)
+                   .once('value')
+                   .then(snapshot =>{
+                    productsArray.push(snapshot.val());
+                  });
+                }
+              });
+            setProducts(productsArray);
           });
-          setProducts(productsArray);
-       });
+      }
+    });
     }, []);
 
   return (
