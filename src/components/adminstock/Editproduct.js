@@ -28,7 +28,7 @@ function Copyright() {
 }
 
 // Componente Funcional Addproduct.
-const Editproduct = ({handleVariable}) => {
+const Editproduct = () => {
 
   // Llamado de la función de Estilos.
   const classes = useStyles();
@@ -111,8 +111,10 @@ const onBeforeFileLoad = (elem) => {
 const handleSubmit = (e) => {
     e.preventDefault();
 
-  if(product.category === "")
+  if(product.category === ""){
     alert("Seleccione una categoria.");
+    return;
+  }
   
       if(product.image !== ''){
           const storageRef = firebase.storage().ref(`products/${product.image.name}`);

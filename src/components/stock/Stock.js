@@ -36,9 +36,9 @@ const Stock = () => {
         {/*Si hay productos almacenados en el Hook se itera sobre ese arreglo Hook donde estarán almacenados todos los productos.*/}
         { products && products.map((item, index) => {
             return(
-              <Grid container justify="center" alignItems="center">
+              <Grid container justify="center" alignItems="center" key={index}>
                   <div className={classes.root}>
-                    <Paper className={classes.paper} key={index}>
+                    <Paper className={classes.paper}>
                       <Grid container spacing={2}>
                         <Grid item>
                           <ButtonBase className={classes.image}>

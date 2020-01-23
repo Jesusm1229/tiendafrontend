@@ -1,10 +1,12 @@
 import React, {useState, useEffect , Fragment} from 'react';
 // Componentes de Material-UI.
-import {Grid, Paper, Typography, ButtonBase} from '@material-ui/core';
+import {Grid, Paper, Typography, ButtonBase, Button} from '@material-ui/core';
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Importando los Estilos.
 import {useStyles} from './styles';
+// Importando los iconos de Material-UI.
+import {HighlightOff} from '@material-ui/icons';
 
 const Favorites = () => {
   const classes = useStyles();
@@ -14,27 +16,52 @@ const Favorites = () => {
 
    useEffect(() =>{
 
-    firebase.auth().onAuthStateChanged((user) => {
-      let productsArray = []
-      if (user) {
           // Buscamos los favoritos del usuario logueado en la coleccion 'favorites'.
           const refFavorites = firebase.database().ref().child('favorites').orderByKey();
+          let productsArray = []
           refFavorites.once('value', snap => {
           snap.forEach(child => {
 
-                if(child.val().user_id === user.uid){
+                if(child.val().user_id === firebase.auth().currentUser.uid){
                    firebase.database().ref('products/' + child.val().product_id)
                    .once('value')
                    .then(snapshot =>{
-                    productsArray.push(snapshot.val());
+
+                    const favorite = {
+                      id:           snapshot.key,
+                      name:         snapshot.val().name,
+                      category:     snapshot.val().category,
+                      description:  snapshot.val().description,
+                      image:        snapshot.val().image,
+                      price:        snapshot.val().price,
+                      stock:        snapshot.val().stock,
+                    };
+
+                    productsArray.push(favorite);
                   });
                 }
               });
             setProducts(productsArray);
           });
-      }
-    });
-    }, []);
+    },[]);
+
+     // Funcion para que un Admin o Usuario pueda eliminar un favorito.
+     function removeFavorite(event, index){
+      event.preventDefault();
+
+      // Eliminando los favoritos del producto.
+      const favoritesRef = firebase.database().ref().child('favorites').orderByKey();
+      favoritesRef.once('value', snap => {
+      snap.forEach(child => {
+
+         if(products[index].id === child.val().product_id){
+            let favoriteRef = firebase.database().ref('favorites/' + child.key);
+            favoriteRef.remove();
+            window.location.reload(false);
+         }
+        });
+      });
+    }
 
   return (
   <Fragment>
@@ -42,9 +69,9 @@ const Favorites = () => {
         {/*Si hay productos almacenados en el Hook se itera sobre ese arreglo Hook donde estarán almacenados todos los productos.*/}
         { products && products.map((item, index) => {
             return(
-              <Grid container justify="center" alignItems="center">
+              <Grid container justify="center" alignItems="center" key={index}>
                   <div className={classes.root}>
-                    <Paper className={classes.paper} key={index}>
+                    <Paper className={classes.paper}>
                       <Grid container spacing={2}>
                         <Grid item>
                           <ButtonBase className={classes.image}>
@@ -65,9 +92,10 @@ const Favorites = () => {
                               </Typography>
                             </Grid>
                             <Grid item>
-                              <Typography variant="body2" style={{ cursor: 'pointer' }}>
-                                Remove
-                              </Typography>
+                            <Button 
+                                onClick={(event) => removeFavorite(event, index)}>
+                                  <HighlightOff/> Eliminar
+                           </Button>
                             </Grid>
                           </Grid>
                           <Grid item>

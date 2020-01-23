@@ -2,9 +2,9 @@ import React, {useState, useEffect} from 'react';
 // Componentes y Estilo makeStyle de Material-UI.
 import {AppBar, Toolbar, Typography, Button, Drawer, CssBaseline, List, Divider, IconButton, ListItem, ListItemIcon, ListItemText} from '@material-ui/core';
 // Icono de Tienda en el Header.
-import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse} from '@material-ui/icons';
+import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse, AddShoppingCart} from '@material-ui/icons';
 // Redireccionamientos.
-import { Link as RouterLink, withRouter, Link} from 'react-router-dom';
+import { Link as RouterLink, withRouter} from 'react-router-dom';
 // Importando los Estilos.
 import {useStyles} from './styles';
 // Importando el boton de menu desplegable.
@@ -99,7 +99,7 @@ const Header = (props) =>{
         </div>
         <Divider />
         <List>
-            <ListItem button key="Inicio" component={props => <Link to='/' {...props} />}>
+            <ListItem button component={RouterLink} to="/">
               <ListItemIcon ><Home/></ListItemIcon>
               <ListItemText primary="Inicio" />
             </ListItem>
@@ -107,7 +107,7 @@ const Header = (props) =>{
         {role?
         <div>
         <List>
-            <ListItem button key="Agregar Producto" component={props => <Link to='/addproduct' {...props} />}>
+            <ListItem button component={RouterLink} to="/addproduct">
               <ListItemIcon ><AddCircleOutline/></ListItemIcon>
               <ListItemText primary="Agregar Producto" />
             </ListItem>
@@ -116,18 +116,24 @@ const Header = (props) =>{
         : <div/>
         }
         <List>
-            <ListItem button key="Ver Favoritos" component={props => <Link to='/favorites' {...props} />}>
+            <ListItem button component={RouterLink} to="/favorites">
               <ListItemIcon ><FavoriteBorder/></ListItemIcon>
               <ListItemText primary="Ver Favoritos" />
             </ListItem>
         </List>
         <List>
-            <ListItem button key="Productos casi Agotados" component={props => <Link to='/lastproducts' {...props} />}>
+            <ListItem button component={RouterLink} to="/lastproducts">
               <ListItemIcon ><Timelapse/></ListItemIcon>
               <ListItemText primary="Productos casi Agotados" />
             </ListItem>
         </List>
-        <Divider />
+        <Divider/>
+        <List>
+            <ListItem button component={RouterLink} to="/shoppinglist">
+              <ListItemIcon ><AddShoppingCart/></ListItemIcon>
+              <ListItemText primary="Agregados Al Carrito" />
+            </ListItem>
+        </List>
       </Drawer>
       <main
         className={clsx(classes.content, {
