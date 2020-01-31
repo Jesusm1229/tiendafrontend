@@ -6,7 +6,7 @@ import {Menu, MenuItem, makeStyles, withStyles} from '@material-ui/core';
 export const useStyles = makeStyles(theme => ({
     card: {
       maxWidth: 265,
-      maxHeight: 380,
+      maxHeight: 430,
       backgroundColor: '#EEF1F3',
       marginTop: theme.spacing(2),
       marginLeft: theme.spacing(3),

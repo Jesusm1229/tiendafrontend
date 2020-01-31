@@ -2,9 +2,9 @@ import React, {useState, useEffect , Fragment} from 'react'
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Componentes de Material-UI.
-import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, IconButton, Typography, Grid, ListItemText, ListItemIcon, Button, FormControlLabel, Checkbox} from '@material-ui/core';
+import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, Typography, Grid, ListItemText, ListItemIcon, Button, FormControlLabel, Checkbox, ButtonGroup, Badge} from '@material-ui/core';
 // Iconos de Material-UI.
-import {Favorite, AddShoppingCart, Edit, Delete, Settings} from '@material-ui/icons';
+import {Favorite, AddShoppingCart, Edit, Delete, Settings, Remove, Add} from '@material-ui/icons';
 // Importando Estilos.
 import {useStyles, StyledMenu, StyledMenuItem} from './styles';
 // Icono de Favorite o Like.
@@ -79,6 +79,7 @@ const Home = (props) =>{
                 category:    child.val().category,
                 description: child.val().description,
                 stock:       child.val().stock,
+                quantity:       1,
             };
 
             productsArray.push(productElement);
@@ -225,6 +226,34 @@ const Home = (props) =>{
       return false;
   }
 
+    // Funcion para agregar a carrito de compra un producto en especifico con su cantidad segun el stock o disponibilidad.
+    function addtoShoppingCart(e, productid, index){
+  
+      e.preventDefault();
+
+        firebase.auth().onAuthStateChanged(function(user) { 
+        if(!user){
+          props.history.push('/login');
+          setuserIn(null);
+        }
+      });
+
+      const newShoppingCart = {
+        product_id: productid,
+        user_id: firebase.auth().currentUser.uid,
+        quantity: products[index].quantity 
+      };
+
+        firebase.database().ref('/shoppingcart').push(newShoppingCart)
+        .then(response =>{
+          alert("Agregado a Carro de Compra");  
+        })
+        .catch(error => {
+          console.log(error);
+          alert(error.message);
+        });
+    }
+
 return( 
   <Fragment>
     <ul>
@@ -296,38 +325,63 @@ return(
                     <Typography variant="subtitle1" color="textSecondary" component="p">
                       {item.price + "Bs"}
                     </Typography>
+                    <ButtonGroup>
+                        <Button
+                          aria-label="reduce"
+                          onClick={() => {
+                            let productsArray = [...products];
+                            productsArray[index].quantity = Math.max(productsArray[index].quantity - 1, 1);
+                            setProduct(productsArray);
+                            console.log(products);
+                          }}
+                        >
+                          <Remove fontSize="small" />
+                        </Button>
+                        <Button
+                          aria-label="increase"
+                          onClick={() => {
+                            let productsArray = [...products];
+                            
+                            if(productsArray[index].quantity < productsArray[index].stock)
+                                productsArray[index].quantity = productsArray[index].quantity + 1;
+                            
+                            setProduct(productsArray);
+                            console.log(products);
+                          }}
+                        >
+                          <Add fontSize="small" />
+                        </Button>
+                    </ButtonGroup>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      {"Cantidad: " + products[index].quantity}
+                    </Typography>
                   </CardContent>
                   <CardActions disableSpacing>
                   <Grid container justify="center" alignItems="center">
-                     {obtainFavorites(products[index].id)?
-                         
                       <div>
                           <FormControlLabel
-                            control={<Checkbox checked={true} icon={<FavoriteBorder />} checkedIcon={<Favorite />} value="checkedH" />}
+                            control={<Checkbox checked={obtainFavorites(products[index].id)} icon={<FavoriteBorder fontSize="default" />} checkedIcon={<Favorite fontSize="default" />} />}
                             onChange={(event) => addtoFavorites(event, products[index].id)}
                           />
                       </div>
-                        : 
-                      <div>
-                          <FormControlLabel
-                            control={<Checkbox checked={false} icon={<FavoriteBorder />} checkedIcon={<Favorite />} value="checkedH" />}
-                            onChange={(event) => addtoFavorites(event, products[index].id)}
-                          />
-                      </div>
-                    }
-                      <IconButton color="primary" aria-label="add to shopping cart">
-                         <AddShoppingCart fontSize="small"/>
-                      </IconButton>
+                            <Button
+                                onClick={(event) => addtoShoppingCart(event, products[index].id, index)}
+                                entry = {index}>
+                                <Badge color="secondary" badgeContent={products[index].quantity} max={999}>
+                                  <AddShoppingCart color="primary" fontSize="default"/>
+                                </Badge>
+                            </Button>
+
                       {obtainRoleUser() === true?
                       <div>
                       <Button 
                           onClick={(event) => removeTarget(event, index)}
                           entry = {index}>
-                            <Delete color="primary" fontSize="small"/>
+                            <Delete color="primary" fontSize="default"/>
                       </Button>
                         
                       <Button onClick={() => handleButtonClick(index)} entry={index}>
-                          <Edit color="primary" fontSize="small" />
+                          <Edit color="primary" fontSize="default" />
                       </Button>
 
                       {buttonClicked? (
@@ -347,7 +401,7 @@ return(
                 </Card>
             ); // Termina el return, mostrando cada una de las tarjetas de productos.
         })
-        }
+      }
     </Grid>
     </ul>
   </Fragment>
