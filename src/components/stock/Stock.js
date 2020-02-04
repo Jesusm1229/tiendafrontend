@@ -63,12 +63,12 @@ const Stock = () => {
                             </Grid>
                             <Grid item>
                               <Typography variant="body2" style={{ cursor: 'pointer' }}>
-                                Remove
+                                Agregar a Carrito
                               </Typography>
                             </Grid>
                           </Grid>
                           <Grid item>
-                              <Typography variant="subtitle1">{"Bs " + item.price}</Typography>
+                              <Typography variant="subtitle1">{"Bs " + item.price + "/ Kg"}</Typography>
                           </Grid>
                         </Grid>
                       </Grid>

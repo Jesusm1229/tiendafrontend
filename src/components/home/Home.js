@@ -45,6 +45,9 @@ const Home = (props) =>{
     // Hook para almacenar el index seleccionado del producto a editar.
     const [indexEdit, setIndexEdit] = useState(null);
 
+    // Hook para almacenar si encontro una coincidencia de un pedido en el carrito de compra.
+    //const [shopVar, setshopVar] = useState(false);
+
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
 
@@ -238,21 +241,34 @@ const Home = (props) =>{
         }
       });
 
-      const newShoppingCart = {
-        product_id: productid,
-        user_id: firebase.auth().currentUser.uid,
-        quantity: products[index].quantity 
-      };
+      if(userIn === null)
+        return;
 
-        firebase.database().ref('/shoppingcart').push(newShoppingCart)
-        .then(response =>{
-          alert("Agregado a Carro de Compra");  
-        })
-        .catch(error => {
-          console.log(error);
-          alert(error.message);
-        });
+            const newShoppingCart = {
+              product_id: productid,
+              user_id: firebase.auth().currentUser.uid,
+              quantity: products[index].quantity 
+            };
+
+            firebase.database().ref('/shoppingcart').push(newShoppingCart)
+            .then(response =>{
+              alert("Agregado a Carro de Compra");  
+            })
+            .catch(error => {
+              console.log(error);
+              alert(error.message);
+            });
     }
+
+    /*function verifiedShoppingProduct(productid)
+    {
+      firebase.database().ref('shoppingcart/').orderByChild("product_id").equalTo(productid).once("value", snapshot => {
+        if (snapshot.exists())
+          setshopVar(true);
+     });
+
+      return shopVar;
+    }*/
 
 return( 
   <Fragment>
@@ -323,8 +339,11 @@ return(
                     : <div/>
                     }
                     <Typography variant="subtitle1" color="textSecondary" component="p">
-                      {item.price + "Bs"}
+                      {item.price + "Bs / Kg"}
                     </Typography>
+                    <Grid container justify="center" alignItems="center">
+                    {obtainRoleUser() !== undefined?
+                    <div>
                     <ButtonGroup>
                         <Button
                           aria-label="reduce"
@@ -355,6 +374,10 @@ return(
                     <Typography variant="body2" color="textSecondary" component="p">
                       {"Cantidad: " + products[index].quantity}
                     </Typography>
+                    </div>
+                    : <div/>
+                    }
+                  </Grid>
                   </CardContent>
                   <CardActions disableSpacing>
                   <Grid container justify="center" alignItems="center">
@@ -367,9 +390,19 @@ return(
                             <Button
                                 onClick={(event) => addtoShoppingCart(event, products[index].id, index)}
                                 entry = {index}>
+                                {obtainRoleUser() !== undefined?
+                                <div>
                                 <Badge color="secondary" badgeContent={products[index].quantity} max={999}>
                                   <AddShoppingCart color="primary" fontSize="default"/>
                                 </Badge>
+                                </div>
+                                :
+                                <div>
+                                  <Badge color="secondary" badgeContent={0} max={999}>
+                                  <AddShoppingCart color="primary" fontSize="default"/>
+                                  </Badge>
+                                </div>
+                                }
                             </Button>
 
                       {obtainRoleUser() === true?

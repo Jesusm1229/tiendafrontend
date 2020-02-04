@@ -11,6 +11,7 @@ import Home from './components/home/Home';
 import Editproduct from './components/adminstock/Editproduct';
 import Favorites from './components/favorites/Favorites';
 import Stock from './components/stock/Stock';
+import ShoppingCart from './components/shoppingcart/ShoppingCart';
 
 // Componente Funcional Routes.
 const Routes = () =>(
@@ -23,6 +24,7 @@ const Routes = () =>(
       <Route exact path = "/editproduct" component={Editproduct}/>
       <Route exact path = "/favorites" component={Favorites}/>
       <Route exact path = "/lastproducts" component={Stock}/>
+      <Route exact path = "/shoppinglist" component={ShoppingCart}/>
       <Route exact path = "/" component={Home}/>
     </Switch>
 );

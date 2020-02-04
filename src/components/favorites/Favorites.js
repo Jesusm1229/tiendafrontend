@@ -94,12 +94,12 @@ const Favorites = () => {
                             <Grid item>
                             <Button 
                                 onClick={(event) => removeFavorite(event, index)}>
-                                  <HighlightOff/> Eliminar
+                                  <HighlightOff/> Eliminar de Favoritos
                            </Button>
                             </Grid>
                           </Grid>
                           <Grid item>
-                              <Typography variant="subtitle1">{"Bs " + item.price}</Typography>
+                              <Typography variant="subtitle1">{"Bs " + item.price + "/ Kg"}</Typography>
                           </Grid>
                         </Grid>
                       </Grid>
