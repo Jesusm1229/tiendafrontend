@@ -158,7 +158,7 @@ const Home = (props) =>{
       favoritesRef.once('value', snap => {
       snap.forEach(child => {
 
-         if(productid === child.val().product_id && userIn === child.val().user_id){
+         if(productid === child.val().product_id){
             let favoriteRef = firebase.database().ref('favorites/' + child.key);
             favoriteRef.remove();
          }
@@ -170,7 +170,7 @@ const Home = (props) =>{
       shoppingRef.once('value', snap => {
       snap.forEach(child => {
 
-         if(productid === child.val().product_id && userIn === child.val().user_id){
+         if(productid === child.val().product_id){
             let shopRef = firebase.database().ref('shoppingcart/' + child.key);
             shopRef.remove();
          }
