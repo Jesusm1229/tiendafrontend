@@ -7,7 +7,7 @@ export const useStyles = makeStyles(theme => ({
     card: {
       maxWidth: 265,
       maxHeight: 430,
-      backgroundColor: '#EEF1F3',
+      backgroundColor: '#cccccc',
       marginTop: theme.spacing(2),
       marginLeft: theme.spacing(3),
       marginRight: theme.spacing(3),

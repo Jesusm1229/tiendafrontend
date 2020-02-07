@@ -28,20 +28,20 @@ function Copyright() {
 }
 
 // Componente Funcional Addproduct.
-const Editproduct = () => {
+const Editproduct = (props) => {
 
   // Llamado de la función de Estilos.
   const classes = useStyles();
 
   // Hook para las propiedades del producto.
   const [product, setProduct] = useState({
-    id: '',
-    name: '',
-    price: '',
-    image: '',
-    category: '',
-    description: '',
-    stock: '',
+    id:          useLocation().state.product.id,
+    name:        useLocation().state.product.name,
+    price:       useLocation().state.product.price,
+    image:       useLocation().state.product.image,
+    category:    useLocation().state.product.category,
+    description: useLocation().state.product.description,
+    stock:       useLocation().state.product.stock,
 });
 
 // Hook para la categoria de los productos.
@@ -61,13 +61,10 @@ const handleChange = (e) => {
     if(e.target.name === 'price' || e.target.name === 'stock')
             if(key < 48 || key > 57) return;
 
-    // Almacenando el ID del producto a editar dentro de la propiedad del Hook.
-    if(e.target.name === 'name')
-        product.id = e.target.id;
-
     // Almacenando en el Hook el producto.
     setProduct({
       ...product,
+      id: product.id,
       [e.target.name]: e.target.value,
       [e.target.description]: e.target.value,
       [e.target.category]: e.target.value,
@@ -111,13 +108,23 @@ const onBeforeFileLoad = (elem) => {
 const handleSubmit = (e) => {
     e.preventDefault();
 
-  if(product.category === ""){
-    alert("Seleccione una categoria.");
-    return;
-  }
-  
-      if(product.image !== ''){
-          const storageRef = firebase.storage().ref(`products/${product.image.name}`);
+    // Verificando si ha realizado algun cambio, antes de realizar la consulta.
+    firebase.database().ref(`products/${product.id}`)
+    .once('value', snap => {
+        
+      if(snap.val().name === product.name && snap.val().price === product.price && snap.val().stock === product.stock &&
+           snap.val().description === product.description && snap.val().image === product.image && snap.val().category === product.category){
+           alert("No has realizado ninguna edicion.");
+           return;
+        }
+
+        if(product.image === ''){
+          alert("Seleccione una imagen de producto.");
+          return;
+        }
+
+        if(product.image.name !== undefined){
+          const storageRef = firebase.storage().ref(`products/${product.image}`);
           storageRef.put(product.image).then(function(result){
   
               storageRef.getDownloadURL().then(function(url){
@@ -141,18 +148,19 @@ const handleSubmit = (e) => {
                   });
               });
           });
-      } 
-      else{
-            firebase.database().ref(`products/${product.id}`).update({ 
-              name: product.name,
-              price: product.price,
-              category: product.category,
-              description: product.description,
-              stock: product.stock,
-            });
-            alert("Producto Editado con Exito."); 
-      }
-}
+        }
+        else{
+          firebase.database().ref(`products/${product.id}`).update({ 
+            name: product.name,
+            price: product.price,
+            category: product.category,
+            description: product.description,
+            stock: product.stock,
+          });
+          alert("Producto Editado con Exito."); 
+        }
+    });
+} 
 
 return (
     <Container component="main" maxWidth="xs">
@@ -171,8 +179,7 @@ return (
                 variant="outlined"
                 required
                 fullWidth
-                id={useLocation().state.product.id}
-                label={useLocation().state.product.name}
+                label="Nombre del Producto"
                 autoFocus
                 value={product.name}
                 onChange={handleChange}
@@ -181,19 +188,18 @@ return (
             <Grid item xs={12} sm={6}>
             <FormControl variant="outlined" className={classes.formControl}>
                 <InputLabel ref={inputLabel} id="demo-simple-select-outlined-label">
-                    Categoria: {useLocation().state.product.category}
+                    Categoria
                 </InputLabel>
                 <Select
                      labelId="demo-simple-select-outlined-label"
                      id="demo-simple-select-outlined"
                      required
-                     value={category}
+                     value={product.category}
                      onChange={handleModified}
                      labelWidth={labelWidth}
                 >
-                <MenuItem value="">
-                     <em>Ninguna</em>
-                     </MenuItem>
+                <MenuItem value={category}>
+                    </MenuItem>
                      <MenuItem value={"Pescaderia"}>Pescaderia</MenuItem>
                      <MenuItem value={"Carniceria"}>Carniceria</MenuItem>
                      <MenuItem value={"Charcuteria"}>Charcuteria</MenuItem>
@@ -212,7 +218,7 @@ return (
               height={130}
               onClose={onClose}
               onBeforeFileLoad={onBeforeFileLoad}
-              src={useLocation().state.product.image}
+              src={product.image}
             />
             </Grid>
             <Grid container justify="center" alignItems="center">
@@ -230,7 +236,7 @@ return (
                     }}
                     labelWidth={0}
                 />
-                <FormHelperText id="outlined-weight-helper-text">Precio: {useLocation().state.product.price}</FormHelperText>
+                <FormHelperText id="outlined-weight-helper-text">Precio</FormHelperText>
                 </FormControl>
             </Grid>
             <Grid container justify="center" alignItems="center">
@@ -247,13 +253,13 @@ return (
                     }}
                     labelWidth={0}
                 />
-                    <FormHelperText id="outlined-weight-helper-text">Stock del Producto: {useLocation().state.product.stock}</FormHelperText>
+                    <FormHelperText id="outlined-weight-helper-text">Stock del Producto</FormHelperText>
                 </FormControl>
             </Grid>
             <Grid container justify="center" alignItems="center">
             <TextField
                 id="outlined-multiline-static"
-                label={useLocation().state.product.description}
+                label="Descripcion"
                 multiline
                 required
                 rows="5"

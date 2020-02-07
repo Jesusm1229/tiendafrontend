@@ -8,7 +8,7 @@ import {useStyles} from './styles';
 // Importando los iconos de Material-UI.
 import {HighlightOff} from '@material-ui/icons';
 
-const Favorites = () => {
+const Favorites = (props) => {
   const classes = useStyles();
 
   // Hook para almacenar todos los productos.
@@ -17,17 +17,18 @@ const Favorites = () => {
    useEffect(() =>{
 
           // Buscamos los favoritos del usuario logueado en la coleccion 'favorites'.
-          const refFavorites = firebase.database().ref().child('favorites').orderByKey();
           let productsArray = []
-          refFavorites.once('value', snap => {
+          firebase.database().ref().child('favorites').orderByKey()
+          .once('value', snap => {
           snap.forEach(child => {
 
                 if(child.val().user_id === firebase.auth().currentUser.uid){
+
                    firebase.database().ref('products/' + child.val().product_id)
                    .once('value')
                    .then(snapshot =>{
 
-                    const favorite = {
+                      const favorite = {
                       id:           snapshot.key,
                       name:         snapshot.val().name,
                       category:     snapshot.val().category,
@@ -39,11 +40,13 @@ const Favorites = () => {
 
                     productsArray.push(favorite);
                   });
+                  setProducts(productsArray);
                 }
               });
-            setProducts(productsArray);
           });
     },[]);
+
+    console.log(products);
 
      // Funcion para que un Admin o Usuario pueda eliminar un favorito.
      function removeFavorite(event, index){

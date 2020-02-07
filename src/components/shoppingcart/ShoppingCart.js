@@ -17,15 +17,17 @@ const ShoppingCart = () => {
    useEffect(() =>{
 
           // Buscamos los productos que anadio el usuario al carrito o a la coleccion 'shoppingcart'.
-          const refFavorites = firebase.database().ref().child('shoppingcart').orderByKey();
+          const refshopping = firebase.database().ref().child('shoppingcart').orderByKey();
           let productsArray = []
-          refFavorites.once('value', snap => {
+          refshopping.once('value', snap => {
           snap.forEach(child => {
 
                 if(child.val().user_id === firebase.auth().currentUser.uid){
                    firebase.database().ref('products/' + child.val().product_id)
                    .once('value')
                    .then(snapshot =>{
+
+                    console.log(snapshot.key);
 
                     const shopping = {
                       id:           snapshot.key,
@@ -47,7 +49,7 @@ const ShoppingCart = () => {
     },[]);
 
      // Funcion para que un Admin o Usuario pueda eliminar un producto de su carrito de compra.
-     function removeFavorite(event, index){
+     function removeShopping(event, index){
       event.preventDefault();
 
       // Eliminando un producto del carrito de compra.
@@ -94,7 +96,7 @@ const ShoppingCart = () => {
                             </Grid>
                             <Grid item>
                             <Button 
-                                onClick={(event) => removeFavorite(event, index)}>
+                                onClick={(event) => removeShopping(event, index)}>
                                   <HighlightOff/> Eliminar del Carrito
                            </Button>
                             </Grid>

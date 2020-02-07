@@ -45,13 +45,20 @@ const Home = (props) =>{
     // Hook para almacenar el index seleccionado del producto a editar.
     const [indexEdit, setIndexEdit] = useState(null);
 
-    // Hook para almacenar si encontro una coincidencia de un pedido en el carrito de compra.
-    //const [shopVar, setshopVar] = useState(false);
+    // Hook para almacenar los shoppingCart del usuario.
+    const [shoppingCart, setshoppingCart] = useState([]);
 
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
+  
+      firebase.auth().onAuthStateChanged(function(user) { 
+        if(user)
+          setuserIn(user.uid);
+        else
+          setuserIn(null);
+      });
 
-        // Cargando los favorites de los productos.
+      // Cargando los favorites de los productos.
         const refFavorites = firebase.database().ref().child('favorites').orderByKey();
         let favoritesArray = []
         refFavorites.once('value', snap => {
@@ -89,7 +96,33 @@ const Home = (props) =>{
            });
            setProduct(productsArray);
         });
+
+        // Cargando los shoppingCart del usuario.
+         const refShopping = firebase.database().ref().child('shoppingcart').orderByKey();
+         let shoppingArray = []
+         refShopping.once('value', snap => {
+         snap.forEach(child => {
+ 
+              const newShoppingCart = {
+                product_id: child.val().product_id,
+                user_id: child.val().user_id,
+                quantity: child.val().quantity, 
+              };
+
+              firebase.auth().onAuthStateChanged(function(user) { 
+                if(user){
+                  if(newShoppingCart.user_id === user.uid)
+                    shoppingArray.push(newShoppingCart);
+                }
+              });
+            });
+            setshoppingCart(shoppingArray);
+         });
+
       }, []);
+
+      //console.log(shoppingCart);
+      console.log(products);
 
       // Funcion para obtener el role del usuario logueado.
       function obtainRoleUser(){
@@ -113,24 +146,33 @@ const Home = (props) =>{
       }
 
     // Funcion para que un Admin pueda eliminar un producto del Home.
-    function removeTarget(event, index){
+    function removeTarget(event, productid){
       event.preventDefault();
 
-      console.log(index);
-      console.log(products[index].id);
-
-      // Eliminando el producto.
-      let productRef = firebase.database().ref('products/' + products[index].id);
-      productRef.remove();
+       // Eliminando el producto.
+       let productRef = firebase.database().ref('products/' + productid);
+       productRef.remove();
 
       // Eliminando los favoritos del producto.
       const favoritesRef = firebase.database().ref().child('favorites').orderByKey();
       favoritesRef.once('value', snap => {
       snap.forEach(child => {
 
-         if(products[index].id === child.val().product_id){
+         if(productid === child.val().product_id && userIn === child.val().user_id){
             let favoriteRef = firebase.database().ref('favorites/' + child.key);
             favoriteRef.remove();
+         }
+        });
+      });
+
+      // Eliminando los shoppingCart asociados al producto.
+      const shoppingRef = firebase.database().ref().child('shoppingcart').orderByKey();
+      shoppingRef.once('value', snap => {
+      snap.forEach(child => {
+
+         if(productid === child.val().product_id && userIn === child.val().user_id){
+            let shopRef = firebase.database().ref('shoppingcart/' + child.key);
+            shopRef.remove();
          }
         });
       });
@@ -153,18 +195,16 @@ const Home = (props) =>{
   
        e.preventDefault();
 
-       firebase.auth().onAuthStateChanged(function(user) { 
-        if(!user){
+      if(userIn === null){
           props.history.push('/login');
-          setuserIn(null);
-        }
-      });
+          return;
+      }
 
-       if(e.target.checked && userIn !== null){
+       if(e.target.checked){
 
            const newFavorite = {
                 product_id: productid,
-                user_id: firebase.auth().currentUser.uid
+                user_id: userIn,
            };
 
             firebase.database().ref('/favorites').push(newFavorite)
@@ -193,19 +233,16 @@ const Home = (props) =>{
               setFavorites(favoritesArray);
             });
         }else{ // Se eliminara el like de ese producto.
-
-          if(userIn !== null){
             let userRef = firebase.database().ref('favorites/' + obtainIndex(productid));
             userRef.remove();
             alert("Removido de Favoritos.");
-          }
        }
     }
 
     // Obtener el indice del producto a eliminar.
     function obtainIndex(product_id){
        for(var i = 0; i < favorites.length; i++){
-            if(favorites[i].product_id === product_id && favorites[i].user_id === firebase.auth().currentUser.uid)
+            if(favorites[i].product_id === product_id && favorites[i].user_id === userIn)
                return favorites[i].id;
        }
     }
@@ -213,19 +250,9 @@ const Home = (props) =>{
     // Conocer si el usuario posee un favorito en un producto.
     function obtainFavorites(product_id){
 
-      firebase.auth().onAuthStateChanged(function(user) { 
-        if(user)
-          setuserIn(user.uid);
-        else
-          setuserIn(null);
-      });
-     
-      if(userIn !== null){
         for(var i = 0; i < favorites.length; i++)
           if(favorites[i].product_id === product_id && favorites[i].user_id === userIn)
               return true;
-      }
-
       return false;
   }
 
@@ -234,41 +261,58 @@ const Home = (props) =>{
   
       e.preventDefault();
 
-        firebase.auth().onAuthStateChanged(function(user) { 
-        if(!user){
-          props.history.push('/login');
-          setuserIn(null);
-        }
-      });
-
-      if(userIn === null)
+      if(userIn === null){
+        props.history.push('/login');
         return;
+      }
+
+      if(!obtainShopping(productid)){
 
             const newShoppingCart = {
               product_id: productid,
-              user_id: firebase.auth().currentUser.uid,
+              user_id: userIn,
               quantity: products[index].quantity 
             };
-
+            
             firebase.database().ref('/shoppingcart').push(newShoppingCart)
             .then(response =>{
-              alert("Agregado a Carro de Compra");  
+              alert("Agregado a Carro de Compra");
+              
             })
             .catch(error => {
               console.log(error);
               alert(error.message);
             });
+
+            // Actualizando el Hook con el ultimo favorito agregado mas reciente.
+            const refShopping = firebase.database().ref().child('shoppingcart').orderByKey();
+            let shoppingArray = []
+            refShopping.once('value', snap => {
+            snap.forEach(child => {
+
+              const newShoppingCart = {
+                product_id: child.val().product_id,
+                user_id: child.val().user_id,
+                quantity: child.val().quantity, 
+              };
+
+              if(newShoppingCart.user_id === userIn)
+                    shoppingArray.push(newShoppingCart);
+              });
+              setshoppingCart(shoppingArray);
+            });
     }
+    else  
+        alert("No puedes agregar al carrito de compra. Ya existe el producto.");
+   }
 
-    /*function verifiedShoppingProduct(productid)
-    {
-      firebase.database().ref('shoppingcart/').orderByChild("product_id").equalTo(productid).once("value", snapshot => {
-        if (snapshot.exists())
-          setshopVar(true);
-     });
-
-      return shopVar;
-    }*/
+   // Verifica la existencia de un shoppingCart asociado al usuario logueado.
+   function obtainShopping(productid){
+    for(var i = 0; i < shoppingCart.length; i++)
+          if(shoppingCart[i].product_id === productid && shoppingCart[i].user_id === userIn)
+                return true;
+    return false;
+  }
 
 return( 
   <Fragment>
@@ -408,7 +452,7 @@ return(
                       {obtainRoleUser() === true?
                       <div>
                       <Button 
-                          onClick={(event) => removeTarget(event, index)}
+                          onClick={(event) => removeTarget(event, products[index].id)}
                           entry = {index}>
                             <Delete color="primary" fontSize="default"/>
                       </Button>

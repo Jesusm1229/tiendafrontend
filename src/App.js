@@ -56,6 +56,7 @@ return (
                 
               {/* Mostrar icono de usuario o administrador y opciones al momento de iniciar sesion. */}
               {user && <User user={user} onLogout={onLogout} />}
+
           </Header>
           <Routes/>
     </Router>
