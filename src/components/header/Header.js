@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 // Componentes y Estilo makeStyle de Material-UI.
 import {AppBar, Toolbar, Typography, Button, Drawer, CssBaseline, List, Divider, IconButton, ListItem, ListItemIcon, ListItemText} from '@material-ui/core';
 // Icono de Tienda en el Header.
-import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse, AddShoppingCart} from '@material-ui/icons';
+import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse, ShoppingCartSharp} from '@material-ui/icons';
 // Redireccionamientos.
 import { Link as RouterLink, withRouter} from 'react-router-dom';
 // Importando los Estilos.
@@ -78,7 +78,7 @@ const Header = (props) =>{
               }
           <Button to="/" component={MyLink} color="inherit"><Home/></Button>
           <Typography variant="h6" className={classes.title}>
-            Tienda E-Commerce
+            Tienda E-Commerce - El Vecino Tarazona
           </Typography>
           {props.children}
         </Toolbar>
@@ -129,8 +129,8 @@ const Header = (props) =>{
         </List>
         <Divider/>
         <List>
-            <ListItem button component={RouterLink} to="/shoppinglist">
-              <ListItemIcon ><AddShoppingCart/></ListItemIcon>
+            <ListItem button component={RouterLink} to="/shoppingcart">
+              <ListItemIcon ><ShoppingCartSharp/></ListItemIcon>
               <ListItemText primary="Agregados Al Carrito" />
             </ListItem>
         </List>

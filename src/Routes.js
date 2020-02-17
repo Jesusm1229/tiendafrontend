@@ -24,7 +24,7 @@ const Routes = () =>(
       <Route exact path = "/editproduct" component={Editproduct}/>
       <Route exact path = "/favorites" component={Favorites}/>
       <Route exact path = "/lastproducts" component={Stock}/>
-      <Route exact path = "/shoppinglist" component={ShoppingCart}/>
+      <Route exact path = "/shoppingcart" component={ShoppingCart}/>
       <Route exact path = "/" component={Home}/>
     </Switch>
 );

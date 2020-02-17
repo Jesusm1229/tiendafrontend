@@ -6,7 +6,7 @@ import firebase from '../../FirebaseConfig';
 // Importando los Estilos.
 import {useStyles} from './styles';
 // Importando los iconos de Material-UI.
-import {HighlightOff} from '@material-ui/icons';
+import {Shop, RemoveShoppingCart} from '@material-ui/icons';
 
 const ShoppingCart = () => {
   const classes = useStyles();
@@ -14,11 +14,29 @@ const ShoppingCart = () => {
   // Hook para almacenar todos los productos.
   const [products, setProducts] = useState([]);
 
+  // Hook para almacenar el monto total a cancelar por parte del usuario.
+  const [toPay, settoPay] = useState();
+
+  // Hook para almacenar la informacion del usuario logueado.
+  const [user, setUser] = useState();
+
    useEffect(() =>{
+
+          // Usuario logueado al momento de realizar la compra.
+          firebase.auth().onAuthStateChanged(response =>{
+            if(response){
+              firebase.database().ref(`/users/${response.uid}`)
+              .once('value')
+              .then(snapshot =>{
+                setUser(snapshot.val());
+              });
+            }
+          });
 
           // Buscamos los productos que anadio el usuario al carrito o a la coleccion 'shoppingcart'.
           const refshopping = firebase.database().ref().child('shoppingcart').orderByKey();
           let productsArray = []
+          var total = 0
           refshopping.once('value', snap => {
           snap.forEach(child => {
 
@@ -38,9 +56,13 @@ const ShoppingCart = () => {
                       price:        snapshot.val().price,
                       stock:        snapshot.val().stock,
                       quantity:     child.val().quantity,
+                      pricefinal:   snapshot.val().price * child.val().quantity,
                     };
 
+                    total += shopping.pricefinal;
+
                     productsArray.push(shopping);
+                    settoPay(total);
                   });
                 }
               });
@@ -93,11 +115,13 @@ const ShoppingCart = () => {
                               <Typography variant="body2" color="textSecondary">
                                 {item.description}
                               </Typography>
+                              <Typography variant="subtitle2">{"A pagar: " + item.pricefinal}
+                              </Typography>
                             </Grid>
                             <Grid item>
                             <Button 
                                 onClick={(event) => removeShopping(event, index)}>
-                                  <HighlightOff/> Eliminar del Carrito
+                                  <RemoveShoppingCart/> Eliminar del Carrito
                            </Button>
                             </Grid>
                           </Grid>
@@ -110,6 +134,38 @@ const ShoppingCart = () => {
                         </Grid>
                       </Grid>
                     </Paper>
+                    {index === products.length - 1?
+
+                    <div>
+                      <Paper className={classes.paper}>
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} sm container>
+                            <Grid item xs container direction="column" spacing={2}>
+                              <Grid item xs>
+                                <Typography gutterBottom variant="subtitle1">
+                                  {"Facturacion El Vecino Tarazona."}
+                                </Typography>
+                                <Typography variant="body2" gutterBottom>
+                                  {"Cliente: " + user.name + " " + user.lastname}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  {"Subtotal: " + toPay + " Bs"}
+                                </Typography>
+                                <Typography variant="subtitle2">{"Total a pagar: " + toPay + " Bs"}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                      </Paper>
+                      <Grid container justify="center" alignItems="center" key={index}>
+                        <Button>
+                            <Shop/> Pagar con PayPal
+                        </Button>
+                      </Grid>
+                    </div>
+                    : <div/>
+                  }
                   </div>
               </Grid>
             ); // Termina el return, mostrando cada una de las tarjetas de productos.
