@@ -78,7 +78,7 @@ const Header = (props) =>{
               }
           <Button to="/" component={MyLink} color="inherit"><Home/></Button>
           <Typography variant="h6" className={classes.title}>
-            Tienda E-Commerce - El Vecino Tarazona
+            Tienda E-Commerce
           </Typography>
           {props.children}
         </Toolbar>

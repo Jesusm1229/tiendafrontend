@@ -6,7 +6,9 @@ import firebase from '../../FirebaseConfig';
 // Importando los Estilos.
 import {useStyles} from './styles';
 // Importando los iconos de Material-UI.
-import {Shop, RemoveShoppingCart} from '@material-ui/icons';
+import {RemoveShoppingCart} from '@material-ui/icons';
+// Importando el componente de Button de PayPal.
+import PaypalCheckout from '../paypalcheckout/PaypalCheckout';
 
 const ShoppingCart = () => {
   const classes = useStyles();
@@ -14,11 +16,17 @@ const ShoppingCart = () => {
   // Hook para almacenar todos los productos.
   const [products, setProducts] = useState([]);
 
-  // Hook para almacenar el monto total a cancelar por parte del usuario.
+  // Hook para almacenar el monto total a cancelar en bolivares por parte del usuario.
   const [toPay, settoPay] = useState();
 
   // Hook para almacenar la informacion del usuario logueado.
   const [user, setUser] = useState();
+
+  // Orden el shoppingCart completo para enviar a PayPal.
+  const order = {
+    total: (toPay/75000).toFixed(2),
+    shoppingcart: products,
+  };
 
    useEffect(() =>{
 
@@ -151,17 +159,16 @@ const ShoppingCart = () => {
                                 <Typography variant="body2" color="textSecondary">
                                   {"Subtotal: " + toPay + " Bs"}
                                 </Typography>
-                                <Typography variant="subtitle2">{"Total a pagar: " + toPay + " Bs"}
+                                <Typography variant="subtitle2">{"Total a pagar: " + (toPay/75000).toFixed(2) + "$ o " + toPay + " Bs"}
                                 </Typography>
                               </Grid>
                             </Grid>
                           </Grid>
                         </Grid>
                       </Paper>
-                      <Grid container justify="center" alignItems="center" key={index}>
-                        <Button>
-                            <Shop/> Pagar con PayPal
-                        </Button>
+
+                      <Grid container justify="center" alignItems="center" key={index} className={classes.paper}>
+                          <PaypalCheckout order={order}/>
                       </Grid>
                     </div>
                     : <div/>

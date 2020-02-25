@@ -10,6 +10,8 @@ import AvatarEdit from 'react-avatar-edit';
 import clsx from 'clsx';
 // Importando los Estilos.
 import {useStyles} from './styles';
+// Redireccionamientos.
+import { withRouter } from 'react-router-dom';
 
 // Funcion de CopyRight para el footer de la pagina.
 function Copyright() {
@@ -21,7 +23,7 @@ function Copyright() {
 }
 
 // Componente Funcional Addproduct.
-const Addproduct = () => {
+const Addproduct = (props) => {
 
   // Llamado de la función de Estilos.
   const classes = useStyles();
@@ -119,7 +121,8 @@ const handleSubmit = (e) => {
 
                 firebase.database().ref('/products').push(newProduct)
                 .then(response =>{
-                    alert("Producto Agregado con Exito.");  
+                    alert("Producto Agregado con Exito.");
+                    props.history.push("/");
                 })
                 .catch(error => {
                     console.log(error);
@@ -266,4 +269,4 @@ return (
   );
 }
 
-export default Addproduct;
+export default withRouter(Addproduct);
