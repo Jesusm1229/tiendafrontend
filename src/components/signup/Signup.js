@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 // Componentes de Material-UI.
-import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, Container, FormLabel} from '@material-ui/core';
+import {Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, Container, FormLabel} from '@material-ui/core';
 // Iconos de Material-UI.
 import {LockOutlined, LockOpen} from '@material-ui/icons';
 // Redireccionamientos.
@@ -51,6 +51,16 @@ const Signup = (props) => {
 
   // Evento HandleChange para modificar y asignar los datos al Hook.
   const handleChange = (e) => {
+
+    // Limites para la contrasena.
+    if(e.target.name === 'password')
+        if(e.target.value.length > 20)
+          return;
+
+    // Limites para el nombre y apellido.
+    if(e.target.name === 'name' || e.target.name === 'lastname')
+      if(e.target.value.length > 20)
+          return;
 
     // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
@@ -222,12 +232,6 @@ return (
                 autoComplete="current-password"
                 value={user.password}
                 onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={<Checkbox value="allowExtraEmails" color="primary" />}
-                label="Quiero recibir informacion de productos y noticia de la tienda via email."
               />
             </Grid>
           </Grid>

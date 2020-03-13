@@ -44,6 +44,19 @@ const [category, setCategory] = useState('');
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
 
+   // Limite para campo de descripcion.
+  if(e.target.name === 'description')
+    if(e.target.value.length > 65)
+     return;   
+
+  if(e.target.name === 'price' || e.target.name === 'stock')
+    if(e.target.value.length > 5)
+     return;
+
+  if(e.target.name === 'name')
+    if(e.target.value.length > 20)
+     return;
+
   // Transforma el caracter ingresado a código ASCII.
   var key = e.target.value.charCodeAt(e.target.value.length - 1);
 

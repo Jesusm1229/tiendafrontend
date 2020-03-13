@@ -58,6 +58,11 @@ const Login = (props) => {
   // Cambio en la tarjeta del usuario, cada vez que alguien inicia sesion.
   const handleChange = (e) => {
 
+    // Limites para la contrasena.
+    if(e.target.name === 'password')
+      if(e.target.value.length > 20)
+          return;
+
     // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 

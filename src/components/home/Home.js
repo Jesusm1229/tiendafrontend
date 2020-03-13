@@ -371,7 +371,7 @@ return(
                     title={item.image.title}
                   />
                   <CardContent>
-                    <Typography variant="body2" color="textSecondary" component="p">
+                    <Typography variant="body2" color="textSecondary" component="p" align="justify">
                       {item.description}
                     </Typography>
                     {obtainRoleUser() === true?

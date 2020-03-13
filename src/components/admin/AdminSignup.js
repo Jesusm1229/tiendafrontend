@@ -51,6 +51,17 @@ const AdminSignup = (props) => {
   // Evento de cambio de campos de registro.
   const handleChange = (e) => {
 
+
+    // Limites para la contrasena.
+    if(e.target.name === 'password')
+      if(e.target.value.length > 20)
+        return;
+
+    // Limites para el nombre y apellido.
+    if(e.target.name === 'name' || e.target.name === 'lastname')
+      if(e.target.value.length > 20)
+        return;
+
     // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
