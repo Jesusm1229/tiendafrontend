@@ -129,6 +129,9 @@ const onCrop = (preview) => {
 
 // Verificando el tamaño de la imagen y 
 const onBeforeFileLoad = (elem) => {
+
+  if(elem.target.files[0].type === "image/jpeg" || elem.target.files[0].type === "image/jpg" || elem.target.files[0].type === "image/png"){
+
     if(elem.target.files[0].size > 71680){
       alert("La imagen es demasiado grande, elija otra.");
       elem.target.value = "";
@@ -136,6 +139,11 @@ const onBeforeFileLoad = (elem) => {
 
     // Fijando la imagen tomada al state.
     avatarC.image = elem.target.files[0];
+  }else{
+    elem.target.value = "";
+    alert("Formato de imagen incorrecto. Elija una imagen.");
+    return;
+  }
 }
 
 return (
