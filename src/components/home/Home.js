@@ -50,7 +50,9 @@ const Home = (props) =>{
 
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
-  
+
+      console.log(props.match.params.category);
+
       firebase.auth().onAuthStateChanged(function(user) { 
         if(user)
           setuserIn(user.uid);
@@ -81,18 +83,21 @@ const Home = (props) =>{
         refProducts.once('value', snap => {
         snap.forEach(child => {
 
-            var productElement = {
-                id:          child.key, 
-                name:        child.val().name, 
-                price:       child.val().price,
-                image:       child.val().image,
-                category:    child.val().category,
-                description: child.val().description,
-                stock:       child.val().stock,
-                quantity:       1,
-            };
+          if(child.val().category === props.match.params.category || props.match.params.category === undefined){
+            console.log("entro");
+              var productElement = {
+                  id:          child.key, 
+                  name:        child.val().name, 
+                  price:       child.val().price,
+                  image:       child.val().image,
+                  category:    child.val().category,
+                  description: child.val().description,
+                  stock:       child.val().stock,
+                  quantity:       1,
+              };
 
-            productsArray.push(productElement);
+              productsArray.push(productElement);
+          }
            });
            setProduct(productsArray);
         });
@@ -119,7 +124,7 @@ const Home = (props) =>{
             setshoppingCart(shoppingArray);
          });
 
-      }, []);
+      }, [props.match.params.category]);
 
       //console.log(shoppingCart);
       console.log(products);
@@ -469,11 +474,11 @@ return(
                                 state: { product: products[indexEdit] }
                             }}
                           />
-
                       ) : null}
                       </div>
                       : <div/>
                       }
+
                   </Grid>
                   </CardActions>
                 </Card>
