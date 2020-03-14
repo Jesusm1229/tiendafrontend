@@ -271,6 +271,7 @@ const Home = (props) =>{
             const newShoppingCart = {
               product_id: productid,
               user_id: userIn,
+              price: products[index].quantity * products[index].price,
               quantity: products[index].quantity 
             };
             
