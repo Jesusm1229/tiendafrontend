@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
 // Componentes y Estilo makeStyle de Material-UI.
-import {AppBar, Toolbar, Typography, Button, Drawer, CssBaseline, List, Divider, IconButton, ListItem, ListItemIcon, ListItemText, Badge} from '@material-ui/core';
+import {AppBar, Toolbar, Typography, Button, Drawer, CssBaseline, List, Divider, IconButton, ListItem, ListItemIcon, ListItemText, Badge, InputBase } from '@material-ui/core';
 // Icono de Tienda en el Header.
-import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse, ShoppingCartSharp, Favorite} from '@material-ui/icons';
+import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse, ShoppingCartSharp, Favorite, Search} from '@material-ui/icons';
 // Redireccionamientos.
-import { Link as RouterLink, withRouter} from 'react-router-dom';
+import { Link as RouterLink} from 'react-router-dom';
 // Importando los Estilos.
 import {useStyles} from './styles';
 // Importando el boton de menu desplegable.
@@ -13,6 +13,10 @@ import { useTheme } from '@material-ui/core/styles';
 import clsx from 'clsx';
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
+// Redireccionamientos.
+import { withRouter } from 'react-router-dom';
+// Encriptar las busquedas.
+import { Base64 } from 'js-base64';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -52,6 +56,31 @@ const Header = (props) =>{
     });
   }, []);
 
+  const [busqueda, setbusqueda] = useState();
+
+  const handleChangeSearch = (e) => {
+
+      console.log(e.target.value);
+
+      // Transforma el caracter ingresado a código ASCII.
+      var key = e.target.value.charCodeAt(e.target.value.length - 1);
+      console.log(key);
+
+      // Validación del campo Nombre y Descripción, solo se podrán introducir letras.
+      if( key !== 32 && (key < 97 || key > 122)) 
+          return;
+
+      setbusqueda(e.target.value);
+  }
+
+  const handleEnterKey = (e) => {
+      if(e.key === 'Enter'){
+          console.log("Presionado.");
+          console.log(busqueda);
+          props.history.push('/search/results/' + Base64.encode(busqueda));
+      }
+  }
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -78,21 +107,41 @@ const Header = (props) =>{
               }
           <Button to="/" component={MyLink} color="inherit"><Home/></Button>
           <Typography variant="h6" className={classes.title}>
-            Tienda E-Commerce
+            Tienda
           </Typography>
           {props.user?
-          <div>
-              <Button to="/shoppingcart" component={MyLink} color="inherit">
-              <Badge badgeContent={props.cantidad} color="secondary" max={999}>
-                <ShoppingCartSharp />
-              </Badge>
-              </Button>
-
-              <Button to="/lastproducts" component={MyLink} color="inherit"><Timelapse /></Button>
-              <Button to="/favorites" component={MyLink} color="inherit"><Favorite /></Button>
-          </div>
-          : <div/>
+            <div>
+                <div className={classes.search}>
+                <div className={classes.searchIcon}>
+                  <Search />
+                </div>
+                <InputBase onChange={handleChangeSearch} onKeyDown={handleEnterKey}
+                  placeholder="Busqueda..."
+                  classes={{
+                    root: classes.inputRoot,
+                    input: classes.inputInput,
+                  }}
+                  inputProps={{ 'aria-label': 'search' }}
+                />
+              </div>
+            </div>
+            : <div/>
           }
+          
+          {props.user?
+              <div>
+                  <Button to="/shoppingcart" component={MyLink} color="inherit">
+                  <Badge badgeContent={props.cantidad} color="secondary" max={999}>
+                    <ShoppingCartSharp />
+                  </Badge>
+                  </Button>
+
+                  <Button to="/lastproducts" component={MyLink} color="inherit"><Timelapse /></Button>
+                  <Button to="/favorites" component={MyLink} color="inherit"><Favorite /></Button>
+              </div>
+              : <div/>
+          }
+          
           {props.children}
         </Toolbar>
       </AppBar>

@@ -11,6 +11,8 @@ import {useStyles, StyledMenu, StyledMenuItem} from './styles';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 // Redireccionamientos.
 import { Redirect } from 'react-router-dom';
+// Desencriptar las busquedas recibidas del Header.
+import { Base64 } from 'js-base64';
 
 // Componente Funcional Home.
 const Home = (props) =>{
@@ -51,7 +53,8 @@ const Home = (props) =>{
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
 
-      console.log(props.match.params.category);
+      if(props.match.params.search !== undefined)
+        console.log("Resultado de Busqueda: " + Base64.decode(props.match.params.search));
 
       firebase.auth().onAuthStateChanged(function(user) { 
         if(user)
@@ -124,7 +127,7 @@ const Home = (props) =>{
             setshoppingCart(shoppingArray);
          });
 
-      }, [props.match.params.category]);
+      }, [props.match.params.category, props.match.params.search]);
 
       //console.log(shoppingCart);
       console.log(products);

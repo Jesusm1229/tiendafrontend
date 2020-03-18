@@ -117,8 +117,22 @@ const Signup = (props) => {
                 });
             });
         });
-    }else
-      alert("Debes introducir un avatar.");
+    }else{
+          // Registrando y autenticando al nuevo usuario.
+          firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+          .then(response => {
+              // Encriptando la contraseña del registro de usuario.
+              user.password = Base64.encode(user.password);
+
+              firebase.database().ref(`/users/${response.user.uid}`).set(user);
+              alert('Bienvenido a Tienda E-Commerce');
+              props.history.push('/');
+          })
+          .catch(error => {
+              console.log(error);
+              alert(error.message);
+          });
+    }
 }
 
 // Funcion para quitar la foto elegida.

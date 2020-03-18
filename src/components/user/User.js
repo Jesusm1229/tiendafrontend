@@ -55,7 +55,11 @@ const User = ({history, user, onLogout}) => {
                 onClick={handleMenu}
                 color="inherit"
               >
-                <Avatar alt="Remy Sharp" src={user.avatar} className={classes.bigAvatar} />
+                { user.avatar !== ""?
+                  <div><Avatar alt="Remy Sharp" src={user.avatar} className={classes.bigAvatar} /></div>
+                  : 
+                  <div><Avatar className={classes.orange}>{String.fromCharCode(user.name.charCodeAt(0)-32) + String.fromCharCode(user.lastname.charCodeAt(0)-32)}</Avatar></div>
+                }
               </IconButton>
               <Menu
                 id="menu-appbar"
