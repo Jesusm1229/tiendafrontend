@@ -46,6 +46,11 @@ const User = ({history, user, onLogout}) => {
      });
   };
 
+  // Evento para cambio de componente a ChangeAvatar.
+  const handleChangeAvatar = () => {
+    history.push("/changeavatar");
+  };
+
   return(
         <div>
               <IconButton
@@ -86,6 +91,7 @@ const User = ({history, user, onLogout}) => {
                         <MenuItem disabled><Icon>account_circle</Icon>{user.name + " " + user.lastname}</MenuItem>
                     </div>
                 }
+                <MenuItem onClick={handleChangeAvatar}><Icon>photo_camera_icon</Icon>Cambio de Avatar</MenuItem>
                 <MenuItem onClick={handleLogout}><Icon>exit_to_app_icon</Icon>Cerrar Sesión</MenuItem>
               </Menu>
             </div>
