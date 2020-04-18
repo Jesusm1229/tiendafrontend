@@ -47,7 +47,10 @@ const Signup = (props) => {
     password: '',
     avatar: '',
     role: false,
-});
+  });
+
+  // Hook para saber si se ha presionado el boton de registrar o no.
+  const [press, setPress] = useState(false);
 
   // Evento HandleChange para modificar y asignar los datos al Hook.
   const handleChange = (e) => {
@@ -88,19 +91,39 @@ const Signup = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(avatarC.image !== ''){
-         // AVATAR.
-         console.log(avatarC.image.name);
-         const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
-         storageRef.put(avatarC.image).then(function(result){
+    if(!press){}
+        setPress(true);
+          if(avatarC.image !== ''){
+              // AVATAR.
+              console.log(avatarC.image.name);
+              const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
+              storageRef.put(avatarC.image).then(function(result){
 
-             storageRef.getDownloadURL().then(function(url){
-                console.log("URL: " + url);
-                avatarC.avatarURL = url;
+                  storageRef.getDownloadURL().then(function(url){
+                      console.log("URL: " + url);
+                      avatarC.avatarURL = url;
 
-                // Asignando la URL sacada del Firebase Storage al avatar del usuario.
-                user.avatar = avatarC.avatarURL;
+                      // Asignando la URL sacada del Firebase Storage al avatar del usuario.
+                      user.avatar = avatarC.avatarURL;
 
+                      // Registrando y autenticando al nuevo usuario.
+                      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+                      .then(response => {
+                          // Encriptando la contraseña del registro de usuario.
+                          user.password = Base64.encode(user.password);
+
+                          firebase.database().ref(`/users/${response.user.uid}`).set(user);
+                          alert('Bienvenido a Tienda E-Commerce');
+                          props.history.push('/');
+                      })
+                      .catch(error => {
+                          console.log(error);
+                          alert(error.message);
+                          setPress(false);
+                      });
+                  });
+              });
+          }else{
                 // Registrando y autenticando al nuevo usuario.
                 firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
                 .then(response => {
@@ -114,25 +137,9 @@ const Signup = (props) => {
                 .catch(error => {
                     console.log(error);
                     alert(error.message);
+                    setPress(false);
                 });
-            });
-        });
-    }else{
-          // Registrando y autenticando al nuevo usuario.
-          firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-          .then(response => {
-              // Encriptando la contraseña del registro de usuario.
-              user.password = Base64.encode(user.password);
-
-              firebase.database().ref(`/users/${response.user.uid}`).set(user);
-              alert('Bienvenido a Tienda E-Commerce');
-              props.history.push('/');
-          })
-          .catch(error => {
-              console.log(error);
-              alert(error.message);
-          });
-    }
+          }
 }
 
 // Funcion para quitar la foto elegida.

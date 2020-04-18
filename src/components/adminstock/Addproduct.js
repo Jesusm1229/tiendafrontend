@@ -41,6 +41,9 @@ const Addproduct = (props) => {
 // Hook para la categoria de los productos.
 const [category, setCategory] = useState('');
 
+// Hook para saber si se ha presionado el boton de agregar producto o no.
+const [press, setPress] = useState(false);
+
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
 
@@ -124,38 +127,42 @@ const onBeforeFileLoad = (elem) => {
 const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(product.image && product.category !== ''){
-        // Imagen del producto.
-        console.log(product.image.name);
-        const storageRef = firebase.storage().ref(`products/${product.image.name}`);
-        storageRef.put(product.image).then(function(result){
+    if(!press){
+            setPress(true);
+            if(product.image && product.category !== ''){
+                // Imagen del producto.
+                console.log(product.image.name);
+                const storageRef = firebase.storage().ref(`products/${product.image.name}`);
+                storageRef.put(product.image).then(function(result){
 
-            storageRef.getDownloadURL().then(function(url){
-               // Asignando la URL sacada del Firebase Storage al avatar del administrador.
+                    storageRef.getDownloadURL().then(function(url){
+                      // Asignando la URL sacada del Firebase Storage al avatar del administrador.
 
-                const newProduct = {
-                    name: product.name,
-                    image: url,
-                    price: product.price,
-                    category: product.category,
-                    description: product.description,
-                    stock: product.stock
-                };
+                        const newProduct = {
+                            name: product.name,
+                            image: url,
+                            price: product.price,
+                            category: product.category,
+                            description: product.description,
+                            stock: product.stock
+                        };
 
-                firebase.database().ref('/products').push(newProduct)
-                .then(response =>{
-                    alert("Producto Agregado con Exito.");
-                    props.history.push("/");
-                })
-                .catch(error => {
-                    console.log(error);
-                    alert(error.message);
+                        firebase.database().ref('/products').push(newProduct)
+                        .then(response =>{
+                            alert("Producto Agregado con Exito.");
+                            props.history.push("/");
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            alert(error.message);
+                            setPress(false);
+                        });
+                    });
                 });
-            });
-        });
+            }
+            else
+                alert("Complete el formulario.");
     }
-    else
-        alert("Complete el formulario.");
 }
 
 return (

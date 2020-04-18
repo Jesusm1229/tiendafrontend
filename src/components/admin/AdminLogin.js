@@ -32,20 +32,22 @@ const AdminLogin = (props) => {
     password: ''
   });
 
+  // Hook para saber si se ha presionado el boton de ingresar o no.
+  const [press, setPress] = useState(false);
+
   // Cambio en la tarjeta del administrador, cada vez que alguien inicia sesion.
   const handleChange = (e) => {
-
+    
     // Limites para la contrasena.
-    if(e.target.name === 'password')
-        if(e.target.value.length > 20)
-          return;
+    if(e.target.name === 'password' && e.target.value.length > 20)
+        return;
 
     // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
     // Validación del campo email.
     if(e.target.name === 'email')
-      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key > 64 && key < 95) || (key > 122 || key === 47 || key === 96)) return;
+      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key > 64 && key < 95) || key > 122 || key === 47 || key === 96 ) return;
     
      // Validación del campo contraseña.
     if(e.target.name === 'password')
@@ -62,27 +64,31 @@ const AdminLogin = (props) => {
   const handleLogin = (e) => {
         e.preventDefault();
     
-        // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
-        var ref = firebase.database().ref("users");
-        ref.orderByChild("email").equalTo(admin.email).on("child_added", function(snapshot) {
-          
-          // Si el role es 'true', iniciara sesion como administrador, sino no podrá iniciar sesion por ser usuario.
-          if(snapshot.val().role){
-        
-              firebase.auth().signInWithEmailAndPassword(admin.email, admin.password)
-              .then(response => {
-                  // Una vez autenticado el administrador, redirecciona a la home.
-                  props.history.push('/');
-              })
-              .catch(error => {
-              console.log(error);
-              alert(error.message);
-              });
-          }
-          else
-              alert("No puedes iniciar sesión, posees cuenta de usuario.");
-        });
-      };
+        if(!press){
+            setPress(true);
+            // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
+            var ref = firebase.database().ref("users");
+            ref.orderByChild("email").equalTo(admin.email).on("child_added", function(snapshot) {
+              
+              // Si el role es 'true', iniciara sesion como administrador, sino no podrá iniciar sesion por ser usuario.
+              if(snapshot.val().role){
+            
+                  firebase.auth().signInWithEmailAndPassword(admin.email, admin.password)
+                  .then(response => {
+                      // Una vez autenticado el administrador, redirecciona a la home.
+                      props.history.push('/');
+                  })
+                  .catch(error => {
+                    console.log(error);
+                    alert(error.message);
+                    setPress(false);
+                  });
+              }
+              else
+                  alert("No puedes iniciar sesión, posees cuenta de usuario.");
+            });
+        }
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -103,7 +109,7 @@ const AdminLogin = (props) => {
             name="email"
             autoComplete="email"
             autoFocus
-            defaultValue={admin.email}
+            value={admin.email}
             onChange={handleChange}
           />
           <TextField
@@ -115,8 +121,9 @@ const AdminLogin = (props) => {
             label="Contraseña"
             type="password"
             id="password"
+            autoFocus
             autoComplete="current-password"
-            defaultValue={admin.password}
+            value={admin.password}
             onChange={handleChange}
           />
           <FormControlLabel

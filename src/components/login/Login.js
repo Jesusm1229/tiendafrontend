@@ -55,6 +55,9 @@ const Login = (props) => {
     password: ''
   });
 
+  // Hook para saber si se ha presionado el boton de ingresar o no.
+  const [press, setPress] = useState(false);
+
   // Cambio en la tarjeta del usuario, cada vez que alguien inicia sesion.
   const handleChange = (e) => {
 
@@ -85,26 +88,30 @@ const Login = (props) => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
-    var ref = firebase.database().ref("users");
-    ref.orderByChild("email").equalTo(user.email).on("child_added", function(snapshot) {
-      
-      // Si el role es 'false', iniciara sesion como usuario, sino no podrá iniciar sesion por ser administrador.
-      if(!snapshot.val().role){
-    
-          firebase.auth().signInWithEmailAndPassword(user.email, user.password)
-          .then(response => {
-              // Una vez autenticado el usuario, redirecciona a la home.
-              props.history.push('/');
-          })
-          .catch(error => {
-          console.log(error);
-          alert(error.message);
-          });
+      if(!press){
+            setPress(true);
+            // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
+            var ref = firebase.database().ref("users");
+            ref.orderByChild("email").equalTo(user.email).on("child_added", function(snapshot) {
+              
+              // Si el role es 'false', iniciara sesion como usuario, sino no podrá iniciar sesion por ser administrador.
+              if(!snapshot.val().role){
+            
+                  firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+                  .then(response => {
+                      // Una vez autenticado el usuario, redirecciona a la home.
+                      props.history.push('/');
+                  })
+                  .catch(error => {
+                      console.log(error);
+                      alert(error.message);
+                      setPress(false);
+                  });
+              }
+              else
+                  alert("No puedes iniciar sesión, posees cuenta de administrador.");
+            });
       }
-      else
-          alert("No puedes iniciar sesión, posees cuenta de administrador.");
-    });
   };
 
 return (
@@ -126,7 +133,7 @@ return (
             name="email"
             autoComplete="email"
             autoFocus
-            defaultValue={user.email}
+            value={user.email}
             onChange={handleChange}
           />
           <TextField

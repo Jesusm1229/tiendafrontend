@@ -48,9 +48,11 @@ const AdminSignup = (props) => {
       role: true
   });
 
+   // Hook para saber si se ha presionado el boton de registrar o no.
+   const [press, setPress] = useState(false);
+
   // Evento de cambio de campos de registro.
   const handleChange = (e) => {
-
 
     // Limites para la contrasena.
     if(e.target.name === 'password')
@@ -88,37 +90,41 @@ const AdminSignup = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(avatarC.image !== ''){
-         // AVATAR.
-         console.log(avatarC.image.name);
-         const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
-         storageRef.put(avatarC.image).then(function(result){
+    if(!press){
+          setPress(true);
+          if(avatarC.image !== ''){
+              // AVATAR.
+              console.log(avatarC.image.name);
+              const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
+              storageRef.put(avatarC.image).then(function(result){
 
-             storageRef.getDownloadURL().then(function(url){
-                console.log("URL: " + url);
-                avatarC.avatarURL = url;
+                  storageRef.getDownloadURL().then(function(url){
+                      console.log("URL: " + url);
+                      avatarC.avatarURL = url;
 
-                // Asignando la URL sacada del Firebase Storage al avatar del administrador.
-                user.avatar = avatarC.avatarURL;
+                      // Asignando la URL sacada del Firebase Storage al avatar del administrador.
+                      user.avatar = avatarC.avatarURL;
 
-                // Registrando y autenticando al nuevo administrador.
-                firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-                .then(response => {
-                    // Encriptando la contraseña del registro de administrador.
-                    user.password = Base64.encode(user.password);
+                      // Registrando y autenticando al nuevo administrador.
+                      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+                      .then(response => {
+                          // Encriptando la contraseña del registro de administrador.
+                          user.password = Base64.encode(user.password);
 
-                    firebase.database().ref(`/users/${response.user.uid}`).set(user);
-                    alert('Ya puedes administrar la Tienda E-commerce');
-                    props.history.push('/');
-                })
-                .catch(error => {
-                    console.log(error);
-                    alert(error.message);
-                });
-            });
-        });
-    }else
-      alert("Debes introducir un avatar.");
+                          firebase.database().ref(`/users/${response.user.uid}`).set(user);
+                          alert('Ya puedes administrar la Tienda E-commerce');
+                          props.history.push('/');
+                      })
+                      .catch(error => {
+                          console.log(error);
+                          alert(error.message);
+                          setPress(false);
+                      });
+                  });
+              });
+          }else
+            alert("Debes introducir un avatar.");
+    }
 }
 
    // Funcion para quitar la foto elegida.

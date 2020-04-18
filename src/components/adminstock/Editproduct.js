@@ -47,6 +47,9 @@ const Editproduct = (props) => {
 // Hook para la categoria de los productos.
 const [category, setCategory] = useState('');
 
+// Hook para saber si se ha presionado el boton de editar producto o no.
+const [press, setPress] = useState(false);
+
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
 
@@ -130,58 +133,62 @@ const onBeforeFileLoad = (elem) => {
 const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Verificando si ha realizado algun cambio, antes de realizar la consulta.
-    firebase.database().ref(`products/${product.id}`)
-    .once('value', snap => {
+    if(!press){
+          setPress(true);
+          // Verificando si ha realizado algun cambio, antes de realizar la consulta.
+          firebase.database().ref(`products/${product.id}`)
+          .once('value', snap => {
+              
+            if(snap.val().name === product.name && snap.val().price === product.price && snap.val().stock === product.stock &&
+                snap.val().description === product.description && snap.val().image === product.image && snap.val().category === product.category){
+                alert("No has realizado ninguna edicion.");
+                return;
+              }
+
+              if(product.image === ''){
+                alert("Seleccione una imagen de producto.");
+                return;
+              }
+
+              if(product.image.name !== undefined){
+                const storageRef = firebase.storage().ref(`products/${product.image}`);
+                storageRef.put(product.image).then(function(result){
         
-      if(snap.val().name === product.name && snap.val().price === product.price && snap.val().stock === product.stock &&
-           snap.val().description === product.description && snap.val().image === product.image && snap.val().category === product.category){
-           alert("No has realizado ninguna edicion.");
-           return;
-        }
+                    storageRef.getDownloadURL().then(function(url){
 
-        if(product.image === ''){
-          alert("Seleccione una imagen de producto.");
-          return;
-        }
+                        const editProduct = {
+                            name: product.name,
+                            image: url,
+                            price: product.price,
+                            category: product.category,
+                            description: product.description,
+                            stock: product.stock,
+                        };
 
-        if(product.image.name !== undefined){
-          const storageRef = firebase.storage().ref(`products/${product.image}`);
-          storageRef.put(product.image).then(function(result){
-  
-              storageRef.getDownloadURL().then(function(url){
-
-                  const editProduct = {
-                      name: product.name,
-                      image: url,
-                      price: product.price,
-                      category: product.category,
-                      description: product.description,
-                      stock: product.stock,
-                  };
-
-                  firebase.database().ref(`products/${product.id}`).update(editProduct)
-                  .then(response =>{
-                      alert("Producto Editado con Exito.");  
-                  })
-                  .catch(error => {
-                      console.log(error);
-                      alert(error.message);
-                  });
-              });
+                        firebase.database().ref(`products/${product.id}`).update(editProduct)
+                        .then(response =>{
+                            alert("Producto Editado con Exito.");  
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            alert(error.message);
+                            setPress(false);
+                        });
+                    });
+                });
+              }
+              else{
+                firebase.database().ref(`products/${product.id}`).update({ 
+                  name: product.name,
+                  price: product.price,
+                  category: product.category,
+                  description: product.description,
+                  stock: product.stock,
+                });
+                alert("Producto Editado con Exito."); 
+              }
           });
-        }
-        else{
-          firebase.database().ref(`products/${product.id}`).update({ 
-            name: product.name,
-            price: product.price,
-            category: product.category,
-            description: product.description,
-            stock: product.stock,
-          });
-          alert("Producto Editado con Exito."); 
-        }
-    });
+    }
 } 
 
 return (

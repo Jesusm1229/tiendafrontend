@@ -24,6 +24,9 @@ const ChangeAvatar = (props) => {
   // Hook para almacenar el usuario logueado.
   const [userphoto, setUserPhoto] = useState("");
 
+  // Hook para saber si se ha presionado el boton de guardar cambios o no.
+  const [press, setPress] = useState(false);
+
   useEffect(() =>{
 
     firebase.auth().onAuthStateChanged(function(user) { 
@@ -75,50 +78,56 @@ const ChangeAvatar = (props) => {
 
     e.preventDefault();
 
-    // Casos donde no ha realizado ningun cambio de avatar.
-    if((userphoto === "" && avatarImage === "") || (userphoto === avatarImage)){
-        alert("No has realizado ningun cambio.");
-        return;
-    }
+    if(!press){
+            setPress(true);
+            // Casos donde no ha realizado ningun cambio de avatar.
+            if((userphoto === "" && avatarImage === "") || (userphoto === avatarImage)){
+                alert("No has realizado ningun cambio.");
+                setPress(false);
+                return;
+            }
 
-    // Eliminar avatar existente.
-    if(userphoto !== "" && avatarImage === ""){
-        firebase.database().ref(`users/${firebase.auth().currentUser.uid}`).update({ 
-            avatar: "",
-          })
-          .catch(error => {
-            console.log(error);
-            alert(error.message);
-          });
-
-          window.location.reload(false);
-          alert("Avatar Eliminado."); 
-    }
-
-    // Editar Avatar existente.
-    if(avatarImage !== ""){
-         // AVATAR.
-         console.log(avatarImage.name);
-         const storageRef = firebase.storage().ref(`avatars/${avatarImage.name}`);
-         storageRef.put(avatarImage).then(function(result){
-
-             storageRef.getDownloadURL().then(function(url){
-                console.log("URL: " + url);
-
+            // Eliminar avatar existente.
+            if(userphoto !== "" && avatarImage === ""){
                 firebase.database().ref(`users/${firebase.auth().currentUser.uid}`).update({ 
-                    avatar: url,
+                    avatar: "",
                   })
                   .catch(error => {
                     console.log(error);
                     alert(error.message);
+                    setPress(false);
                   });
-                  
+
                   window.location.reload(false);
-                  alert("Avatar Editado con Exito."); 
-                });
-            });
-        }
+                  alert("Avatar Eliminado."); 
+            }
+
+            // Editar Avatar existente.
+            if(avatarImage !== ""){
+                // AVATAR.
+                console.log(avatarImage.name);
+                const storageRef = firebase.storage().ref(`avatars/${avatarImage.name}`);
+                storageRef.put(avatarImage).then(function(result){
+
+                    storageRef.getDownloadURL().then(function(url){
+                        console.log("URL: " + url);
+
+                        firebase.database().ref(`users/${firebase.auth().currentUser.uid}`).update({ 
+                            avatar: url,
+                          })
+                          .catch(error => {
+                            console.log(error);
+                            alert(error.message);
+                            setPress(false);
+                          });
+                          
+                          window.location.reload(false);
+                          alert("Avatar Editado con Exito."); 
+                        });
+                    });
+                }
     }
+  }
 
   return(
     <div>
