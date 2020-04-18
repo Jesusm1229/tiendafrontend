@@ -47,9 +47,6 @@ const Editproduct = (props) => {
 // Hook para la categoria de los productos.
 const [category, setCategory] = useState('');
 
-// Hook para saber si se ha presionado el boton de editar producto o no.
-const [press, setPress] = useState(false);
-
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
 
@@ -133,8 +130,6 @@ const onBeforeFileLoad = (elem) => {
 const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(!press){
-          setPress(true);
           // Verificando si ha realizado algun cambio, antes de realizar la consulta.
           firebase.database().ref(`products/${product.id}`)
           .once('value', snap => {
@@ -172,7 +167,6 @@ const handleSubmit = (e) => {
                         .catch(error => {
                             console.log(error);
                             alert(error.message);
-                            setPress(false);
                         });
                     });
                 });
@@ -188,7 +182,6 @@ const handleSubmit = (e) => {
                 alert("Producto Editado con Exito."); 
               }
           });
-    }
 } 
 
 return (

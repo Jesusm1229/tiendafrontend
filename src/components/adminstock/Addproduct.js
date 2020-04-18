@@ -41,9 +41,6 @@ const Addproduct = (props) => {
 // Hook para la categoria de los productos.
 const [category, setCategory] = useState('');
 
-// Hook para saber si se ha presionado el boton de agregar producto o no.
-const [press, setPress] = useState(false);
-
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
 
@@ -127,8 +124,6 @@ const onBeforeFileLoad = (elem) => {
 const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(!press){
-            setPress(true);
             if(product.image && product.category !== ''){
                 // Imagen del producto.
                 console.log(product.image.name);
@@ -155,14 +150,12 @@ const handleSubmit = (e) => {
                         .catch(error => {
                             console.log(error);
                             alert(error.message);
-                            setPress(false);
                         });
                     });
                 });
             }
             else
                 alert("Complete el formulario.");
-    }
 }
 
 return (

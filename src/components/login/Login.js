@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 // Componentes de Material-UI.
-import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, Container} from '@material-ui/core';
+import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, Container, FormControl, InputLabel, Select, MenuItem} from '@material-ui/core';
 // Iconos de Material-UI.
 import {LockOutlined, Cancel} from '@material-ui/icons';
 // Redireccionamientos.
@@ -55,8 +55,17 @@ const Login = (props) => {
     password: ''
   });
 
-  // Hook para saber si se ha presionado el boton de ingresar o no.
-  const [press, setPress] = useState(false);
+  // Se almacenara la direccion de correo asociada.
+  const [direction, setDirection] = useState(null);
+
+  // Labels y Hooks para las direcciones de correos.
+  const inputLabel = useRef(null);
+  const [labelWidth, setLabelWidth] = React.useState(0);
+   
+  useEffect(() => {
+     setLabelWidth(inputLabel.current.offsetWidth);
+     setDirection("@gmail.com");
+  }, []);
 
   // Cambio en la tarjeta del usuario, cada vez que alguien inicia sesion.
   const handleChange = (e) => {
@@ -88,16 +97,14 @@ const Login = (props) => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-      if(!press){
-            setPress(true);
             // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
             var ref = firebase.database().ref("users");
-            ref.orderByChild("email").equalTo(user.email).on("child_added", function(snapshot) {
+            ref.orderByChild("email").equalTo(user.email + direction).on("child_added", function(snapshot) {
               
               // Si el role es 'false', iniciara sesion como usuario, sino no podrá iniciar sesion por ser administrador.
               if(!snapshot.val().role){
             
-                  firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+                  firebase.auth().signInWithEmailAndPassword(user.email + direction, user.password)
                   .then(response => {
                       // Una vez autenticado el usuario, redirecciona a la home.
                       props.history.push('/');
@@ -105,14 +112,17 @@ const Login = (props) => {
                   .catch(error => {
                       console.log(error);
                       alert(error.message);
-                      setPress(false);
                   });
               }
               else
                   alert("No puedes iniciar sesión, posees cuenta de administrador.");
             });
-      }
   };
+
+// Funcion dedicada para modificar las direcciones del correo.
+const handleModified = (event) => {
+  setDirection(event.target.value);
+};
 
 return (
     <Container component="main" maxWidth="xs">
@@ -123,19 +133,42 @@ return (
         </Avatar>
         <Typography align='center' component="h1" variant="h5">Ingresar a Tienda E-Commerce</Typography>
         <form className={classes.form} onSubmit={handleLogin}>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Correo Electrónico"
-            name="email"
-            autoComplete="email"
-            autoFocus
-            value={user.email}
-            onChange={handleChange}
-          />
+        <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                autoComplete="email"
+                name="email"
+                variant="outlined"
+                required
+                fullWidth
+                id="email"
+                label="Correo"
+                autoFocus
+                value={user.email}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+            <FormControl variant="outlined" className={classes.formControl}>
+                <InputLabel ref={inputLabel} id="demo-simple-select-outlined-label">
+                    Direccion*
+                </InputLabel>
+                <Select
+                     labelId="demo-simple-select-outlined-label"
+                     id="demo-simple-select-outlined"
+                     required
+                     onChange={handleModified}
+                     labelWidth={labelWidth}
+                     defaultValue={"@gmail.com"}
+                     name="direction"
+                >
+                     <MenuItem value={"@gmail.com"}>@gmail.com</MenuItem>
+                     <MenuItem value={"@hotmail.com"}>@hotmail.com</MenuItem>
+                     <MenuItem value={"@outlook.com"}>@outlook.com</MenuItem>
+                     <MenuItem value={"@yahoo.com"}>@yahoo.com</MenuItem>
+                </Select>
+            </FormControl>
+            </Grid>
           <TextField
             variant="outlined"
             margin="normal"
@@ -153,6 +186,7 @@ return (
             control={<Checkbox value="remember" color="primary" />}
             label="Recuerdame"
           />
+           </Grid>
           <Button
             type="submit"
             fullWidth

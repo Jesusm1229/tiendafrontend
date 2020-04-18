@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Link, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Typography, Container, Checkbox} from '@material-ui/core';
+import React, {useState, useEffect, useRef} from 'react';
+import {Link, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Typography, Container, Checkbox, FormControl, InputLabel, Select, MenuItem} from '@material-ui/core';
 import {LockOutlined, Cancel} from '@material-ui/icons';
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
@@ -32,12 +32,21 @@ const AdminLogin = (props) => {
     password: ''
   });
 
-  // Hook para saber si se ha presionado el boton de ingresar o no.
-  const [press, setPress] = useState(false);
+  // Hook que almacena la direccion de correo del admin.
+  const [direction, setDirection] = useState(null);
+
+   // Labels y Hooks para las direcciones de correos.
+   const inputLabel = useRef(null);
+   const [labelWidth, setLabelWidth] = React.useState(0);
+   
+   useEffect(() => {
+     setLabelWidth(inputLabel.current.offsetWidth);
+     setDirection("@gmail.com");
+   }, []);
 
   // Cambio en la tarjeta del administrador, cada vez que alguien inicia sesion.
   const handleChange = (e) => {
-    
+
     // Limites para la contrasena.
     if(e.target.name === 'password' && e.target.value.length > 20)
         return;
@@ -45,9 +54,13 @@ const AdminLogin = (props) => {
     // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
+    // Correos no pueden comenzar ni terminar con puntos y guiones.
+    if(e.target.name === 'email' && e.target.value.length === 1 && (key === 46 || key === 45 ))
+        return;
+
     // Validación del campo email.
     if(e.target.name === 'email')
-      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key > 64 && key < 95) || key > 122 || key === 47 || key === 96 ) return;
+      if( (key > 31 && key < 45) || (key > 57 && key < 65) || (key > 64 && key < 95) || key > 122 || key === 47 || key === 96 ) return;
     
      // Validación del campo contraseña.
     if(e.target.name === 'password')
@@ -64,16 +77,14 @@ const AdminLogin = (props) => {
   const handleLogin = (e) => {
         e.preventDefault();
     
-        if(!press){
-            setPress(true);
             // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
             var ref = firebase.database().ref("users");
-            ref.orderByChild("email").equalTo(admin.email).on("child_added", function(snapshot) {
+            ref.orderByChild("email").equalTo(admin.email + direction).on("child_added", function(snapshot) {
               
               // Si el role es 'true', iniciara sesion como administrador, sino no podrá iniciar sesion por ser usuario.
               if(snapshot.val().role){
             
-                  firebase.auth().signInWithEmailAndPassword(admin.email, admin.password)
+                  firebase.auth().signInWithEmailAndPassword(admin.email + direction, admin.password)
                   .then(response => {
                       // Una vez autenticado el administrador, redirecciona a la home.
                       props.history.push('/');
@@ -81,13 +92,16 @@ const AdminLogin = (props) => {
                   .catch(error => {
                     console.log(error);
                     alert(error.message);
-                    setPress(false);
                   });
               }
               else
                   alert("No puedes iniciar sesión, posees cuenta de usuario.");
             });
-        }
+  };
+
+  // Funcion dedicada para modificar las direcciones del correo.
+  const handleModified = (event) => {
+    setDirection(event.target.value);
   };
 
   return (
@@ -99,19 +113,41 @@ const AdminLogin = (props) => {
         </Avatar>
         <Typography align="center" component="h1" variant="h5">Ingreso de Administrador</Typography>
         <form className={classes.form} onSubmit={handleLogin}>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Correo Electrónico"
-            name="email"
-            autoComplete="email"
-            autoFocus
-            value={admin.email}
-            onChange={handleChange}
-          />
+        <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                autoComplete="email"
+                name="email"
+                variant="outlined"
+                required
+                fullWidth
+                id="email"
+                label="Correo"
+                autoFocus
+                value={admin.email}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+            <FormControl variant="outlined" className={classes.formControl}>
+                <InputLabel ref={inputLabel} id="demo-simple-select-outlined-label">
+                    Direccion*
+                </InputLabel>
+                <Select
+                     labelId="demo-simple-select-outlined-label"
+                     id="demo-simple-select-outlined"
+                     required
+                     onChange={handleModified}
+                     labelWidth={labelWidth}
+                     defaultValue={"@gmail.com"}
+                >
+                     <MenuItem value={"@gmail.com"}>@gmail.com</MenuItem>
+                     <MenuItem value={"@hotmail.com"}>@hotmail.com</MenuItem>
+                     <MenuItem value={"@outlook.com"}>@outlook.com</MenuItem>
+                     <MenuItem value={"@yahoo.com"}>@yahoo.com</MenuItem>
+                </Select>
+            </FormControl>
+            </Grid>
           <TextField
             variant="outlined"
             margin="normal"
@@ -130,6 +166,7 @@ const AdminLogin = (props) => {
             control={<Checkbox value="remember" color="primary" />}
             label="Recuerdame"
           />
+           </Grid>
           <Button
             type="submit"
             fullWidth

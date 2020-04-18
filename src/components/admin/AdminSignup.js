@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Link, Grid, Box, Typography, Container, FormLabel, Checkbox, FormControlLabel, TextField, CssBaseline, Button, Avatar} from '@material-ui/core';
+import React, {useState, useRef, useEffect} from 'react';
+import {Link, Grid, Box, Typography, Container, FormLabel, Checkbox, FormControlLabel, TextField, CssBaseline, Button, Avatar, FormControl, InputLabel, Select, MenuItem} from '@material-ui/core';
 // Iconos de material.
 import {LockOpen, LockOutlined} from '@material-ui/icons';
 // Redireccionamientos.
@@ -48,8 +48,17 @@ const AdminSignup = (props) => {
       role: true
   });
 
-   // Hook para saber si se ha presionado el boton de registrar o no.
-   const [press, setPress] = useState(false);
+  // Hook que almacena la direccion de correo del admin.
+  const [direction, setDirection] = useState(null);
+
+  // Labels y Hooks para las direcciones de correos.
+  const inputLabel = useRef(null);
+  const [labelWidth, setLabelWidth] = React.useState(0);
+   
+  useEffect(() => {
+     setLabelWidth(inputLabel.current.offsetWidth);
+     setDirection("@gmail.com");
+  }, []);
 
   // Evento de cambio de campos de registro.
   const handleChange = (e) => {
@@ -82,7 +91,7 @@ const AdminSignup = (props) => {
     // Se almacena en el Hook el admin.
     setUser({
       ...user,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -90,8 +99,6 @@ const AdminSignup = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(!press){
-          setPress(true);
           if(avatarC.image !== ''){
               // AVATAR.
               console.log(avatarC.image.name);
@@ -106,10 +113,11 @@ const AdminSignup = (props) => {
                       user.avatar = avatarC.avatarURL;
 
                       // Registrando y autenticando al nuevo administrador.
-                      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+                      firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
                       .then(response => {
                           // Encriptando la contraseña del registro de administrador.
                           user.password = Base64.encode(user.password);
+                          user.email = user.email + direction;
 
                           firebase.database().ref(`/users/${response.user.uid}`).set(user);
                           alert('Ya puedes administrar la Tienda E-commerce');
@@ -118,13 +126,26 @@ const AdminSignup = (props) => {
                       .catch(error => {
                           console.log(error);
                           alert(error.message);
-                          setPress(false);
                       });
                   });
               });
-          }else
-            alert("Debes introducir un avatar.");
-    }
+          }else{
+             // Registrando y autenticando al nuevo usuario.
+             firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
+             .then(response => {
+                 // Encriptando la contraseña del registro de usuario.
+                 user.password = Base64.encode(user.password);
+                 user.email = user.email + direction;
+
+                 firebase.database().ref(`/users/${response.user.uid}`).set(user);
+                 alert('Ya puedes administrar la Tienda E-commerce');
+                 props.history.push('/');
+             })
+             .catch(error => {
+                 console.log(error);
+                 alert(error.message);
+             });
+          }
 }
 
    // Funcion para quitar la foto elegida.
@@ -161,6 +182,11 @@ const AdminSignup = (props) => {
       return;  
     }
   }
+
+  // Funcion dedicada para modificar las direcciones del correo.
+  const handleModified = (event) => {
+    setDirection(event.target.value);
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -211,18 +237,40 @@ const AdminSignup = (props) => {
               onBeforeFileLoad={onBeforeFileLoad}
             />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <TextField
+                autoComplete="email"
+                name="email"
                 variant="outlined"
                 required
                 fullWidth
-                name="email"
-                autoComplete="email"
-                label="Correo Electronico"
                 id="email"
+                label="Correo"
+                autoFocus
                 value={user.email}
                 onChange={handleChange}
               />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+            <FormControl variant="outlined" className={classes.formControl}>
+                <InputLabel ref={inputLabel} id="demo-simple-select-outlined-label">
+                    Direccion*
+                </InputLabel>
+                <Select
+                     labelId="demo-simple-select-outlined-label"
+                     id="demo-simple-select-outlined"
+                     required
+                     onChange={handleModified}
+                     labelWidth={labelWidth}
+                     defaultValue={"@gmail.com"}
+                     name="direction"
+                >
+                     <MenuItem value={"@gmail.com"}>@gmail.com</MenuItem>
+                     <MenuItem value={"@hotmail.com"}>@hotmail.com</MenuItem>
+                     <MenuItem value={"@outlook.com"}>@outlook.com</MenuItem>
+                     <MenuItem value={"@yahoo.com"}>@yahoo.com</MenuItem>
+                </Select>
+            </FormControl>
             </Grid>
             <Grid item xs={12}>
               <TextField

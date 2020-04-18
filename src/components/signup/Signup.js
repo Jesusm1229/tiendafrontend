@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 // Componentes de Material-UI.
-import {Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, Container, FormLabel} from '@material-ui/core';
+import {Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, Container, FormLabel, MenuItem, Select, FormControl, InputLabel} from '@material-ui/core';
 // Iconos de Material-UI.
 import {LockOutlined, LockOpen} from '@material-ui/icons';
 // Redireccionamientos.
@@ -49,8 +49,17 @@ const Signup = (props) => {
     role: false,
   });
 
-  // Hook para saber si se ha presionado el boton de registrar o no.
-  const [press, setPress] = useState(false);
+  // Hook para almacenar la direccion de correo del usuario.
+  const [direction, setDirection] = useState(null);
+
+   // Labels y Hooks para las direcciones de correos.
+   const inputLabel = useRef(null);
+   const [labelWidth, setLabelWidth] = React.useState(0);
+
+  useEffect(() => {
+    setLabelWidth(inputLabel.current.offsetWidth);
+    setDirection("@gmail.com");
+ }, []);
 
   // Evento HandleChange para modificar y asignar los datos al Hook.
   const handleChange = (e) => {
@@ -91,8 +100,6 @@ const Signup = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(!press){}
-        setPress(true);
           if(avatarC.image !== ''){
               // AVATAR.
               console.log(avatarC.image.name);
@@ -107,10 +114,11 @@ const Signup = (props) => {
                       user.avatar = avatarC.avatarURL;
 
                       // Registrando y autenticando al nuevo usuario.
-                      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+                      firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
                       .then(response => {
                           // Encriptando la contraseña del registro de usuario.
                           user.password = Base64.encode(user.password);
+                          user.email = user.email + direction;
 
                           firebase.database().ref(`/users/${response.user.uid}`).set(user);
                           alert('Bienvenido a Tienda E-Commerce');
@@ -119,16 +127,16 @@ const Signup = (props) => {
                       .catch(error => {
                           console.log(error);
                           alert(error.message);
-                          setPress(false);
                       });
                   });
               });
           }else{
                 // Registrando y autenticando al nuevo usuario.
-                firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+                firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
                 .then(response => {
                     // Encriptando la contraseña del registro de usuario.
                     user.password = Base64.encode(user.password);
+                    user.email = user.email + direction;
 
                     firebase.database().ref(`/users/${response.user.uid}`).set(user);
                     alert('Bienvenido a Tienda E-Commerce');
@@ -137,7 +145,6 @@ const Signup = (props) => {
                 .catch(error => {
                     console.log(error);
                     alert(error.message);
-                    setPress(false);
                 });
           }
 }
@@ -176,6 +183,11 @@ const onBeforeFileLoad = (elem) => {
     return;
   }
 }
+
+// Funcion dedicada para modificar las direcciones del correo.
+const handleModified = (event) => {
+  setDirection(event.target.value);
+};
 
 return (
     <Container component="main" maxWidth="xs">
@@ -228,18 +240,40 @@ return (
               onBeforeFileLoad={onBeforeFileLoad}
             />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <TextField
+                autoComplete="email"
+                name="email"
                 variant="outlined"
                 required
                 fullWidth
-                name="email"
-                autoComplete="email"
-                label="Correo Electronico"
                 id="email"
+                label="Correo"
+                autoFocus
                 value={user.email}
                 onChange={handleChange}
               />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+            <FormControl variant="outlined" className={classes.formControl}>
+                <InputLabel ref={inputLabel} id="demo-simple-select-outlined-label">
+                    Direccion*
+                </InputLabel>
+                <Select
+                     labelId="demo-simple-select-outlined-label"
+                     id="demo-simple-select-outlined"
+                     required
+                     onChange={handleModified}
+                     labelWidth={labelWidth}
+                     defaultValue={"@gmail.com"}
+                     name="direction"
+                >
+                     <MenuItem value={"@gmail.com"}>@gmail.com</MenuItem>
+                     <MenuItem value={"@hotmail.com"}>@hotmail.com</MenuItem>
+                     <MenuItem value={"@outlook.com"}>@outlook.com</MenuItem>
+                     <MenuItem value={"@yahoo.com"}>@yahoo.com</MenuItem>
+                </Select>
+            </FormControl>
             </Grid>
             <Grid item xs={12}>
               <TextField
