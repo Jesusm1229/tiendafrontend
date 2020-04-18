@@ -436,7 +436,7 @@ return(
                   <Grid container justify="center" alignItems="center">
                       <div>
                           <FormControlLabel
-                            control={<Checkbox checked={obtainFavorites(products[index].id)} icon={<FavoriteBorder fontSize="default" />} checkedIcon={<Favorite fontSize="default" />} />}
+                            control={<Checkbox defaultChecked={obtainFavorites(products[index].id)} icon={<FavoriteBorder fontSize="default" />} checkedIcon={<Favorite fontSize="default" />} />}
                             onChange={(event) => addtoFavorites(event, products[index].id)}
                           />
                       </div>
