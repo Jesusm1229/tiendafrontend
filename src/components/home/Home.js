@@ -50,6 +50,9 @@ const Home = (props) =>{
     // Hook para almacenar los shoppingCart del usuario.
     const [shoppingCart, setshoppingCart] = useState([]);
 
+    // Hook para confirmar si presiono o no una accion.
+    const [press, setPress] = useState(false);
+
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
 
@@ -155,38 +158,42 @@ const Home = (props) =>{
 
     // Funcion para que un Admin pueda eliminar un producto del Home.
     function removeTarget(event, productid){
-      event.preventDefault();
+      //event.preventDefault();
 
-       // Eliminando el producto.
-       let productRef = firebase.database().ref('products/' + productid);
-       productRef.remove();
+      if(!press){
+          setPress(true);
+          // Eliminando los favoritos del producto.
+          const favoritesRef = firebase.database().ref().child('favorites').orderByKey();
+          favoritesRef.once('value', snap => {
+          snap.forEach(child => {
 
-      // Eliminando los favoritos del producto.
-      const favoritesRef = firebase.database().ref().child('favorites').orderByKey();
-      favoritesRef.once('value', snap => {
-      snap.forEach(child => {
+            if(productid === child.val().product_id){
+                console.log("Entro");
+                let favoriteRef = firebase.database().ref('favorites/' + child.key);
+                favoriteRef.remove();
+            }
+            });
+          });
 
-         if(productid === child.val().product_id){
-            let favoriteRef = firebase.database().ref('favorites/' + child.key);
-            favoriteRef.remove();
-         }
-        });
-      });
+          // Eliminando los shoppingCart asociados al producto.
+          const shoppingRef = firebase.database().ref().child('shoppingcart').orderByKey();
+          shoppingRef.once('value', snap => {
+          snap.forEach(child => {
 
-      // Eliminando los shoppingCart asociados al producto.
-      const shoppingRef = firebase.database().ref().child('shoppingcart').orderByKey();
-      shoppingRef.once('value', snap => {
-      snap.forEach(child => {
+            if(productid === child.val().product_id){
+                let shopRef = firebase.database().ref('shoppingcart/' + child.key);
+                shopRef.remove();
+            }
+            });
+          });
 
-         if(productid === child.val().product_id){
-            let shopRef = firebase.database().ref('shoppingcart/' + child.key);
-            shopRef.remove();
-         }
-        });
-      });
+          // Eliminando el producto.
+          let productRef = firebase.database().ref('products/' + productid);
+          productRef.remove();
 
-      window.location.reload(false);
+          window.location.reload(false);
     }
+  }
 
     // Hook para verificar si hizo click para editar el producto o no.
     const [buttonClicked, setButtonClicked] = useState(false);
@@ -274,8 +281,9 @@ const Home = (props) =>{
         return;
       }
 
-      if(!obtainShopping(productid)){
-
+      if(!press){
+        setPress(true);
+        if(!obtainShopping(productid)){
             const newShoppingCart = {
               product_id: productid,
               user_id: userIn,
@@ -286,11 +294,12 @@ const Home = (props) =>{
             firebase.database().ref('/shoppingcart').push(newShoppingCart)
             .then(response =>{
               alert("Agregado a Carro de Compra");
-              
+              setPress(false);
             })
             .catch(error => {
               console.log(error);
               alert(error.message);
+              setPress(false);
             });
 
             // Actualizando el Hook con el ultimo favorito agregado mas reciente.
@@ -311,9 +320,12 @@ const Home = (props) =>{
               setshoppingCart(shoppingArray);
             });
     }
-    else  
+    else{  
+        setPress(false);
         alert("No puedes agregar al carrito de compra. Ya existe el producto.");
-   }
+    }
+  }
+}
 
    // Verifica la existencia de un shoppingCart asociado al usuario logueado.
    function obtainShopping(productid){

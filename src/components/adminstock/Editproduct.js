@@ -47,6 +47,9 @@ const Editproduct = (props) => {
 // Hook para la categoria de los productos.
 const [category, setCategory] = useState('');
 
+// Hook para almacenar si presiono o no el boton de edicion.
+const [press, setPress] = useState(false);
+
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
 
@@ -130,17 +133,21 @@ const onBeforeFileLoad = (elem) => {
 const handleSubmit = (e) => {
     e.preventDefault();
 
+    if(!press){
+          setPress(true);
           // Verificando si ha realizado algun cambio, antes de realizar la consulta.
           firebase.database().ref(`products/${product.id}`)
           .once('value', snap => {
               
             if(snap.val().name === product.name && snap.val().price === product.price && snap.val().stock === product.stock &&
                 snap.val().description === product.description && snap.val().image === product.image && snap.val().category === product.category){
+                setPress(false);
                 alert("No has realizado ninguna edicion.");
                 return;
               }
 
               if(product.image === ''){
+                setPress(false);
                 alert("Seleccione una imagen de producto.");
                 return;
               }
@@ -162,7 +169,8 @@ const handleSubmit = (e) => {
 
                         firebase.database().ref(`products/${product.id}`).update(editProduct)
                         .then(response =>{
-                            alert("Producto Editado con Exito.");  
+                            alert("Producto Editado con Exito.");
+                            props.history.push("/");  
                         })
                         .catch(error => {
                             console.log(error);
@@ -179,9 +187,11 @@ const handleSubmit = (e) => {
                   description: product.description,
                   stock: product.stock,
                 });
-                alert("Producto Editado con Exito."); 
+                alert("Producto Editado con Exito.");
+                props.history.push("/"); 
               }
           });
+    }
 } 
 
 return (

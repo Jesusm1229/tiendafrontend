@@ -41,6 +41,9 @@ const Addproduct = (props) => {
 // Hook para la categoria de los productos.
 const [category, setCategory] = useState('');
 
+// Hook para presionar o no el boton de agregar producto.
+const [press, setPress] = useState(false);
+
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
 
@@ -124,6 +127,8 @@ const onBeforeFileLoad = (elem) => {
 const handleSubmit = (e) => {
     e.preventDefault();
 
+    if(!press){
+        setPress(true);
             if(product.image && product.category !== ''){
                 // Imagen del producto.
                 console.log(product.image.name);
@@ -144,8 +149,8 @@ const handleSubmit = (e) => {
 
                         firebase.database().ref('/products').push(newProduct)
                         .then(response =>{
-                            alert("Producto Agregado con Exito.");
                             props.history.push("/");
+                            alert("Producto Agregado con Exito.");
                         })
                         .catch(error => {
                             console.log(error);
@@ -156,6 +161,7 @@ const handleSubmit = (e) => {
             }
             else
                 alert("Complete el formulario.");
+      }
 }
 
 return (
