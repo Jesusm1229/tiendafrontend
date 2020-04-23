@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 // Componentes de Material-UI.
-import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, Container, FormControl, InputLabel, Select, MenuItem} from '@material-ui/core';
+import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, Container, FormControl, InputLabel, Select, MenuItem, CircularProgress} from '@material-ui/core';
 // Iconos de Material-UI.
 import {LockOutlined, Cancel} from '@material-ui/icons';
 // Redireccionamientos.
@@ -58,6 +58,9 @@ const Login = (props) => {
   // Se almacenara la direccion de correo asociada.
   const [direction, setDirection] = useState(null);
 
+  // Hook para mostrar el progress o boton ingresar para el login.
+  const [showProgress, setshowProgress] = useState(false);
+
   // Labels y Hooks para las direcciones de correos.
   const inputLabel = useRef(null);
   const [labelWidth, setLabelWidth] = React.useState(0);
@@ -80,7 +83,7 @@ const Login = (props) => {
 
     // Validación del campo email.
     if(e.target.name === 'email')
-      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key > 64 && key < 95) || (key > 122 || key === 47 || key === 96)) return;
+      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key >= 64 && key < 95) || (key > 122 || key === 47 || key === 96)) return;
 
      // Validación del campo contraseña.
     if(e.target.name === 'password')
@@ -97,6 +100,8 @@ const Login = (props) => {
   const handleLogin = (e) => {
     e.preventDefault();
 
+    setshowProgress(true);
+
             // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
             var ref = firebase.database().ref("users");
             ref.orderByChild("email").equalTo(user.email + direction).on("child_added", function(snapshot) {
@@ -111,12 +116,22 @@ const Login = (props) => {
                   })
                   .catch(error => {
                       console.log(error);
+                      setshowProgress(false);
                       alert(error.message);
                   });
               }
-              else
-                  alert("No puedes iniciar sesión, posees cuenta de administrador.");
+              else{
+                  setshowProgress(false);
+                  alert("Has introducido credenciales no validas o una cuenta de usuario no existente");
+              }
             });
+
+            ref.orderByChild("email").equalTo(user.email + direction).once("value", snapshot => {
+              if(!snapshot.exists()){
+                setshowProgress(false);
+                alert("Has introducido credenciales erroneas o una cuenta no existente.");
+              }
+          });
   };
 
 // Funcion dedicada para modificar las direcciones del correo.
@@ -187,7 +202,15 @@ return (
             label="Recuerdame"
           />
            </Grid>
-          <Button
+          {showProgress?
+          <Grid container justify="center" alignItems="center">
+          <div className={classes.root}>
+              <CircularProgress disableShrink color="secondary" />
+          </div>
+          </Grid>
+          :
+          <div>
+            <Button
             type="submit"
             fullWidth
             variant="contained"
@@ -196,6 +219,8 @@ return (
           >
             Ingresar
           </Button>
+          </div>
+          }
           <Grid container>
             <Grid item xs>
               <Link href="#" variant="body2">

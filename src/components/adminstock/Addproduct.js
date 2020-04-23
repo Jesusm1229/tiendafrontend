@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 // Componentes de Material-UI.
-import {Avatar, Button, CssBaseline, TextField, Grid, Box, Typography, Container, FormLabel, MenuItem, FormControl, InputLabel, Select, OutlinedInput, InputAdornment, FormHelperText} from '@material-ui/core';
+import {Avatar, Button, CssBaseline, TextField, Grid, Box, Typography, Container, FormLabel, MenuItem, FormControl, InputLabel, Select, OutlinedInput, InputAdornment, FormHelperText, CircularProgress} from '@material-ui/core';
 // Iconos de Materia-UI.
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 // Base de Datos Firebase.
@@ -42,7 +42,7 @@ const Addproduct = (props) => {
 const [category, setCategory] = useState('');
 
 // Hook para presionar o no el boton de agregar producto.
-const [press, setPress] = useState(false);
+const [showProgress, setshowProgress] = useState(false);
 
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
@@ -104,6 +104,7 @@ const onBeforeFileLoad = (elem) => {
         if(elem.target.files[0].size > 91680){
           alert("La imagen es demasiado grande, elija otra.");
           elem.target.value = "";
+          return;
         };
 
         // Fijando la imagen tomada al hook de product.
@@ -126,9 +127,8 @@ const onBeforeFileLoad = (elem) => {
 // Funcion para suministrar todos los datos a la base de datos.
 const handleSubmit = (e) => {
     e.preventDefault();
+    setshowProgress(true);
 
-    if(!press){
-        setPress(true);
             if(product.image && product.category !== ''){
                 // Imagen del producto.
                 console.log(product.image.name);
@@ -151,17 +151,30 @@ const handleSubmit = (e) => {
                         .then(response =>{
                             props.history.push("/");
                             alert("Producto Agregado con Exito.");
+                            setshowProgress(false);
                         })
                         .catch(error => {
-                            console.log(error);
-                            alert(error.message);
+                            console.log(error.message);
+                            alert("Error al agregar el producto.");
+                            setshowProgress(false);
                         });
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                        alert("Error obtencion de datos del perfil.");
+                        setshowProgress(false);
                     });
+                })
+                .catch(error => {
+                    console.log(error.message);
+                    alert("Error al cargar la imagen.");
+                    setshowProgress(false);
                 });
             }
-            else
+            else{
                 alert("Complete el formulario.");
-      }
+                setshowProgress(false);
+            }
 }
 
 return (
@@ -278,15 +291,25 @@ return (
             />
             </Grid>
           </Grid>
-          <Button
+          {showProgress?
+          <Grid container justify="center" alignItems="center">
+          <div className={classes.root}>
+              <CircularProgress disableShrink color="secondary" />
+          </div>
+          </Grid>
+          :
+          <div>
+            <Button
             type="submit"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
-          >
-            Agregar Producto
-          </Button>
+            >
+              Agregar Producto
+            </Button>
+          </div>
+          }
           <Grid container justify="flex-end">
             <Grid item>
             </Grid>

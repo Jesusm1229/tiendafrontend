@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Link, Grid, Box, Typography, Container, FormLabel, Checkbox, FormControlLabel, TextField, CssBaseline, Button, Avatar, FormControl, InputLabel, Select, MenuItem} from '@material-ui/core';
+import {Link, Grid, Box, Typography, Container, FormLabel, Checkbox, FormControlLabel, TextField, CssBaseline, Button, Avatar, FormControl, InputLabel, Select, MenuItem, CircularProgress} from '@material-ui/core';
 // Iconos de material.
 import {LockOpen, LockOutlined} from '@material-ui/icons';
 // Redireccionamientos.
@@ -35,7 +35,6 @@ const AdminSignup = (props) => {
   const [avatarC, setAvatar] = useState({
     image: '',
     preview: '',
-    avatarURL: ''
   });
 
   // Hook para almacenar los datos de registro del admin.
@@ -50,6 +49,9 @@ const AdminSignup = (props) => {
 
   // Hook que almacena la direccion de correo del admin.
   const [direction, setDirection] = useState(null);
+
+  // Hook para mostrar el progress o boton de registrar.
+  const [showProgress, setshowProgress] = useState(false);
 
   // Labels y Hooks para las direcciones de correos.
   const inputLabel = useRef(null);
@@ -82,7 +84,7 @@ const AdminSignup = (props) => {
 
     // Validación del campo email.
     if(e.target.name === 'email')
-      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key > 64 && key < 95) || (key > 122 || key === 47 || key === 96)) return;
+      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key >= 64 && key < 95) || (key > 122 || key === 47 || key === 96)) return;
 
      // Validación del campo contraseña.
     if(e.target.name === 'password')
@@ -98,54 +100,83 @@ const AdminSignup = (props) => {
   // Funcion de Registro de Administrador.
   const handleSubmit = (e) => {
     e.preventDefault();
+    setshowProgress(true);
 
-          if(avatarC.image !== ''){
-              // AVATAR.
-              console.log(avatarC.image.name);
-              const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
-              storageRef.put(avatarC.image).then(function(result){
+    // Verificacion de contrasena.
+    if(user.password.length < 6){
+      alert("Has introducido una contrasena con menos de 6 caracteres.");
+      setshowProgress(false);
+      return;
+    }
 
-                  storageRef.getDownloadURL().then(function(url){
-                      console.log("URL: " + url);
-                      avatarC.avatarURL = url;
+    if(avatarC.image !== ''){
+      var ref = firebase.database().ref("users");
+      ref.orderByChild("email").equalTo(user.email + direction).once("value", snapshot => {
+      if(!snapshot.exists()){
+            const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
+            storageRef.put(avatarC.image).then(function(result){
 
-                      // Asignando la URL sacada del Firebase Storage al avatar del administrador.
-                      user.avatar = avatarC.avatarURL;
+            storageRef.getDownloadURL().then(function(url){
+                // Asignando la URL sacada del Firebase Storage al avatar del administrador.
+                user.avatar = url;
 
-                      // Registrando y autenticando al nuevo administrador.
-                      firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
-                      .then(response => {
-                          // Encriptando la contraseña del registro de administrador.
-                          user.password = Base64.encode(user.password);
-                          user.email = user.email + direction;
+                // Registrando y autenticando al nuevo administrador.
+                firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
+                .then(response => {
+                    // Encriptando la contraseña del registro de administrador.
+                    user.password = Base64.encode(user.password);
+                    user.email = user.email + direction;
 
-                          firebase.database().ref(`/users/${response.user.uid}`).set(user);
-                          alert('Ya puedes administrar la Tienda E-commerce');
-                          props.history.push('/');
-                      })
-                      .catch(error => {
-                          console.log(error);
-                          alert(error.message);
-                      });
-                  });
-              });
-          }else{
-             // Registrando y autenticando al nuevo usuario.
-             firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
-             .then(response => {
-                 // Encriptando la contraseña del registro de usuario.
-                 user.password = Base64.encode(user.password);
-                 user.email = user.email + direction;
+                    firebase.database().ref(`/users/${response.user.uid}`).set(user);
+                    alert('Bienveniedo a Tienda E-commerce - Ya puedes administrarla.');
+                    props.history.push('/');
+                })
+                .catch(error => {
+                    console.log(error);
+                    setshowProgress(false);
+                    alert("Error en Registro.");
+                });
+            })
+            .catch(error =>{
+              console.log(error.message);
+              setshowProgress(false);
+              alert("Error obtencion de datos del perfil.");
+            });
+          })
+          .catch(error =>{
+            console.log(error.message);
+            setshowProgress(false);
+            alert("Error al cargar la imagen.");
+          });
+        }
+        else{
+          setshowProgress(false);
+          alert("Has introducido una cuenta ya existente.");
+        }
+      })
+      .catch(error => {
+        console.log(error.message);
+        setshowProgress(false);
+        alert("Error en Registro.");
+      });
+    }else{
+       // Registrando y autenticando al nuevo administrador.
+       firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
+       .then(response => {
+           // Encriptando la contraseña del registro de administrador.
+           user.password = Base64.encode(user.password);
+           user.email = user.email + direction;
 
-                 firebase.database().ref(`/users/${response.user.uid}`).set(user);
-                 alert('Ya puedes administrar la Tienda E-commerce');
-                 props.history.push('/');
-             })
-             .catch(error => {
-                 console.log(error);
-                 alert(error.message);
-             });
-          }
+           firebase.database().ref(`/users/${response.user.uid}`).set(user);
+           alert('Bienvenido a Tienda E-commerce - Ya puedes administrarla.');
+           props.history.push('/');
+       })
+       .catch(error => {
+           console.log(error);
+           setshowProgress(false);
+           alert("Error en registro es probable que hayas introducido una cuenta ya existente.");
+       });
+    }
 }
 
    // Funcion para quitar la foto elegida.
@@ -153,7 +184,6 @@ const AdminSignup = (props) => {
     setAvatar({
       image: '',
       preview: '',
-      avatarURL: ''
     });
   }
 
@@ -172,6 +202,7 @@ const AdminSignup = (props) => {
       if(elem.target.files[0].size > 71680){
          alert("La imagen es demasiado grande, elija otra.");
          elem.target.value = "";
+         return;
       };
 
       // Fijando la imagen tomada al state.
@@ -293,7 +324,15 @@ const AdminSignup = (props) => {
               />
             </Grid>
           </Grid>
-          <Button
+          {showProgress?
+          <Grid container justify="center" alignItems="center">
+          <div className={classes.root}>
+              <CircularProgress disableShrink color="secondary" />
+          </div>
+          </Grid>
+          :
+          <div>
+            <Button
             type="submit"
             fullWidth
             variant="contained"
@@ -302,6 +341,8 @@ const AdminSignup = (props) => {
           >
             Registrarme
           </Button>
+          </div>
+          }
           <Grid container justify="flex-end">
             <Grid item>
               <Link to="/adminlogin" component={MyLink} variant="body2">

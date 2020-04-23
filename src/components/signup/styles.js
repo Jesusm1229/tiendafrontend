@@ -28,4 +28,10 @@ export const useStyles = makeStyles(theme => ({
       margin: theme.spacing(0),
       width: '100%',
     },
+    root: {
+      display: 'flex',
+      '& > * + *': {
+        marginLeft: theme.spacing(2),
+      },
+    },
   }));

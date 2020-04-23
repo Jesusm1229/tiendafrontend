@@ -6,7 +6,7 @@ import firebase from '../../FirebaseConfig';
 // Importando estilos.
 import {useStyles} from './styles';
 // Componentes de Material-UI.
-import { Button, Grid, Container, CssBaseline, Avatar, Typography } from '@material-ui/core';
+import {Button, Grid, Container, CssBaseline, Avatar, Typography, CircularProgress} from '@material-ui/core';
 // Componente de Avatar-Selector.
 import AvatarEdit from 'react-avatar-edit';
 // Iconos de Material-UI.
@@ -24,14 +24,13 @@ const ChangeAvatar = (props) => {
   // Hook para almacenar el usuario logueado.
   const [userphoto, setUserPhoto] = useState("");
 
-  // Hook para saber si se ha presionado el boton de guardar cambios o no.
-  const [press, setPress] = useState(false);
+   // Hook para mostrar el progress o boton de subir avatar.
+   const [showProgress, setshowProgress] = useState(false);
 
   useEffect(() =>{
 
     firebase.auth().onAuthStateChanged(function(user) { 
         if(user){
-            console.log("Entro.");
             firebase.database().ref().child('users').orderByKey()
             .once('value', snap => {
             snap.forEach(child => {
@@ -50,7 +49,6 @@ const ChangeAvatar = (props) => {
   // Funcion para quitar la foto elegida.
   const onClose = () => {
     setAvatarImage('');
-
     console.log("Quitaste la foto");
   }
   
@@ -62,6 +60,7 @@ const ChangeAvatar = (props) => {
       if(elem.target.files[0].size > 71680){
         alert("La imagen es demasiado grande, elija otra.");
         elem.target.value = "";
+        return;
       };
   
       // Fijando la imagen tomada al state.
@@ -75,15 +74,13 @@ const ChangeAvatar = (props) => {
 
   // Funcion para cambiar el avatar del usuario o administrador.
   const handleUpload = (e) => {
-
     e.preventDefault();
+    setshowProgress(true);
 
-    if(!press){
-            setPress(true);
             // Casos donde no ha realizado ningun cambio de avatar.
             if((userphoto === "" && avatarImage === "") || (userphoto === avatarImage)){
                 alert("No has realizado ningun cambio.");
-                setPress(false);
+                setshowProgress(false);
                 return;
             }
 
@@ -93,13 +90,14 @@ const ChangeAvatar = (props) => {
                     avatar: "",
                   })
                   .catch(error => {
-                    console.log(error);
-                    alert(error.message);
-                    setPress(false);
+                    console.log(error.message);
+                    alert("Error al actualizar el avatar.");
+                    setshowProgress(false);
                   });
 
-                  window.location.reload(false);
                   alert("Avatar Eliminado."); 
+                  props.history.push('/');
+                  window.location.reload(false);
             }
 
             // Editar Avatar existente.
@@ -110,23 +108,31 @@ const ChangeAvatar = (props) => {
                 storageRef.put(avatarImage).then(function(result){
 
                     storageRef.getDownloadURL().then(function(url){
-                        console.log("URL: " + url);
-
                         firebase.database().ref(`users/${firebase.auth().currentUser.uid}`).update({ 
                             avatar: url,
-                          })
-                          .catch(error => {
-                            console.log(error);
-                            alert(error.message);
-                            setPress(false);
-                          });
-                          
-                          window.location.reload(false);
-                          alert("Avatar Editado con Exito."); 
+                        })
+                        .catch(error => {
+                            console.log(error.message);
+                            alert("Error al actualizar el avatar.");
+                            setshowProgress(false);
                         });
+                          
+                          alert("Avatar Editado con Exito."); 
+                          props.history.push('/');
+                          window.location.reload(false);
+                    })
+                    .catch(error => {
+                          console.log(error.message);
+                          alert("Error obtencion de datos del perfil.");
+                          setshowProgress(false);
                     });
-                }
-    }
+                })
+                .catch(error =>{
+                    console.log(error.message);
+                    alert("Error al cargar la imagen.");
+                    setshowProgress(false);
+                });
+            }
   }
 
   return(
@@ -166,6 +172,14 @@ const ChangeAvatar = (props) => {
                 : <div/>
                 }
             </Grid>
+          {showProgress?
+          <Grid container justify="center" alignItems="center">
+          <div className={classes.root}>
+              <CircularProgress disableShrink color="secondary" />
+          </div>
+          </Grid>
+          :
+          <div>
             <Button
                 type="submit"
                 fullWidth
@@ -175,8 +189,10 @@ const ChangeAvatar = (props) => {
                 onClick={handleUpload}
             >
             Guardar cambios
-          </Button>
-            </div>
+            </Button>
+          </div>
+          }
+          </div>
         </Container>
     </div>
     )

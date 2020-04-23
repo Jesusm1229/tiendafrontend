@@ -20,4 +20,10 @@ export const useStyles = makeStyles(theme => ({
       submit: {
         margin: theme.spacing(3, 0, 2),
       },
+      root: {
+        display: 'flex',
+        '& > * + *': {
+          marginLeft: theme.spacing(2),
+        },
+      },
   }));

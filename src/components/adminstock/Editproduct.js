@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 // Componentes de Material-UI.
-import {Avatar, Button, CssBaseline, TextField, Grid, Box, Typography, Container, FormLabel, MenuItem, FormControl, InputLabel, Select, OutlinedInput, InputAdornment, FormHelperText, Link} from '@material-ui/core';
+import {Avatar, Button, CssBaseline, TextField, Grid, Box, Typography, Container, FormLabel, MenuItem, FormControl, InputLabel, Select, OutlinedInput, InputAdornment, FormHelperText, Link, CircularProgress} from '@material-ui/core';
 // Iconos de Materia-UI.
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 // Base de Datos Firebase.
@@ -48,7 +48,7 @@ const Editproduct = (props) => {
 const [category, setCategory] = useState('');
 
 // Hook para almacenar si presiono o no el boton de edicion.
-const [press, setPress] = useState(false);
+const [showProgress, setshowProgress] = useState(false);
 
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
@@ -111,6 +111,7 @@ const onBeforeFileLoad = (elem) => {
     if(elem.target.files[0].size > 91680){
       alert("La imagen es demasiado grande, elija otra.");
       elem.target.value = "";
+      return;
     };
 
     // Fijando la imagen tomada al hook de product.
@@ -132,23 +133,22 @@ const onBeforeFileLoad = (elem) => {
 // Funcion para realizar la efectiva edicion de un producto en particular.
 const handleSubmit = (e) => {
     e.preventDefault();
+    setshowProgress(true);
 
-    if(!press){
-          setPress(true);
           // Verificando si ha realizado algun cambio, antes de realizar la consulta.
           firebase.database().ref(`products/${product.id}`)
           .once('value', snap => {
               
             if(snap.val().name === product.name && snap.val().price === product.price && snap.val().stock === product.stock &&
                 snap.val().description === product.description && snap.val().image === product.image && snap.val().category === product.category){
-                setPress(false);
                 alert("No has realizado ninguna edicion.");
+                setshowProgress(false);
                 return;
               }
 
               if(product.image === ''){
-                setPress(false);
                 alert("Seleccione una imagen de producto.");
+                setshowProgress(false);
                 return;
               }
 
@@ -173,10 +173,20 @@ const handleSubmit = (e) => {
                             props.history.push("/");  
                         })
                         .catch(error => {
-                            console.log(error);
-                            alert(error.message);
+                            console.log(error.message);
+                            alert("Se ha producido un error al editar el producto.");
                         });
+                    })
+                    .catch(error => {
+                          console.log(error.message);
+                          alert("Error obtencion de datos del perfil.");
+                          setshowProgress(false);
                     });
+                })
+                .catch(error => {
+                    console.log(error.message);
+                    alert("Error al cargar la imagen.");
+                    setshowProgress(false);
                 });
               }
               else{
@@ -186,12 +196,22 @@ const handleSubmit = (e) => {
                   category: product.category,
                   description: product.description,
                   stock: product.stock,
+                })
+                .catch(error => {
+                  console.log(error.message);
+                  alert("Se ha producido un error al editar el producto.");
+                  setshowProgress(false);
                 });
+                
                 alert("Producto Editado con Exito.");
                 props.history.push("/"); 
               }
+          })
+          .catch(error => {
+              console.log(error.message);
+              alert("Se ha producido un error de edicion del producto.");
+              setshowProgress(false);
           });
-    }
 } 
 
 return (
@@ -308,14 +328,22 @@ return (
             </Grid>
           </Grid>
           <Grid container justify="center" alignItems="center">
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Editar Producto
-          </Button>
+            {showProgress?
+            <div className={classes.root}>
+                <CircularProgress disableShrink color="secondary" />
+            </div>
+            :
+            <div>
+                <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                >
+                  Editar Producto
+              </Button>
+            </div>
+            }
           </Grid>
           <Grid container justify="center" alignItems="center">
           <Link to="/" component={MyLink} variant="body2">

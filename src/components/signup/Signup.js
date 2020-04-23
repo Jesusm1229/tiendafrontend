@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 // Componentes de Material-UI.
-import {Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, Container, FormLabel, MenuItem, Select, FormControl, InputLabel} from '@material-ui/core';
+import {Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, Container, FormLabel, MenuItem, Select, FormControl, InputLabel, CircularProgress} from '@material-ui/core';
 // Iconos de Material-UI.
 import {LockOutlined, LockOpen} from '@material-ui/icons';
 // Redireccionamientos.
@@ -36,7 +36,6 @@ const Signup = (props) => {
   const [avatarC, setAvatar] = useState({
     image: '',
     preview: '',
-    avatarURL: ''
   });
 
   // Hook para almacenar el usuario.
@@ -51,6 +50,9 @@ const Signup = (props) => {
 
   // Hook para almacenar la direccion de correo del usuario.
   const [direction, setDirection] = useState(null);
+
+   // Hook para mostrar el progress o boton de registrar.
+   const [showProgress, setshowProgress] = useState(false);
 
    // Labels y Hooks para las direcciones de correos.
    const inputLabel = useRef(null);
@@ -83,7 +85,7 @@ const Signup = (props) => {
 
     // Validación del campo email.
     if(e.target.name === 'email')
-      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key > 64 && key < 95) || (key > 122 || key === 47 || key === 96)) return;
+      if( (key > 31 && key < 45) || (key > 57 && key < 64) || (key >= 64 && key < 95) || (key > 122 || key === 47 || key === 96)) return;
 
     // Validación del campo contraseña.
     if(e.target.name === 'password')
@@ -99,54 +101,83 @@ const Signup = (props) => {
   // Función principal para registrar usuario.
   const handleSubmit = (e) => {
     e.preventDefault();
+    setshowProgress(true);
 
-          if(avatarC.image !== ''){
-              // AVATAR.
-              console.log(avatarC.image.name);
-              const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
-              storageRef.put(avatarC.image).then(function(result){
+    // Verificacion de contrasena.
+    if(user.password.length < 6){
+      alert("Has introducido una contrasena con menos de 6 caracteres.");
+      setshowProgress(false);
+      return;
+    }
 
-                  storageRef.getDownloadURL().then(function(url){
-                      console.log("URL: " + url);
-                      avatarC.avatarURL = url;
+    if(avatarC.image !== ''){
+      var ref = firebase.database().ref("users");
+      ref.orderByChild("email").equalTo(user.email + direction).once("value", snapshot => {
+      if(!snapshot.exists()){
+            const storageRef = firebase.storage().ref(`avatars/${avatarC.image.name}`);
+            storageRef.put(avatarC.image).then(function(result){
 
-                      // Asignando la URL sacada del Firebase Storage al avatar del usuario.
-                      user.avatar = avatarC.avatarURL;
+            storageRef.getDownloadURL().then(function(url){
+                // Asignando la URL sacada del Firebase Storage al avatar del administrador.
+                user.avatar = url;
 
-                      // Registrando y autenticando al nuevo usuario.
-                      firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
-                      .then(response => {
-                          // Encriptando la contraseña del registro de usuario.
-                          user.password = Base64.encode(user.password);
-                          user.email = user.email + direction;
-
-                          firebase.database().ref(`/users/${response.user.uid}`).set(user);
-                          alert('Bienvenido a Tienda E-Commerce');
-                          props.history.push('/');
-                      })
-                      .catch(error => {
-                          console.log(error);
-                          alert(error.message);
-                      });
-                  });
-              });
-          }else{
-                // Registrando y autenticando al nuevo usuario.
+                // Registrando y autenticando al nuevo administrador.
                 firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
                 .then(response => {
-                    // Encriptando la contraseña del registro de usuario.
+                    // Encriptando la contraseña del registro de administrador.
                     user.password = Base64.encode(user.password);
                     user.email = user.email + direction;
 
                     firebase.database().ref(`/users/${response.user.uid}`).set(user);
-                    alert('Bienvenido a Tienda E-Commerce');
+                    alert('Bienveniedo a Tienda E-commerce');
                     props.history.push('/');
                 })
                 .catch(error => {
                     console.log(error);
-                    alert(error.message);
+                    setshowProgress(false);
+                    alert("Error en Registro.");
                 });
-          }
+            })
+            .catch(error =>{
+              console.log(error.message);
+              setshowProgress(false);
+              alert("Error obtencion de datos del perfil.");
+            });
+          })
+          .catch(error =>{
+            console.log(error.message);
+            setshowProgress(false);
+            alert("Error al cargar la imagen.");
+          });
+        }
+        else{
+          setshowProgress(false);
+          alert("Has introducido una cuenta ya existente.");
+        }
+      })
+      .catch(error => {
+        console.log(error.message);
+        setshowProgress(false);
+        alert("Error en Registro.");
+      });
+    }else{
+       // Registrando y autenticando al nuevo usuario.
+       firebase.auth().createUserWithEmailAndPassword(user.email + direction, user.password)
+       .then(response => {
+           // Encriptando la contraseña del registro de usuario.
+           user.password = Base64.encode(user.password);
+           user.email = user.email + direction;
+
+           firebase.database().ref(`/users/${response.user.uid}`).set(user);
+           alert('Bienvenido a Tienda E-commerce');
+           props.history.push('/');
+       })
+       .catch(error => {
+           console.log(error);
+           setshowProgress(false);
+           alert("Error en registro es probable que hayas introducido una cuenta ya existente.");
+       });
+    }
 }
 
 // Funcion para quitar la foto elegida.
@@ -154,7 +185,6 @@ const onClose = () => {
   setAvatar({
     image: '',
     preview: '',
-    avatarURL: ''
   });
 }
 
@@ -173,6 +203,7 @@ const onBeforeFileLoad = (elem) => {
     if(elem.target.files[0].size > 71680){
       alert("La imagen es demasiado grande, elija otra.");
       elem.target.value = "";
+      return;
     };
 
     // Fijando la imagen tomada al state.
@@ -290,7 +321,15 @@ return (
               />
             </Grid>
           </Grid>
-          <Button
+          {showProgress?
+          <Grid container justify="center" alignItems="center">
+          <div className={classes.root}>
+              <CircularProgress disableShrink color="secondary" />
+          </div>
+          </Grid>
+          :
+          <div>
+            <Button
             type="submit"
             fullWidth
             variant="contained"
@@ -299,6 +338,8 @@ return (
           >
             Registrarme
           </Button>
+          </div>
+          }
           <Grid container justify="flex-end">
             <Grid item>
               <Link to="/login" component={MyLink} variant="body2">

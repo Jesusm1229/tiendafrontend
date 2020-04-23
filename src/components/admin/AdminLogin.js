@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Link, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Typography, Container, Checkbox, FormControl, InputLabel, Select, MenuItem} from '@material-ui/core';
+import {Link, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Typography, Container, Checkbox, FormControl, InputLabel, Select, MenuItem, CircularProgress} from '@material-ui/core';
 import {LockOutlined, Cancel} from '@material-ui/icons';
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
@@ -35,6 +35,9 @@ const AdminLogin = (props) => {
   // Hook que almacena la direccion de correo del admin.
   const [direction, setDirection] = useState(null);
 
+  // Hook para mostrar el progress o boton ingresar para el login.
+  const [showProgress, setshowProgress] = useState(false);
+
    // Labels y Hooks para las direcciones de correos.
    const inputLabel = useRef(null);
    const [labelWidth, setLabelWidth] = React.useState(0);
@@ -54,13 +57,9 @@ const AdminLogin = (props) => {
     // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
-    // Correos no pueden comenzar ni terminar con puntos y guiones.
-    if(e.target.name === 'email' && e.target.value.length === 1 && (key === 46 || key === 45 ))
-        return;
-
     // Validación del campo email.
     if(e.target.name === 'email')
-      if( (key > 31 && key < 45) || (key > 57 && key < 65) || (key > 64 && key < 95) || key > 122 || key === 47 || key === 96 ) return;
+      if( (key > 31 && key < 45) || (key > 57 && key < 65) || (key >= 64 && key < 95) || key > 122 || key === 47 || key === 96 ) return;
     
      // Validación del campo contraseña.
     if(e.target.name === 'password')
@@ -76,14 +75,14 @@ const AdminLogin = (props) => {
   // Funcion para autenticar a un usuario e ingresar al sistema.
   const handleLogin = (e) => {
         e.preventDefault();
-    
+
+        setshowProgress(true);
+
             // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
             var ref = firebase.database().ref("users");
             ref.orderByChild("email").equalTo(admin.email + direction).on("child_added", function(snapshot) {
-              
               // Si el role es 'true', iniciara sesion como administrador, sino no podrá iniciar sesion por ser usuario.
               if(snapshot.val().role){
-            
                   firebase.auth().signInWithEmailAndPassword(admin.email + direction, admin.password)
                   .then(response => {
                       // Una vez autenticado el administrador, redirecciona a la home.
@@ -91,12 +90,22 @@ const AdminLogin = (props) => {
                   })
                   .catch(error => {
                     console.log(error);
+                    setshowProgress(false);
                     alert(error.message);
                   });
               }
-              else
-                  alert("No puedes iniciar sesión, posees cuenta de usuario.");
+              else{
+                  setshowProgress(false);
+                  alert("Has introducido credenciales no validas o una cuenta de admin no existente");
+              }
             });
+
+            ref.orderByChild("email").equalTo(admin.email + direction).once("value", snapshot => {
+              if(!snapshot.exists()){
+                  setshowProgress(false);
+                  alert("Has introducido credenciales erroneas o una cuenta no existente.");
+              }
+          });
   };
 
   // Funcion dedicada para modificar las direcciones del correo.
@@ -167,7 +176,15 @@ const AdminLogin = (props) => {
             label="Recuerdame"
           />
            </Grid>
-          <Button
+           {showProgress?
+          <Grid container justify="center" alignItems="center">
+          <div className={classes.root}>
+              <CircularProgress disableShrink color="secondary" />
+          </div>
+          </Grid>
+          :
+          <div>
+             <Button
             type="submit"
             fullWidth
             variant="contained"
@@ -176,6 +193,8 @@ const AdminLogin = (props) => {
           >
             Ingresar
           </Button>
+          </div>
+          }
           <Grid container>
             <Grid item xs>
               <Link href="#" variant="body2">
