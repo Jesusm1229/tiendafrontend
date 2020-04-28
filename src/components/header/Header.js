@@ -33,6 +33,9 @@ const Header = (props) =>{
   // Hook para capturar el role del usuario logueado.
   const[role, setRole] = useState(null);
 
+  // Hook para saber si hay un usuario logueado.
+  const[userin, setUserin] = useState(false);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -47,6 +50,7 @@ const Header = (props) =>{
       // Si ocurre un response, hay un usuario autenticado.
       if(response){
         // Leer los datos del usuario.
+        setUserin(true);
         firebase.database().ref(`/users/${response.uid}`)
         .once('value')
         .then(snapshot =>{
@@ -93,7 +97,6 @@ const Header = (props) =>{
         })}
       >
         <Toolbar>
-              {props.user?
               <div>
               <IconButton
                 color="inherit"
@@ -105,13 +108,10 @@ const Header = (props) =>{
                 <Menu />
               </IconButton>
               </div>
-              : <div/>
-              }
           <Button to="/" component={MyLink} color="inherit"><Home/></Button>
           <Typography variant="h6" className={classes.title}>
             Tienda
           </Typography>
-          {props.user?
             <div>
                 <div className={classes.search}>
                 <div className={classes.searchIcon}>
@@ -127,9 +127,6 @@ const Header = (props) =>{
                 />
               </div>
             </div>
-            : <div/>
-          }
-          
           {props.user?
               <div>
                   <Button to="/shoppingcart" component={MyLink} color="inherit">
@@ -168,7 +165,7 @@ const Header = (props) =>{
               <ListItemText primary="Inicio" />
             </ListItem>
         </List>
-        {role?
+        {role && userin?
         <div>
         <List>
             <ListItem button component={RouterLink} to="/addproduct">
@@ -180,15 +177,17 @@ const Header = (props) =>{
         : <div/>
         }
         <List>
-            <ListItem button component={RouterLink} to="/favorites">
-              <ListItemIcon ><FavoriteBorder/></ListItemIcon>
-              <ListItemText primary="Ver Favoritos" />
-            </ListItem>
-        </List>
-        <List>
             <ListItem button component={RouterLink} to="/lastproducts">
               <ListItemIcon ><Timelapse/></ListItemIcon>
               <ListItemText primary="Productos casi Agotados" />
+            </ListItem>
+        </List>
+        {userin?
+        <div>
+        <List>
+            <ListItem button component={RouterLink} to="/favorites">
+              <ListItemIcon ><FavoriteBorder/></ListItemIcon>
+              <ListItemText primary="Ver Favoritos" />
             </ListItem>
         </List>
         <Divider/>
@@ -199,6 +198,9 @@ const Header = (props) =>{
             </ListItem>
         </List>
         <Divider/>
+        </div>
+        : <div/>
+        }
         <List>
             <ListItem button component={RouterLink} to="/">
               <ListItemIcon>

@@ -16,7 +16,6 @@ const Stock = () => {
 
     firebase.auth().onAuthStateChanged((user) => {
       let productsArray = []
-      if (user) {
           // Buscamos los productos y verificamos si su stock es menor o igual a 10.
           const refProducts = firebase.database().ref().child('products').orderByKey();
           refProducts.once('value', snap => {
@@ -26,7 +25,6 @@ const Stock = () => {
                   });
               });
           setProducts(productsArray);
-        }
     });
     }, []);
 
@@ -62,9 +60,7 @@ const Stock = () => {
                               </Typography>
                             </Grid>
                             <Grid item>
-                              <Typography variant="body2" style={{ cursor: 'pointer' }}>
-                                Agregar a Carrito
-                              </Typography>
+                              
                             </Grid>
                           </Grid>
                           <Grid item>

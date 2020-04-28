@@ -144,7 +144,7 @@ const Home = (props) =>{
          refProducts.once('value', snap => {
          snap.forEach(child => {
           
-           if(child.val().name.includes(search)){
+           if(child.val().name.includes(search.toLowerCase())){
                var productElement = {
                    id:          child.key, 
                    name:        child.val().name, 
