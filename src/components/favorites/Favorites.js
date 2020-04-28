@@ -15,15 +15,13 @@ const Favorites = (props) => {
   const [products, setProducts] = useState([]);
 
    useEffect(() =>{
-
           // Buscamos los favoritos del usuario logueado en la coleccion 'favorites'.
+          const reffavorites = firebase.database().ref().child('favorites').orderByKey();
           let productsArray = []
-          firebase.database().ref().child('favorites').orderByKey()
-          .once('value', snap => {
+          reffavorites.once('value', snap => {
           snap.forEach(child => {
 
                 if(child.val().user_id === firebase.auth().currentUser.uid){
-
                    firebase.database().ref('products/' + child.val().product_id)
                    .once('value')
                    .then(snapshot =>{
@@ -45,8 +43,6 @@ const Favorites = (props) => {
               });
           });
     },[]);
-
-    console.log(products);
 
      // Funcion para que un Admin o Usuario pueda eliminar un favorito.
      function removeFavorite(event, index){

@@ -55,10 +55,6 @@ const Home = (props) =>{
 
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
-
-      if(props.match.params.search !== undefined)
-        console.log("Resultado de Busqueda: " + Base64.decode(props.match.params.search));
-
       firebase.auth().onAuthStateChanged(function(user) { 
         if(user)
           setuserIn(user.uid);
@@ -66,74 +62,106 @@ const Home = (props) =>{
           setuserIn(null);
       });
 
-      // Cargando los favorites de los productos.
-        const refFavorites = firebase.database().ref().child('favorites').orderByKey();
-        let favoritesArray = []
-        refFavorites.once('value', snap => {
-        snap.forEach(child => {
+       // Cargando los favorites de los productos.
+       const refFavorites = firebase.database().ref().child('favorites').orderByKey();
+       let favoritesArray = []
+       refFavorites.once('value', snap => {
+       snap.forEach(child => {
 
-            var favoriteElement = {
-                id:          child.key, 
-                product_id:  child.val().product_id, 
-                user_id:     child.val().user_id
-            };
+           var favoriteElement = {
+               id:          child.key, 
+               product_id:  child.val().product_id, 
+               user_id:     child.val().user_id
+           };
 
-            favoritesArray.push(favoriteElement);
+           favoritesArray.push(favoriteElement);
+          });
+          setFavorites(favoritesArray);
+       });
+
+      // Cargando los shoppingCart del usuario.
+      const refShopping = firebase.database().ref().child('shoppingcart').orderByKey();
+      let shoppingArray = []
+      refShopping.once('value', snap => {
+      snap.forEach(child => {
+
+           const newShoppingCart = {
+             product_id: child.val().product_id,
+             user_id: child.val().user_id,
+             quantity: child.val().quantity, 
+           };
+
+           firebase.auth().onAuthStateChanged(function(user) { 
+             if(user){
+               if(newShoppingCart.user_id === user.uid)
+                 shoppingArray.push(newShoppingCart);
+             }
            });
-           setFavorites(favoritesArray);
-        });
-
-        // Cargando los productos en el Home.
-        const refProducts = firebase.database().ref().child('products').orderByKey();
-        let productsArray = []
-        refProducts.once('value', snap => {
-        snap.forEach(child => {
-
-          if(child.val().category === props.match.params.category || props.match.params.category === undefined){
-            console.log("entro");
-              var productElement = {
-                  id:          child.key, 
-                  name:        child.val().name, 
-                  price:       child.val().price,
-                  image:       child.val().image,
-                  category:    child.val().category,
-                  description: child.val().description,
-                  stock:       child.val().stock,
-                  quantity:       1,
-              };
-
-              productsArray.push(productElement);
-          }
-           });
-           setProduct(productsArray);
-        });
-
-        // Cargando los shoppingCart del usuario.
-         const refShopping = firebase.database().ref().child('shoppingcart').orderByKey();
-         let shoppingArray = []
-         refShopping.once('value', snap => {
-         snap.forEach(child => {
- 
-              const newShoppingCart = {
-                product_id: child.val().product_id,
-                user_id: child.val().user_id,
-                quantity: child.val().quantity, 
-              };
-
-              firebase.auth().onAuthStateChanged(function(user) { 
-                if(user){
-                  if(newShoppingCart.user_id === user.uid)
-                    shoppingArray.push(newShoppingCart);
-                }
-              });
-            });
-            setshoppingCart(shoppingArray);
          });
+         setshoppingCart(shoppingArray);
+      });
+
+      if(props.match.params.search !== undefined){
+        console.log("Entro en la busqueda.");
+        searchProducts(Base64.decode(props.match.params.search));
+      }
+      else{
+          // Cargando los productos en el Home.
+          console.log("Entro sin busqueda.");
+          const refProducts = firebase.database().ref().child('products').orderByKey();
+          let productsArray = []
+          refProducts.once('value', snap => {
+          snap.forEach(child => {
+
+            if(child.val().category === props.match.params.category || props.match.params.category === undefined){
+
+                var productElement = {
+                    id:          child.key, 
+                    name:        child.val().name, 
+                    price:       child.val().price,
+                    image:       child.val().image,
+                    category:    child.val().category,
+                    description: child.val().description,
+                    stock:       child.val().stock,
+                    quantity:       1,
+                };
+
+                productsArray.push(productElement);
+            }
+            });
+            setProduct(productsArray);
+          });
+      }
 
       }, [props.match.params.category, props.match.params.search]);
 
-      //console.log(shoppingCart);
-      console.log(products);
+      // Funcion para la busqueda de los productos.
+      function searchProducts(search){
+
+        // Buscando los productos de la busqueda.
+        const refProducts = firebase.database().ref().child('products').orderByKey();
+         let productsArray = []
+         refProducts.once('value', snap => {
+         snap.forEach(child => {
+          
+           if(child.val().name.includes(search)){
+               var productElement = {
+                   id:          child.key, 
+                   name:        child.val().name, 
+                   price:       child.val().price,
+                   image:       child.val().image,
+                   category:    child.val().category,
+                   description: child.val().description,
+                   stock:       child.val().stock,
+                   quantity:       1,
+               };
+ 
+               productsArray.push(productElement);
+           }
+            });
+            setProduct(productsArray);
+         });
+      }
 
       // Funcion para obtener el role del usuario logueado.
       function obtainRoleUser(){
@@ -205,71 +233,81 @@ const Home = (props) =>{
         setButtonClicked(true);
     }
 
-    // Funcion para agregar a favoritos un producto en especifico.
+     // Funcion para agregar a favoritos un producto en especifico.
     function addtoFavorites(e, productid){
   
-       e.preventDefault();
+      e.preventDefault();
 
-      if(userIn === null){
-          props.history.push('/login');
-          return;
-      }
+     if(userIn === null){
+         props.history.push('/login');
+         return;
+     }
 
-       if(e.target.checked){
+     if(!press){
+        setPress(true);
+      if(e.target.checked){
 
-           const newFavorite = {
+            const newFavorite = {
                 product_id: productid,
                 user_id: userIn,
-           };
+            };
 
-            firebase.database().ref('/favorites').push(newFavorite)
-            .then(response =>{
-              alert("Agregado a Favoritos");  
-            })
-            .catch(error => {
-              console.log(error);
-              alert(error.message);
-            });
+              firebase.database().ref('/favorites').push(newFavorite)
+              .then(response =>{
 
-            // Actualizando el Hook con el ultimo favorito agregado mas reciente.
-            const refFavorites = firebase.database().ref().child('favorites').orderByKey();
-            let favoritesArray = []
-            refFavorites.once('value', snap => {
-            snap.forEach(child => {
+                // Actualizando el Hook con el ultimo favorito agregado mas reciente.
+                const refFavorites = firebase.database().ref().child('favorites').orderByKey();
+                let favoritesArray = []
+                refFavorites.once('value', snap => {
+                snap.forEach(child => {
 
-                var favoriteElement = {
-                    id:          child.key, 
-                    product_id:  child.val().product_id, 
-                    user_id:     child.val().user_id
-                };
+                    var favoriteElement = {
+                        id:          child.key, 
+                        product_id:  child.val().product_id, 
+                        user_id:     child.val().user_id
+                    };
 
-                favoritesArray.push(favoriteElement);
+                    favoritesArray.push(favoriteElement);
+                  });
+                  setFavorites(favoritesArray);
+                });
+
+                alert("Agregado a Favoritos");
+                setPress(false);
+              })
+              .catch(error => {
+                console.log(error);
+                alert(error.message);
               });
-              setFavorites(favoritesArray);
-            });
-        }else{ // Se eliminara el like de ese producto.
-            let userRef = firebase.database().ref('favorites/' + obtainIndex(productid));
-            userRef.remove();
-            alert("Removido de Favoritos.");
-       }
-    }
+
+       }else{ // Se eliminara el like de ese producto.
+           let userRef = firebase.database().ref('favorites/' + obtainID(productid));
+           userRef.remove();
+
+           const name = e.target.getAttribute("name");
+           setFavorites(favorites.filter(item => item.product_id !== name));
+
+           alert("Removido de Favoritos.");
+           setPress(false);
+        }
+      }
+   }
 
     // Obtener el indice del producto a eliminar.
-    function obtainIndex(product_id){
-       for(var i = 0; i < favorites.length; i++){
-            if(favorites[i].product_id === product_id && favorites[i].user_id === userIn)
-               return favorites[i].id;
-       }
+    function obtainID(productid){
+       for(var i = 0; i < favorites.length; i++)
+            if(favorites[i].product_id === productid && favorites[i].user_id === firebase.auth().currentUser.uid)
+                return favorites[i].id;
     }
 
     // Conocer si el usuario posee un favorito en un producto.
     function obtainFavorites(product_id){
 
-        for(var i = 0; i < favorites.length; i++)
-          if(favorites[i].product_id === product_id && favorites[i].user_id === userIn)
-              return true;
-      return false;
-  }
+      for(var i = 0; i < favorites.length; i++)
+        if(favorites[i].product_id === product_id && favorites[i].user_id === userIn)
+            return true;
+        return false;
+      }
 
     // Funcion para agregar a carrito de compra un producto en especifico con su cantidad segun el stock o disponibilidad.
     function addtoShoppingCart(e, productid, index){
@@ -448,7 +486,7 @@ return(
                   <Grid container justify="center" alignItems="center">
                       <div>
                           <FormControlLabel
-                            control={<Checkbox defaultChecked={obtainFavorites(products[index].id)} icon={<FavoriteBorder fontSize="default" />} checkedIcon={<Favorite fontSize="default" />} />}
+                            control={<Checkbox checked={obtainFavorites(products[index].id)} icon={<FavoriteBorder fontSize="default" />} checkedIcon={<Favorite fontSize="default" />} name={products[index].id} />}
                             onChange={(event) => addtoFavorites(event, products[index].id)}
                           />
                       </div>

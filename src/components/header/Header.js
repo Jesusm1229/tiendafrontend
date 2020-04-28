@@ -74,9 +74,11 @@ const Header = (props) =>{
   }
 
   const handleEnterKey = (e) => {
-      if(e.key === 'Enter'){
-          console.log("Presionado.");
-          console.log(busqueda);
+
+      if(e.key === 'Enter' && busqueda === '')
+          return;
+
+      if(e.key === 'Enter' && busqueda !== undefined){
           props.history.push('/search/results/' + Base64.encode(busqueda));
       }
   }
