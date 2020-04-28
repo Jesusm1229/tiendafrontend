@@ -14,7 +14,20 @@ const Favorites = (props) => {
   // Hook para almacenar todos los productos.
   const [products, setProducts] = useState([]);
 
+  // Hook para almacenar el usuario logueado.
+  const [userin, setUserin] = useState(false);
+
    useEffect(() =>{
+
+          // Verificamos si hay un usuario logueado.
+          firebase.auth().onAuthStateChanged(function(user) { 
+            if(user)
+              setUserin(true);
+          });
+
+          if(!userin)
+            return;
+
           // Buscamos los favoritos del usuario logueado en la coleccion 'favorites'.
           const reffavorites = firebase.database().ref().child('favorites').orderByKey();
           let productsArray = []
@@ -42,7 +55,7 @@ const Favorites = (props) => {
                 }
               });
           });
-    },[]);
+    },[userin]);
 
      // Funcion para que un Admin o Usuario pueda eliminar un favorito.
      function removeFavorite(event, index){

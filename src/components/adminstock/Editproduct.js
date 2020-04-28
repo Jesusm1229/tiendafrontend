@@ -50,6 +50,9 @@ const [category, setCategory] = useState('');
 // Hook para almacenar si presiono o no el boton de edicion.
 const [showProgress, setshowProgress] = useState(false);
 
+// Hook para almacenar el usuario logueado.
+const [userin, setUserin] = useState(false);
+
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
 
@@ -94,8 +97,17 @@ const handleChange = (e) => {
   const [labelWidth, setLabelWidth] = React.useState(0);
 
   useEffect(() => {
+     // Verificamos si hay un usuario logueado.
+     firebase.auth().onAuthStateChanged(function(user) { 
+      if(user)
+        setUserin(true);
+    });
+
+    if(!userin)
+      return;
+
     setLabelWidth(inputLabel.current.offsetWidth);
-  }, []);
+  }, [userin]);
 
 // Funcion dedicada para modificar las categorias de los productos.
 const handleModified = (event) => {
@@ -217,6 +229,8 @@ const handleSubmit = (e) => {
 return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
+      {userin?
+      <div>
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
@@ -364,6 +378,9 @@ return (
         </form>
       </div>
       <Box mt={5}><Copyright /></Box>
+      </div>
+        : <div/>
+        }
     </Container>
   );
 }

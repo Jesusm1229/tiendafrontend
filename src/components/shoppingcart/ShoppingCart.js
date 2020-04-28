@@ -22,6 +22,9 @@ const ShoppingCart = () => {
   // Hook para almacenar la informacion del usuario logueado.
   const [user, setUser] = useState();
 
+   // Hook para almacenar el usuario logueado.
+   const [userin, setUserin] = useState(false);
+
   // Orden el shoppingCart completo para enviar a PayPal.
   const order = {
     total: (toPay/75000).toFixed(2),
@@ -29,6 +32,15 @@ const ShoppingCart = () => {
   };
 
    useEffect(() =>{
+
+          // Verificamos si hay un usuario logueado.
+          firebase.auth().onAuthStateChanged(function(user) { 
+            if(user)
+              setUserin(true);
+          });
+
+          if(!userin)
+            return;
 
           // Usuario logueado al momento de realizar la compra.
           firebase.auth().onAuthStateChanged(response =>{
@@ -76,7 +88,7 @@ const ShoppingCart = () => {
               });
             setProducts(productsArray);
           });
-    },[]);
+    },[userin]);
 
      // Funcion para que un Admin o Usuario pueda eliminar un producto de su carrito de compra.
      function removeShopping(event, index){

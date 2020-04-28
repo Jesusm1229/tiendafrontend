@@ -24,13 +24,17 @@ const ChangeAvatar = (props) => {
   // Hook para almacenar el usuario logueado.
   const [userphoto, setUserPhoto] = useState("");
 
-   // Hook para mostrar el progress o boton de subir avatar.
-   const [showProgress, setshowProgress] = useState(false);
+  // Hook para mostrar el progress o boton de subir avatar.
+  const [showProgress, setshowProgress] = useState(false);
+  
+  // Hook para almacenar el usuario logueado.
+  const [userin, setUserin] = useState(false);
 
   useEffect(() =>{
 
     firebase.auth().onAuthStateChanged(function(user) { 
         if(user){
+            setUserin(true);
             firebase.database().ref().child('users').orderByKey()
             .once('value', snap => {
             snap.forEach(child => {
@@ -139,6 +143,8 @@ const ChangeAvatar = (props) => {
     <div>
         <Container component="main" maxWidth="xs">
         <CssBaseline />
+        {userin?
+        <div>
             <div className={classes.paper}>
             <Avatar className={classes.avatar}>
                 <PhotoCamera />
@@ -193,6 +199,9 @@ const ChangeAvatar = (props) => {
           </div>
           }
           </div>
+        </div>
+        : <div/>
+        }
         </Container>
     </div>
     )
