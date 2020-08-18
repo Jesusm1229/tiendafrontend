@@ -13,6 +13,8 @@ import 'firebase/auth';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 // Importando Función de Style.
 import {useStyles} from './styles';
+// Importando Alert de SnackBar.
+import Snackbar from '../snackbar/Snackbar';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -64,6 +66,13 @@ const Login = (props) => {
   // Labels y Hooks para las direcciones de correos.
   const inputLabel = useRef(null);
   const [labelWidth, setLabelWidth] = React.useState(0);
+
+  // Contenido del Snackbar.
+  const[snack, setsnack] = useState({
+      motive: '',
+      text: '',
+      appear: false,
+  });
    
   useEffect(() => {
      setLabelWidth(inputLabel.current.offsetWidth);
@@ -100,6 +109,10 @@ const Login = (props) => {
   const handleLogin = (e) => {
     e.preventDefault();
 
+    setsnack({
+      appear: false,
+    });
+    
     setshowProgress(true);
 
             // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
@@ -117,19 +130,28 @@ const Login = (props) => {
                   .catch(error => {
                       console.log(error);
                       setshowProgress(false);
-                      alert(error.message);
                   });
               }
               else{
                   setshowProgress(false);
-                  alert("Has introducido credenciales no validas o una cuenta de usuario no existente");
+
+                  setsnack({
+                    motive: 'error',
+                    text: 'Has introducido credenciales no validas o una cuenta de usuario no existente',
+                    appear: true,
+                  });
               }
             });
 
             ref.orderByChild("email").equalTo(user.email + direction).once("value", snapshot => {
               if(!snapshot.exists()){
-                setshowProgress(false);
-                alert("Has introducido credenciales erroneas o una cuenta no existente.");
+                  setshowProgress(false);
+                  
+                  setsnack({
+                    motive: 'error',
+                    text: 'Has introducido credenciales erroneas o una cuenta no existente.',
+                    appear: true,
+                  });
               }
           });
   };
@@ -243,6 +265,10 @@ return (
       />
       </Grid>
       <Box mt={5}><Copyright /> </Box>
+      {snack.appear?
+        <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
+        : <div/>
+      }
     </Container>
   );
 }
