@@ -14,6 +14,8 @@ import {useStyles} from './styles';
 import { Link as RouterLink, withRouter} from 'react-router-dom';
 // Importando el useLocation para transferir states de un componente a otro.
 import { useLocation } from 'react-router-dom';
+// Importando Alert de SnackBar.
+import Snackbar from '../snackbar/Snackbar';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -52,6 +54,13 @@ const [showProgress, setshowProgress] = useState(false);
 
 // Hook para almacenar el usuario logueado.
 const [userin, setUserin] = useState(false);
+
+// Contenido del Snackbar.
+const[snack, setsnack] = useState({
+  motive: '',
+  text: '',
+  appear: false,
+});
 
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
@@ -145,6 +154,8 @@ const onBeforeFileLoad = (elem) => {
 // Funcion para realizar la efectiva edicion de un producto en particular.
 const handleSubmit = (e) => {
     e.preventDefault();
+
+    setsnack({ appear: false, });
     setshowProgress(true);
 
           // Verificando si ha realizado algun cambio, antes de realizar la consulta.
@@ -153,13 +164,17 @@ const handleSubmit = (e) => {
               
             if(snap.val().name === product.name && snap.val().price === product.price && snap.val().stock === product.stock &&
                 snap.val().description === product.description && snap.val().image === product.image && snap.val().category === product.category){
-                alert("No has realizado ninguna edicion.");
+                setsnack({
+                  motive: 'info', text: 'No has realizado ninguna edicion.', appear: true,
+                });
                 setshowProgress(false);
                 return;
               }
 
               if(product.image === ''){
-                alert("Seleccione una imagen de producto.");
+                setsnack({
+                  motive: 'info', text: 'Seleccione una imagen de producto.', appear: true,
+                });
                 setshowProgress(false);
                 return;
               }
@@ -181,23 +196,31 @@ const handleSubmit = (e) => {
 
                         firebase.database().ref(`products/${product.id}`).update(editProduct)
                         .then(response =>{
-                            alert("Producto Editado con Exito.");
+                            setsnack({
+                              motive: 'success', text: 'Producto Editado con Exito.', appear: true,
+                            });
                             props.history.push("/");  
                         })
                         .catch(error => {
                             console.log(error.message);
-                            alert("Se ha producido un error al editar el producto.");
+                            setsnack({
+                              motive: 'error', text: 'Se ha producido un error al editar el producto.', appear: true,
+                            });
                         });
                     })
                     .catch(error => {
                           console.log(error.message);
-                          alert("Error obtencion de datos del perfil.");
+                          setsnack({
+                            motive: 'error', text: 'Error obtencion de datos del perfil.', appear: true,
+                          });
                           setshowProgress(false);
                     });
                 })
                 .catch(error => {
                     console.log(error.message);
-                    alert("Error al cargar la imagen.");
+                    setsnack({
+                      motive: 'error', text: 'Error al cargar la imagen.', appear: true,
+                    });
                     setshowProgress(false);
                 });
               }
@@ -211,17 +234,23 @@ const handleSubmit = (e) => {
                 })
                 .catch(error => {
                   console.log(error.message);
-                  alert("Se ha producido un error al editar el producto.");
+                  setsnack({
+                    motive: 'error', text: 'Se ha producido un error al editar el producto.', appear: true,
+                  });
                   setshowProgress(false);
                 });
                 
-                alert("Producto Editado con Exito.");
+                setsnack({
+                  motive: 'success', text: 'Producto Editado con Exito.', appear: true,
+                });
                 props.history.push("/"); 
               }
           })
           .catch(error => {
               console.log(error.message);
-              alert("Se ha producido un error de edicion del producto.");
+              setsnack({
+                motive: 'success', text: 'Se ha producido un error de edicion del producto.', appear: true,
+              });
               setshowProgress(false);
           });
 } 
@@ -378,6 +407,10 @@ return (
         </form>
       </div>
       <Box mt={5}><Copyright /></Box>
+      {snack.appear?
+        <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
+        : <div/>
+      }
       </div>
         : <div/>
         }

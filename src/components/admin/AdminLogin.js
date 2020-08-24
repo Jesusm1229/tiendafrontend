@@ -7,6 +7,8 @@ import firebase from '../../FirebaseConfig';
 import { Link as RouterLink, withRouter} from 'react-router-dom';
 // Importando los Estilos. (Se importa el mismo estilo del Login de Usuario para resumir código).
 import {useStyles} from '../login/styles';
+// Importando Alert de SnackBar.
+import Snackbar from '../snackbar/Snackbar';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -38,9 +40,16 @@ const AdminLogin = (props) => {
   // Hook para mostrar el progress o boton ingresar para el login.
   const [showProgress, setshowProgress] = useState(false);
 
-   // Labels y Hooks para las direcciones de correos.
-   const inputLabel = useRef(null);
-   const [labelWidth, setLabelWidth] = React.useState(0);
+  // Labels y Hooks para las direcciones de correos.
+  const inputLabel = useRef(null);
+  const [labelWidth, setLabelWidth] = React.useState(0);
+
+  // Contenido del Snackbar.
+  const[snack, setsnack] = useState({
+      motive: '',
+      text: '',
+      appear: false,
+  });
    
    useEffect(() => {
      setLabelWidth(inputLabel.current.offsetWidth);
@@ -76,6 +85,7 @@ const AdminLogin = (props) => {
   const handleLogin = (e) => {
         e.preventDefault();
 
+        setsnack({ appear: false, });
         setshowProgress(true);
 
             // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
@@ -91,19 +101,22 @@ const AdminLogin = (props) => {
                   .catch(error => {
                     console.log(error);
                     setshowProgress(false);
-                    alert(error.message);
                   });
               }
               else{
                   setshowProgress(false);
-                  alert("Has introducido credenciales no validas o una cuenta de admin no existente");
+                  setsnack({
+                    motive: 'error', text: 'Has introducido credenciales no validas o una cuenta de admin no existente', appear: true,
+                  });
               }
             });
 
             ref.orderByChild("email").equalTo(admin.email + direction).once("value", snapshot => {
               if(!snapshot.exists()){
                   setshowProgress(false);
-                  alert("Has introducido credenciales erroneas o una cuenta no existente.");
+                  setsnack({
+                    motive: 'error', text: 'Has introducido credenciales erroneas o una cuenta no existente.', appear: true,
+                  });
               }
           });
   };
@@ -210,6 +223,10 @@ const AdminLogin = (props) => {
         </form>
       </div>
       <Box mt={5}><Copyright /></Box>
+      {snack.appear?
+        <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
+        : <div/>
+      }
     </Container>
   );
 }

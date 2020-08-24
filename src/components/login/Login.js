@@ -109,10 +109,7 @@ const Login = (props) => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    setsnack({
-      appear: false,
-    });
-    
+    setsnack({ appear: false, });
     setshowProgress(true);
 
             // Realizando consulta para que solo usuarios puedan acceder a traves de este login.
@@ -134,11 +131,8 @@ const Login = (props) => {
               }
               else{
                   setshowProgress(false);
-
                   setsnack({
-                    motive: 'error',
-                    text: 'Has introducido credenciales no validas o una cuenta de usuario no existente',
-                    appear: true,
+                    motive: 'error', text: 'Has introducido credenciales no validas o una cuenta de usuario no existente', appear: true,
                   });
               }
             });
@@ -146,11 +140,8 @@ const Login = (props) => {
             ref.orderByChild("email").equalTo(user.email + direction).once("value", snapshot => {
               if(!snapshot.exists()){
                   setshowProgress(false);
-                  
                   setsnack({
-                    motive: 'error',
-                    text: 'Has introducido credenciales erroneas o una cuenta no existente.',
-                    appear: true,
+                    motive: 'error', text: 'Has introducido credenciales erroneas o una cuenta no existente.', appear: true,
                   });
               }
           });

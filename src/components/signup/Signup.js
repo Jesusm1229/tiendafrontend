@@ -13,6 +13,8 @@ import AvatarEdit from 'react-avatar-edit';
 import { Base64 } from 'js-base64';
 // Importando Estilos.
 import {useStyles} from './styles';
+// Importando Alert de SnackBar.
+import Snackbar from '../snackbar/Snackbar';
 
 // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
 const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
@@ -58,6 +60,13 @@ const Signup = (props) => {
    const inputLabel = useRef(null);
    const [labelWidth, setLabelWidth] = React.useState(0);
 
+   // Contenido del Snackbar.
+   const[snack, setsnack] = useState({
+      motive: '',
+      text: '',
+      appear: false,
+   });
+
   useEffect(() => {
     setLabelWidth(inputLabel.current.offsetWidth);
     setDirection("@gmail.com");
@@ -101,11 +110,15 @@ const Signup = (props) => {
   // Función principal para registrar usuario.
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    setsnack({ appear: false, });
     setshowProgress(true);
 
     // Verificacion de contrasena.
     if(user.password.length < 6){
-      alert("Has introducido una contrasena con menos de 6 caracteres.");
+      setsnack({
+        motive: 'warning', text: 'Has introducido una contrasena con menos de 6 caracteres.', appear: true,
+      });
       setshowProgress(false);
       return;
     }
@@ -129,36 +142,45 @@ const Signup = (props) => {
                     user.email = user.email + direction;
 
                     firebase.database().ref(`/users/${response.user.uid}`).set(user);
-                    alert('Bienveniedo a Tienda E-commerce');
                     props.history.push('/');
                 })
                 .catch(error => {
                     console.log(error);
                     setshowProgress(false);
-                    alert("Error en Registro.");
+                    setsnack({
+                      motive: 'error', text: 'Error en Registro.', appear: true,
+                    });
                 });
             })
             .catch(error =>{
               console.log(error.message);
               setshowProgress(false);
-              alert("Error obtencion de datos del perfil.");
+              setsnack({
+                motive: 'error', text: 'Error obtencion de datos del perfil.', appear: true,
+              });
             });
           })
           .catch(error =>{
             console.log(error.message);
             setshowProgress(false);
-            alert("Error al cargar la imagen.");
+            setsnack({
+              motive: 'error', text: 'Error al cargar la imagen.', appear: true,
+            });
           });
         }
         else{
           setshowProgress(false);
-          alert("Has introducido una cuenta ya existente.");
+          setsnack({
+            motive: 'warning', text: 'Has introducido una cuenta ya existente.', appear: true,
+          });
         }
       })
       .catch(error => {
         console.log(error.message);
         setshowProgress(false);
-        alert("Error en Registro.");
+        setsnack({
+          motive: 'error', text: 'Error en Registro.', appear: true,
+        });
       });
     }else{
        // Registrando y autenticando al nuevo usuario.
@@ -169,13 +191,14 @@ const Signup = (props) => {
            user.email = user.email + direction;
 
            firebase.database().ref(`/users/${response.user.uid}`).set(user);
-           alert('Bienvenido a Tienda E-commerce');
            props.history.push('/');
        })
        .catch(error => {
            console.log(error);
            setshowProgress(false);
-           alert("Error en registro es probable que hayas introducido una cuenta ya existente.");
+           setsnack({
+              motive: 'error', text: 'Error en registro es probable que hayas introducido una cuenta ya existente.', appear: true,
+           });
        });
     }
 }
@@ -198,10 +221,14 @@ const onCrop = (preview) => {
 // Verificando el tamaño de la imagen y 
 const onBeforeFileLoad = (elem) => {
 
+  setsnack({ appear: false, });
+
   if(elem.target.files[0].type === "image/jpeg" || elem.target.files[0].type === "image/jpg" || elem.target.files[0].type === "image/png"){
 
     if(elem.target.files[0].size > 71680){
-      alert("La imagen es demasiado grande, elija otra.");
+      setsnack({
+          motive: 'warning', text: 'La imagen es demasiado grande, elija otra.', appear: true,
+      });
       elem.target.value = "";
       return;
     };
@@ -210,7 +237,9 @@ const onBeforeFileLoad = (elem) => {
     avatarC.image = elem.target.files[0];
   }else{
     elem.target.value = "";
-    alert("Formato de imagen incorrecto. Elija una imagen.");
+    setsnack({
+        motive: 'error', text: 'Formato de imagen incorrecto. Elija una imagen.', appear: true,
+    });
     return;
   }
 }
@@ -350,6 +379,10 @@ return (
         </form>
       </div>
       <Box mt={5}><Copyright /></Box>
+      {snack.appear?
+        <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
+        : <div/>
+      }
     </Container>
   );
 }

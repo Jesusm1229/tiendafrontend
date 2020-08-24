@@ -11,6 +11,8 @@ import {Button, Grid, Container, CssBaseline, Avatar, Typography, CircularProgre
 import AvatarEdit from 'react-avatar-edit';
 // Iconos de Material-UI.
 import {PhotoCamera} from '@material-ui/icons';
+// Importando Alert de SnackBar.
+import Snackbar from '../snackbar/Snackbar';
 
 // Componente Funcional User.
 const ChangeAvatar = (props) => {
@@ -29,6 +31,13 @@ const ChangeAvatar = (props) => {
   
   // Hook para almacenar el usuario logueado.
   const [userin, setUserin] = useState(false);
+
+  // Contenido del Snackbar.
+  const[snack, setsnack] = useState({
+      motive: '',
+      text: '',
+      appear: false,
+  });
 
   useEffect(() =>{
 
@@ -59,10 +68,14 @@ const ChangeAvatar = (props) => {
   // Verificando el tamaño de la imagen y 
   const onBeforeFileLoad = (elem) => {
   
+    setsnack({ appear: false, });
+
     if(elem.target.files[0].type === "image/jpeg" || elem.target.files[0].type === "image/jpg" || elem.target.files[0].type === "image/png"){
   
       if(elem.target.files[0].size > 71680){
-        alert("La imagen es demasiado grande, elija otra.");
+        setsnack({
+          motive: 'warning', text: 'La imagen es demasiado grande, elija otra.', appear: true,
+        });
         elem.target.value = "";
         return;
       };
@@ -71,7 +84,9 @@ const ChangeAvatar = (props) => {
       setAvatarImage(elem.target.files[0]);
     }else{
       elem.target.value = "";
-      alert("Formato de imagen incorrecto. Elija una imagen.");
+      setsnack({
+        motive: 'error', text: 'Formato de imagen incorrecto. Elija una imagen.', appear: true,
+      });
       return;
     }
   }
@@ -79,11 +94,15 @@ const ChangeAvatar = (props) => {
   // Funcion para cambiar el avatar del usuario o administrador.
   const handleUpload = (e) => {
     e.preventDefault();
+
+    setsnack({ appear: false, });
     setshowProgress(true);
 
             // Casos donde no ha realizado ningun cambio de avatar.
             if((userphoto === "" && avatarImage === "") || (userphoto === avatarImage)){
-                alert("No has realizado ningun cambio.");
+                setsnack({
+                  motive: 'info', text: 'No has realizado ningun cambio', appear: true,
+                });
                 setshowProgress(false);
                 return;
             }
@@ -95,13 +114,17 @@ const ChangeAvatar = (props) => {
                   })
                   .catch(error => {
                     console.log(error.message);
-                    alert("Error al actualizar el avatar.");
+                    setsnack({
+                      motive: 'error', text: 'Error al actualizar el avatar.', appear: true,
+                    });
                     setshowProgress(false);
                   });
 
-                  alert("Avatar Eliminado."); 
-                  props.history.push('/');
                   window.location.reload(false);
+
+                  setsnack({
+                    motive: 'success', text: 'Avatar Eliminado.', appear: true,
+                  });
             }
 
             // Editar Avatar existente.
@@ -117,23 +140,31 @@ const ChangeAvatar = (props) => {
                         })
                         .catch(error => {
                             console.log(error.message);
-                            alert("Error al actualizar el avatar.");
+                            setsnack({
+                              motive: 'error', text: 'Error al actualizar el avatar.', appear: true,
+                            });
                             setshowProgress(false);
                         });
                           
-                          alert("Avatar Editado con Exito."); 
-                          props.history.push('/');
                           window.location.reload(false);
+
+                          setsnack({
+                            motive: 'success', text: 'Avatar Editado con Exito.', appear: true,
+                          });
                     })
                     .catch(error => {
                           console.log(error.message);
-                          alert("Error obtencion de datos del perfil.");
+                          setsnack({
+                            motive: 'error', text: 'Error obtencion de datos del perfil.', appear: true,
+                          });
                           setshowProgress(false);
                     });
                 })
                 .catch(error =>{
                     console.log(error.message);
-                    alert("Error al cargar la imagen.");
+                    setsnack({
+                      motive: 'error', text: 'Error al cargar la imagen.', appear: true,
+                    });
                     setshowProgress(false);
                 });
             }
@@ -202,6 +233,10 @@ const ChangeAvatar = (props) => {
         </div>
         : <div/>
         }
+         {snack.appear?
+            <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
+            : <div/>
+         }
         </Container>
     </div>
     )

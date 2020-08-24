@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {useState} from 'react';
 // Importando el NPM de Pagos con PayPal.
 import PaypalBtn from 'react-paypal-checkout';
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Redireccionamientos.
 import { withRouter } from 'react-router-dom';
+// Importando Alert de SnackBar.
+import Snackbar from '../snackbar/Snackbar';
 
 const PaypalCheckout = (props) => {
 
@@ -24,11 +26,21 @@ const PaypalCheckout = (props) => {
             production: 'YOUR-PRODUCTION-APP-ID',
         },
     };
+
+    // Contenido del Snackbar.
+    const[snack, setsnack] = useState({
+        motive: '',
+        text: '',
+        appear: false,
+    });
     
     // Funcion que efectuara el pago via PayPal.
     const onSuccess = (payment) => {
+        setsnack({ appear: false, });
         console.log("El Pago ha sido realizado con exito.", payment);
-        alert("El Pago ha sido realizado con exito.");
+        setsnack({
+            motive: 'success', text: 'El Pago ha sido realizado con exito.', appear: true,
+        });
 
         // Agregando la orden del shopping cart a la coleccion Orders.
         for(var counter = 0; counter < props.order.shoppingcart.length; counter++){
@@ -91,27 +103,40 @@ const PaypalCheckout = (props) => {
 
     // Funcion que realizara la cancelacion del pago.
     const onCancel = (data) => {
+        setsnack({ appear: false, });
         console.log('El pago ha sido cancelado.', data);
-        alert("El pago ha sido cancelado.");
+        setsnack({
+            motive: 'info', text: 'El pago ha sido cancelado.', appear: true,
+        });
     }	
 
     // Funcion que arrojara algun error ocurrido en la operacion del pago electronico.
     const onError = (err) => {
+        setsnack({ appear: false, });
         console.log("Error!", err);	
-        alert("Ha ocurrido un error.");	
+        setsnack({
+            motive: 'error', text: 'Ha ocurrido un error.', appear: true,
+        });	
     }
     
     return (
-        <PaypalBtn 
-            env={paypalConfig.env} 
-            client={paypalConfig.client} 
-            currency={paypalConfig.currency} 
-            total={paypalConfig.total} 
-            style={paypalConfig.style}
-            onError={onError} 
-            onSuccess={onSuccess} 
-            onCancel={onCancel}
-        />
+        <div>
+            <PaypalBtn 
+                env={paypalConfig.env} 
+                client={paypalConfig.client} 
+                currency={paypalConfig.currency} 
+                total={paypalConfig.total} 
+                style={paypalConfig.style}
+                onError={onError} 
+                onSuccess={onSuccess} 
+                onCancel={onCancel}
+            />
+            
+            {snack.appear?
+                <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
+                : <div/>
+            }
+        </div>
     );
 };
 

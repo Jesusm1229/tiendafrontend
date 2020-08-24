@@ -13,6 +13,8 @@ import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 import { Redirect } from 'react-router-dom';
 // Desencriptar las busquedas recibidas del Header.
 import { Base64 } from 'js-base64';
+// Importando Alert de SnackBar.
+import Snackbar from '../snackbar/Snackbar';
 
 // Componente Funcional Home.
 const Home = (props) =>{
@@ -53,6 +55,13 @@ const Home = (props) =>{
     // Hook para confirmar si presiono o no una accion.
     const [press, setPress] = useState(false);
 
+    // Contenido del Snackbar.
+    const[snack, setsnack] = useState({
+      motive: '',
+      text: '',
+      appear: false,
+    });
+ 
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
       firebase.auth().onAuthStateChanged(function(user) { 
@@ -237,6 +246,7 @@ const Home = (props) =>{
     function addtoFavorites(e, productid){
   
       e.preventDefault();
+      setsnack({ appear: false, });
 
      if(userIn === null){
          props.history.push('/login');
@@ -272,7 +282,9 @@ const Home = (props) =>{
                   setFavorites(favoritesArray);
                 });
 
-                alert("Agregado a Favoritos");
+                setsnack({
+                  motive: 'success', text: 'Agregado a Favoritos', appear: true,
+                });
                 setPress(false);
               })
               .catch(error => {
@@ -287,7 +299,9 @@ const Home = (props) =>{
            const name = e.target.getAttribute("name");
            setFavorites(favorites.filter(item => item.product_id !== name));
 
-           alert("Removido de Favoritos.");
+           setsnack({
+            motive: 'success', text: 'Removido de Favoritos.', appear: true,
+           });
            setPress(false);
         }
       }
@@ -313,6 +327,7 @@ const Home = (props) =>{
     function addtoShoppingCart(e, productid, index){
   
       e.preventDefault();
+      setsnack({ appear: false, });
 
       if(userIn === null){
         props.history.push('/login');
@@ -331,12 +346,13 @@ const Home = (props) =>{
             
             firebase.database().ref('/shoppingcart').push(newShoppingCart)
             .then(response =>{
-              alert("Agregado a Carro de Compra");
+              setsnack({
+                motive: 'success', text: 'Agregado a Carro de Compra', appear: true,
+               });
               setPress(false);
             })
             .catch(error => {
               console.log(error);
-              alert(error.message);
               setPress(false);
             });
 
@@ -360,7 +376,9 @@ const Home = (props) =>{
     }
     else{  
         setPress(false);
-        alert("No puedes agregar al carrito de compra. Ya existe el producto.");
+        setsnack({
+          motive: 'warning', text: 'No puedes agregar al carrito de compra. Ya existe el producto.', appear: true,
+         });
     }
   }
 }
@@ -540,6 +558,10 @@ return(
       }
     </Grid>
     </ul>
+      {snack.appear?
+          <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
+          : <div/>
+      }
   </Fragment>
   );
 }

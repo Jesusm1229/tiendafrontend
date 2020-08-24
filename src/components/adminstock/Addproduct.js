@@ -12,6 +12,8 @@ import clsx from 'clsx';
 import {useStyles} from './styles';
 // Redireccionamientos.
 import { withRouter } from 'react-router-dom';
+// Importando Alert de SnackBar.
+import Snackbar from '../snackbar/Snackbar';
 
 // Funcion de CopyRight para el footer de la pagina.
 function Copyright() {
@@ -46,6 +48,13 @@ const [showProgress, setshowProgress] = useState(false);
 
 // Hook para almacenar el usuario logueado.
 const [userin, setUserin] = useState(false);
+
+ // Contenido del Snackbar.
+ const[snack, setsnack] = useState({
+  motive: '',
+  text: '',
+  appear: false,
+});
 
 // Funcion HandleChange para modificar y asignar los datos al Hook.
 const handleChange = (e) => {
@@ -139,6 +148,8 @@ const onBeforeFileLoad = (elem) => {
 // Funcion para suministrar todos los datos a la base de datos.
 const handleSubmit = (e) => {
     e.preventDefault();
+
+    setsnack({ appear: false, });
     setshowProgress(true);
 
             if(product.image && product.category !== ''){
@@ -162,29 +173,39 @@ const handleSubmit = (e) => {
                         firebase.database().ref('/products').push(newProduct)
                         .then(response =>{
                             props.history.push("/");
-                            alert("Producto Agregado con Exito.");
+                            setsnack({
+                              motive: 'success', text: 'Producto Agregado con Exito.', appear: true,
+                            });
                             setshowProgress(false);
                         })
                         .catch(error => {
                             console.log(error.message);
-                            alert("Error al agregar el producto.");
+                            setsnack({
+                              motive: 'error', text: 'Error al agregar el producto.', appear: true,
+                            });
                             setshowProgress(false);
                         });
                     })
                     .catch(error => {
                         console.log(error.message);
-                        alert("Error obtencion de datos del perfil.");
+                        setsnack({
+                          motive: 'error', text: 'Error obtencion de datos del perfil.', appear: true,
+                        });
                         setshowProgress(false);
                     });
                 })
                 .catch(error => {
                     console.log(error.message);
-                    alert("Error al cargar la imagen.");
+                    setsnack({
+                      motive: 'error', text: 'Error al cargar la imagen.', appear: true,
+                    });
                     setshowProgress(false);
                 });
             }
             else{
-                alert("Complete el formulario.");
+                setsnack({
+                  motive: 'info', text: 'Complete el formulario.', appear: true,
+                });
                 setshowProgress(false);
             }
 }
@@ -331,6 +352,10 @@ return (
         </form>
       </div>
       <Box mt={5}><Copyright /></Box>
+      {snack.appear?
+        <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
+        : <div/>
+      }
       </div>
         : <div/>
         }
