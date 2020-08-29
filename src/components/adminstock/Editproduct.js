@@ -17,18 +17,6 @@ import { useLocation } from 'react-router-dom';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
 
-// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
-
-// Funcion de CopyRight para el footer de la pagina.
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
-    </Typography>
-  );
-}
-
 // Componente Funcional Addproduct.
 const Editproduct = (props) => {
 
@@ -389,7 +377,7 @@ return (
             }
           </Grid>
           <Grid container justify="center" alignItems="center">
-          <Link to="/" component={MyLink} variant="body2">
+          <Link to="/" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} variant="body2">
           <Button
             type="submit"
             variant="contained"
@@ -415,6 +403,15 @@ return (
         : <div/>
         }
     </Container>
+  );
+}
+
+// Funcion de CopyRight para el footer de la pagina.
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
+    </Typography>
   );
 }
 

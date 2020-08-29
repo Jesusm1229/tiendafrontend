@@ -16,18 +16,6 @@ import {useStyles} from './styles';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
 
-// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
-
-// Footer de CopyRight.
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
-    </Typography>
-  );
-}
-
 // Componente Funcional Signup.
 const Signup = (props) => {
 
@@ -145,7 +133,6 @@ const Signup = (props) => {
                     props.history.push('/');
                 })
                 .catch(error => {
-                    console.log(error);
                     setshowProgress(false);
                     setsnack({
                       motive: 'error', text: 'Error en Registro.', appear: true,
@@ -153,7 +140,6 @@ const Signup = (props) => {
                 });
             })
             .catch(error =>{
-              console.log(error.message);
               setshowProgress(false);
               setsnack({
                 motive: 'error', text: 'Error obtencion de datos del perfil.', appear: true,
@@ -161,7 +147,6 @@ const Signup = (props) => {
             });
           })
           .catch(error =>{
-            console.log(error.message);
             setshowProgress(false);
             setsnack({
               motive: 'error', text: 'Error al cargar la imagen.', appear: true,
@@ -176,7 +161,6 @@ const Signup = (props) => {
         }
       })
       .catch(error => {
-        console.log(error.message);
         setshowProgress(false);
         setsnack({
           motive: 'error', text: 'Error en Registro.', appear: true,
@@ -194,7 +178,6 @@ const Signup = (props) => {
            props.history.push('/');
        })
        .catch(error => {
-           console.log(error);
            setshowProgress(false);
            setsnack({
               motive: 'error', text: 'Error en registro es probable que hayas introducido una cuenta ya existente.', appear: true,
@@ -371,7 +354,8 @@ return (
           }
           <Grid container justify="flex-end">
             <Grid item>
-              <Link to="/login" component={MyLink} variant="body2">
+              {/* // Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente. */}
+              <Link to="/login" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} variant="body2">
               <LockOpen/>Ya posees cuenta? Inicia Sesión.
               </Link>
             </Grid>
@@ -384,6 +368,15 @@ return (
         : <div/>
       }
     </Container>
+  );
+}
+
+// Footer de CopyRight.
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
+    </Typography>
   );
 }
 

@@ -10,18 +10,6 @@ import {useStyles} from '../login/styles';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
 
-// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
-
-// Footer CopyRight.
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Administradores - Tienda E-Commerce ' + new Date().getFullYear()}
-    </Typography>
-  );
-}
-
 // Componente Funcional AdminLogin.
 const AdminLogin = (props) => {
 
@@ -99,8 +87,10 @@ const AdminLogin = (props) => {
                       props.history.push('/');
                   })
                   .catch(error => {
-                    console.log(error);
                     setshowProgress(false);
+                    setsnack({
+                      motive: 'error', text: 'Error en autenticacion.', appear: true,
+                    });
                   });
               }
               else{
@@ -215,7 +205,7 @@ const AdminLogin = (props) => {
               </Link>
             </Grid>
             <Grid item>
-              <Link to="/adminsignup" component={MyLink} variant="body2">
+              <Link to="/adminsignup" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} variant="body2">
               <Cancel/>{"No tengo cuenta"}
               </Link>
             </Grid>
@@ -228,6 +218,15 @@ const AdminLogin = (props) => {
         : <div/>
       }
     </Container>
+  );
+}
+
+// Footer CopyRight.
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+      {'Copyright © Administradores - Tienda E-Commerce ' + new Date().getFullYear()}
+    </Typography>
   );
 }
 

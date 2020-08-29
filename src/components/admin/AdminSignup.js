@@ -15,18 +15,6 @@ import {useStyles} from '../signup/styles';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
 
-// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
-
-// Footer CopyRight.
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Administradores - Tienda E-Commerce ' + new Date().getFullYear()}
-    </Typography>
-  );
-}
-
 // Componente Funcional AdminSignup.
 const AdminSignup = (props) => {
 
@@ -144,7 +132,6 @@ const AdminSignup = (props) => {
                     props.history.push('/');
                 })
                 .catch(error => {
-                    console.log(error);
                     setshowProgress(false);
                     setsnack({
                       motive: 'error', text: 'Error en Registro.', appear: true,
@@ -152,7 +139,6 @@ const AdminSignup = (props) => {
                 });
             })
             .catch(error =>{
-              console.log(error.message);
               setshowProgress(false);
               setsnack({
                 motive: 'error', text: 'Error obtencion de datos del perfil.', appear: true,
@@ -160,7 +146,6 @@ const AdminSignup = (props) => {
             });
           })
           .catch(error =>{
-            console.log(error.message);
             setshowProgress(false);
             setsnack({
               motive: 'error', text: 'Error al cargar la imagen.', appear: true,
@@ -175,7 +160,6 @@ const AdminSignup = (props) => {
         }
       })
       .catch(error => {
-        console.log(error.message);
         setshowProgress(false);
         setsnack({
           motive: 'error', text: 'Error en Registro.', appear: true,
@@ -196,7 +180,6 @@ const AdminSignup = (props) => {
            props.history.push('/');
        })
        .catch(error => {
-           console.log(error);
            setshowProgress(false);
            setsnack({
             motive: 'error', text: 'Error en registro es probable que hayas introducido una cuenta ya existente.', appear: true,
@@ -371,7 +354,7 @@ const AdminSignup = (props) => {
           }
           <Grid container justify="flex-end">
             <Grid item>
-              <Link to="/adminlogin" component={MyLink} variant="body2">
+              <Link to="/adminlogin" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} variant="body2">
               <LockOpen/>Ya posees cuenta de Administrador? Inicia Sesión.
               </Link>
             </Grid>
@@ -384,6 +367,15 @@ const AdminSignup = (props) => {
         : <div/>
       }
     </Container>
+  );
+}
+
+// Footer CopyRight.
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+      {'Copyright © Administradores - Tienda E-Commerce ' + new Date().getFullYear()}
+    </Typography>
   );
 }
 

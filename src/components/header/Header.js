@@ -18,9 +18,6 @@ import { withRouter } from 'react-router-dom';
 // Encriptar las busquedas.
 import { Base64 } from 'js-base64';
 
-// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
-
 // Componente Funcional Header.
 const Header = (props) =>{
 
@@ -108,7 +105,7 @@ const Header = (props) =>{
                 <Menu />
               </IconButton>
               </div>
-          <Button to="/" component={MyLink} color="inherit"><Home/></Button>
+          <Button to="/" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><Home/></Button>
           <Typography variant="h6" className={classes.title}>
             Tienda
           </Typography>
@@ -134,14 +131,14 @@ const Header = (props) =>{
           
           {props.user?
               <div>
-                  <Button to="/shoppingcart" component={MyLink} color="inherit">
+                  <Button to="/shoppingcart" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit">
                   <Badge badgeContent={props.cantidad} color="secondary" max={999}>
                     <ShoppingCartSharp />
                   </Badge>
                   </Button>
 
-                  <Button to="/lastproducts" component={MyLink} color="inherit"><Timelapse /></Button>
-                  <Button to="/favorites" component={MyLink} color="inherit"><Favorite /></Button>
+                  <Button to="/lastproducts" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><Timelapse /></Button>
+                  <Button to="/favorites" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><Favorite /></Button>
               </div>
               : <div/>
           }

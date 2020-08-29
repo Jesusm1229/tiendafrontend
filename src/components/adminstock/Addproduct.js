@@ -15,15 +15,6 @@ import { withRouter } from 'react-router-dom';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
 
-// Funcion de CopyRight para el footer de la pagina.
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
-    </Typography>
-  );
-}
-
 // Componente Funcional Addproduct.
 const Addproduct = (props) => {
 
@@ -360,6 +351,15 @@ return (
         : <div/>
         }
     </Container>
+  );
+}
+
+// Funcion de CopyRight para el footer de la pagina.
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
+    </Typography>
   );
 }
 

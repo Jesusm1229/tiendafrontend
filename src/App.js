@@ -13,9 +13,6 @@ import Routes from './Routes';
 // Base de Datos Firebase.
 import firebase from './FirebaseConfig';
 
-// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
-
 // Componente Funcional Principal.
 function App() {
 
@@ -47,8 +44,8 @@ return (
       <CssBaseLine/>
           <Header user={user}>
               {/* Si no se encuentra un usuario logueado, entonces se mostrarán los botones de Login y Signup.*/}
-              {!user && <Button to="/login" component={MyLink} color="inherit"><VpnKey/>Login</Button>}
-              {!user && <Button to="/signup" component={MyLink} color="inherit"><HowToReg/>Signup</Button>}
+              {!user && <Button to="/login" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><VpnKey/>Login</Button>}
+              {!user && <Button to="/signup" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><HowToReg/>Signup</Button>}
 
               {/* Mostrar icono de usuario o administrador y opciones al momento de iniciar sesion. */}
               {user && <User user={user} onLogout={onLogout} />}

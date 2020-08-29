@@ -16,18 +16,6 @@ import {useStyles} from './styles';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
 
-// Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.
-const MyLink = React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />);
-
-// Footer de CopyRight.
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
-    </Typography>
-  );
-}
-
 // Componente Funcional Login.
 const Login = (props) => {
 
@@ -36,18 +24,19 @@ const Login = (props) => {
 
   // Login con Facebook y Google.
     const uiConfig = {
-      signInFlow: "popup",
+      signInFlow: 'popup',
+      signInSuccessUrl: '/',
       signInOptions: [
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        firebase.auth.FacebookAuthProvider.PROVIDER_ID
-      ],
-      callbacks: {
-        signInSuccess: () => false,
+        {
+          provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          signInMethod: firebase.auth.GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD,
+        },
+    ],
+      callbacks: {   
         SignInSuccessWithAuthResult: (authResult, redirectUrl) => {
-          console.log('signInSuccessWithAuthResult', authResult, redirectUrl);
-          props.history.push('/');
-          return false
-      }
+
+            return true;
+        }
     }
   };
 
@@ -125,7 +114,9 @@ const Login = (props) => {
                       props.history.push('/');
                   })
                   .catch(error => {
-                      console.log(error);
+                      setsnack({
+                        motive: 'error', text: 'Se ha producido un error de autenticacion.', appear: true,
+                      });
                       setshowProgress(false);
                   });
               }
@@ -241,7 +232,8 @@ return (
               </Link>
             </Grid>
             <Grid item>
-              <Link to="/signup" component={MyLink} variant="body2">
+              {/* Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.*/}
+              <Link to="/signup" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} variant="body2">
               <Cancel/>{"No tengo una cuenta"}
               </Link>
             </Grid>
@@ -250,10 +242,10 @@ return (
       </div>
       <Grid container justify="center" alignItems="center">
       {/*Modulo de Login con Google y Facebook*/}
-      <StyledFirebaseAuth 
+        <StyledFirebaseAuth 
           uiConfig={uiConfig} 
           firebaseAuth={firebase.auth()}
-      />
+        />
       </Grid>
       <Box mt={5}><Copyright /> </Box>
       {snack.appear?
@@ -261,6 +253,15 @@ return (
         : <div/>
       }
     </Container>
+  );
+}
+
+// Footer de CopyRight.
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
+    </Typography>
   );
 }
 
