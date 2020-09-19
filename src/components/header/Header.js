@@ -4,7 +4,7 @@ import {AppBar, Toolbar, Typography, Button, Drawer, CssBaseline, List, Divider,
 // Icono de Tienda en el Header.
 import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse, ShoppingCartSharp, Favorite, Search} from '@material-ui/icons';
 // Redireccionamientos.
-import { Link as RouterLink} from 'react-router-dom';
+import { Link as RouterLink, useLocation} from 'react-router-dom';
 // Importando los Estilos.
 import {useStyles} from './styles';
 // Importando el boton de menu desplegable.
@@ -59,6 +59,11 @@ const Header = (props) =>{
 
   const [busqueda, setbusqueda] = useState();
 
+  function HeaderView() {
+    let location = useLocation();
+    return location.pathname
+  }
+
   const handleChangeSearch = (e) => {
 
       console.log(e.target.value);
@@ -109,22 +114,25 @@ const Header = (props) =>{
           <Typography variant="h6" className={classes.title}>
             Tienda Medina y Gonzalez
           </Typography>
-
-            <div>
-                <div className={classes.search}>
-                    <div className={classes.searchIcon}>
-                      <Search />
+            {HeaderView() === '/login' || HeaderView() === '/signup' || HeaderView() === '/adminlogin' || HeaderView() === '/adminsignup' || HeaderView() === '/lastproducts' 
+            || HeaderView() === '/favorites' || HeaderView() === '/shoppingcart' || HeaderView() === '/addproduct' || HeaderView() === '/editproduct' || HeaderView() === '/changeavatar' ?
+                <div> </div>
+                : <div> 
+                    <div className={classes.search}>
+                        <div className={classes.searchIcon}>
+                          <Search />
+                        </div>
+                        <InputBase onChange={handleChangeSearch} onKeyDown={handleEnterKey}
+                          placeholder="Busqueda..."
+                          classes={{
+                            root: classes.inputRoot,
+                            input: classes.inputInput,
+                          }}
+                          inputProps={{ 'aria-label': 'search' }}
+                        />
                     </div>
-                    <InputBase onChange={handleChangeSearch} onKeyDown={handleEnterKey}
-                      placeholder="Busqueda..."
-                      classes={{
-                        root: classes.inputRoot,
-                        input: classes.inputInput,
-                      }}
-                      inputProps={{ 'aria-label': 'search' }}
-                    />
                 </div>
-            </div>  
+            }
           
           {props.user?
               <div>
