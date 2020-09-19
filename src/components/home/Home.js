@@ -2,11 +2,11 @@ import React, {useState, useEffect , Fragment} from 'react'
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Componentes de Material-UI.
-import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, Typography, Grid, ListItemText, ListItemIcon, Button, FormControlLabel, Checkbox, ButtonGroup, Badge} from '@material-ui/core';
+import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, Typography, Grid, Button, FormControlLabel, Checkbox, ButtonGroup, Badge} from '@material-ui/core';
 // Iconos de Material-UI.
-import {Favorite, AddShoppingCart, Edit, Delete, Settings, Remove, Add} from '@material-ui/icons';
+import {Favorite, AddShoppingCart, Edit, Delete, Remove, Add} from '@material-ui/icons';
 // Importando Estilos.
-import {useStyles, StyledMenu, StyledMenuItem} from './styles';
+import {useStyles} from './styles';
 // Icono de Favorite o Like.
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 // Redireccionamientos.
@@ -20,19 +20,6 @@ import Snackbar from '../snackbar/Snackbar';
 const Home = (props) =>{
 
     const classes = useStyles();
-
-    // Hook para evento de abrir y cerrar el boton del engranaje para las opciones del administrador.
-    const [anchorEl, setAnchorEl] = React.useState(null);
-
-    // Evento para hacer click sobre el icono de engranaje.
-    const handleClick = event => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    // Evento para cerrar las opciones del engranaje.
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
 
     // Arreglo Hook para almacenar los productos traidos desde la base de datos.
     const [products, setProduct] = useState([]);
@@ -399,46 +386,12 @@ return(
         { products && products.map((item, index) => {
             return(
             // Comienza la tarjeta.
-                <Card className={classes.card} key={index}>
+                <Card className={classes.card}>
                   <CardHeader
                     avatar={
                       <Avatar aria-label="recipe" src={item.image} className={classes.avatar}/>
                     }
-                    action={
-                        // Si el role del usuario es 'true', entonces es un administrador y podrá editar y borrar los productos. Caso contrario (usuario): No podrá gestionar los productos.
-                        obtainRoleUser() === true?
-                        <div>
-                            <Settings
-                                aria-controls="customized-menu"
-                                aria-haspopup="true"
-                                variant="contained"
-                                color="primary"
-                                onClick={handleClick}
-                            />
-                            <StyledMenu
-                                id="customized-menu"
-                                anchorEl={anchorEl}
-                                keepMounted
-                                open={Boolean(anchorEl)}
-                                onClose={handleClose}
-                            >
-                                <StyledMenuItem>
-                                    <ListItemIcon>
-                                        <Edit fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText primary="Editar Producto" />
-                                </StyledMenuItem>
-                                <StyledMenuItem>
-                                    <ListItemIcon>
-                                        <Delete fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText primary="Eliminar Producto" />
-                                </StyledMenuItem>
-                            </StyledMenu>
-                        </div>
-                        : 
-                        <div/>
-                    }
+                    
                     title={item.name}
                     subheader={"Categoria: " + item.category}
                   />

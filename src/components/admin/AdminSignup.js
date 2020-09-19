@@ -374,7 +374,7 @@ const AdminSignup = (props) => {
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Administradores - Tienda E-Commerce ' + new Date().getFullYear()}
+      {'Copyright© Administradores - Tienda Medina y Gonzalez ' + new Date().getFullYear()}
     </Typography>
   );
 }

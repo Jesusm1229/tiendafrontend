@@ -14,7 +14,7 @@ import Routes from './Routes';
 import firebase from './FirebaseConfig';
 
 // Componente Funcional Principal.
-function App() {
+const App = () => {
 
   // Funcion para que no cargue ningun usuario al principio de la aplicacion.
   const [user, setUser] = useState(null);
@@ -26,6 +26,7 @@ function App() {
 
   // Evento para que este pendiente del status autenticado.
   useEffect(() =>{
+    document.title = "Tienda Medina y Gonzalez"
     firebase.auth().onAuthStateChanged(response =>{
       // Si ocurre un response, hay un usuario autenticado.
       if(response){

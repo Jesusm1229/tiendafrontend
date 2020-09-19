@@ -260,7 +260,7 @@ return (
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
+      {'Copyright© Tienda Medina y Gonzalez ' + new Date().getFullYear()}
     </Typography>
   );
 }

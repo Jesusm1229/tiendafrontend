@@ -38,6 +38,7 @@ const PaypalCheckout = (props) => {
     const onSuccess = (payment) => {
         setsnack({ appear: false, });
         console.log("El Pago ha sido realizado con exito.", payment);
+
         setsnack({
             motive: 'success', text: 'El Pago ha sido realizado con exito.', appear: true,
         });

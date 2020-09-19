@@ -107,7 +107,7 @@ const Header = (props) =>{
               </div>
           <Button to="/" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><Home/></Button>
           <Typography variant="h6" className={classes.title}>
-            Tienda
+            Tienda Medina y Gonzalez
           </Typography>
 
           {useLocation().pathname === '/'?
