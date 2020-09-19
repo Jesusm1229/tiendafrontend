@@ -4,7 +4,7 @@ import {AppBar, Toolbar, Typography, Button, Drawer, CssBaseline, List, Divider,
 // Icono de Tienda en el Header.
 import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse, ShoppingCartSharp, Favorite, Search} from '@material-ui/icons';
 // Redireccionamientos.
-import { Link as RouterLink, useLocation} from 'react-router-dom';
+import { Link as RouterLink} from 'react-router-dom';
 // Importando los Estilos.
 import {useStyles} from './styles';
 // Importando el boton de menu desplegable.
@@ -110,7 +110,6 @@ const Header = (props) =>{
             Tienda Medina y Gonzalez
           </Typography>
 
-          {useLocation().pathname === '/'?
             <div>
                 <div className={classes.search}>
                     <div className={classes.searchIcon}>
@@ -126,8 +125,6 @@ const Header = (props) =>{
                     />
                 </div>
             </div>  
-          : <div/>
-          }
           
           {props.user?
               <div>

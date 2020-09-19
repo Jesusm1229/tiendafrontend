@@ -9,8 +9,8 @@ export const useStyles = makeStyles(theme => ({
       maxHeight: 450,
       backgroundColor: '#cccccc',
       marginTop: theme.spacing(2),
-      marginLeft: theme.spacing(3),
-      marginRight: theme.spacing(3),
+      marginLeft: theme.spacing(0),
+      marginRight: theme.spacing(5),
     },
     root: {
         '& > *': {
