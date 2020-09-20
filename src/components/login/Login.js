@@ -27,11 +27,9 @@ const Login = (props) => {
       signInFlow: 'popup',
       signInSuccessUrl: '/',
       signInOptions: [
-        {
-          provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-          signInMethod: firebase.auth.GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD,
-        },
-    ],
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        firebase.auth.FacebookAuthProvider.PROVIDER_ID
+      ],
       callbacks: {   
         SignInSuccessWithAuthResult: (authResult, redirectUrl) => {
 
