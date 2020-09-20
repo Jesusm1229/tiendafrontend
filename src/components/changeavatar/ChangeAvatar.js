@@ -120,7 +120,7 @@ const ChangeAvatar = (props) => {
                     setshowProgress(false);
                   });
 
-                  window.location.reload(false);
+                  window.location.reload();
 
                   setsnack({
                     motive: 'success', text: 'Avatar Eliminado.', appear: true,
@@ -146,7 +146,7 @@ const ChangeAvatar = (props) => {
                             setshowProgress(false);
                         });
                           
-                          window.location.reload(false);
+                          window.location.reload();
 
                           setsnack({
                             motive: 'success', text: 'Avatar Editado con Exito.', appear: true,

@@ -48,7 +48,7 @@ const Home = (props) =>{
       text: '',
       appear: false,
     });
- 
+
     // Funcion que será iniciada primero antes de renderizar el componente. Se encarga de buscar todos los productos en firebase y almacenarla en el Arreglo Hook.
     useEffect(() =>{
       firebase.auth().onAuthStateChanged(function(user) { 
@@ -182,40 +182,35 @@ const Home = (props) =>{
 
     // Funcion para que un Admin pueda eliminar un producto del Home.
     function removeTarget(event, productid){
-      //event.preventDefault();
+      event.preventDefault();
+
+      setsnack({ appear: false, });
 
       if(!press){
           setPress(true);
-          // Eliminando los favoritos del producto.
-          const favoritesRef = firebase.database().ref().child('favorites').orderByKey();
-          favoritesRef.once('value', snap => {
-          snap.forEach(child => {
 
-            if(productid === child.val().product_id){
-                console.log("Entro");
-                let favoriteRef = firebase.database().ref('favorites/' + child.key);
-                favoriteRef.remove();
-            }
+          // Eliminando el producto.
+          firebase.database().ref('products/' + productid).remove();
+
+          // Eliminando los favoritos del producto.
+          firebase.database().ref().child('favorites').orderByKey().once('value').then(function(snapshot) {
+            snapshot.forEach(child => {
+                  if(productid === child.val().product_id)
+                      firebase.database().ref('favorites/' + child.key).remove(); 
             });
           });
 
           // Eliminando los shoppingCart asociados al producto.
-          const shoppingRef = firebase.database().ref().child('shoppingcart').orderByKey();
-          shoppingRef.once('value', snap => {
-          snap.forEach(child => {
-
-            if(productid === child.val().product_id){
-                let shopRef = firebase.database().ref('shoppingcart/' + child.key);
-                shopRef.remove();
-            }
+          firebase.database().ref().child('shoppingcart').orderByKey().once('value', snap => {
+            snap.forEach(child => {
+                if(productid === child.val().product_id)
+                    firebase.database().ref('shoppingcart/' + child.key).remove();
             });
+            setsnack({
+              motive: 'success', text: 'Producto Eliminado.', appear: true,
+            });
+            window.location.reload(); 
           });
-
-          // Eliminando el producto.
-          let productRef = firebase.database().ref('products/' + productid);
-          productRef.remove();
-
-          window.location.reload(false);
     }
   }
 

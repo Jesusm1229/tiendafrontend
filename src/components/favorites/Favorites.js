@@ -48,7 +48,6 @@ const Favorites = (props) => {
                       price:        snapshot.val().price,
                       stock:        snapshot.val().stock,
                     };
-
                     productsArray.push(favorite);
                   });
                   setProducts(productsArray);
@@ -62,15 +61,12 @@ const Favorites = (props) => {
       event.preventDefault();
 
       // Eliminando los favoritos del producto.
-      const favoritesRef = firebase.database().ref().child('favorites').orderByKey();
-      favoritesRef.once('value', snap => {
+      firebase.database().ref().child('favorites').orderByKey().once('value', snap => {
       snap.forEach(child => {
-
-         if(products[index].id === child.val().product_id){
-            let favoriteRef = firebase.database().ref('favorites/' + child.key);
-            favoriteRef.remove();
-            window.location.reload(false);
-         }
+            if(products[index].id === child.val().product_id){
+                firebase.database().ref('favorites/' + child.key).remove();
+                window.location.reload();
+            }
         });
       });
     }
