@@ -2,7 +2,9 @@ import React, {useState, useEffect} from 'react';
 // Componentes y Estilo makeStyle de Material-UI.
 import {AppBar, Toolbar, Typography, Button, Drawer, CssBaseline, List, Divider, IconButton, ListItem, ListItemIcon, ListItemText, Badge, InputBase } from '@material-ui/core';
 // Icono de Tienda en el Header.
-import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, FavoriteBorder, Timelapse, ShoppingCartSharp, Favorite, Search} from '@material-ui/icons';
+import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, Timelapse, ShoppingCartSharp, Favorite, Search} from '@material-ui/icons';
+// Importando colores.
+import { orange, red, blue } from '@material-ui/core/colors';
 // Redireccionamientos.
 import { Link as RouterLink, useLocation} from 'react-router-dom';
 // Importando los Estilos.
@@ -142,8 +144,8 @@ const Header = (props) =>{
                   </Badge>
                   </Button>
 
-                  <Button to="/lastproducts" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><Timelapse /></Button>
-                  <Button to="/favorites" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><Favorite /></Button>
+                  <Button to="/lastproducts" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><Timelapse style={{ color: orange[500] }} /></Button>
+                  <Button to="/favorites" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="secondary"><Favorite /></Button>
               </div>
               : <div/>
           }
@@ -176,7 +178,7 @@ const Header = (props) =>{
         <div>
         <List>
             <ListItem button component={RouterLink} to="/addproduct">
-              <ListItemIcon ><AddCircleOutline/></ListItemIcon>
+              <ListItemIcon ><AddCircleOutline style={{ color: blue[500] }}/></ListItemIcon>
               <ListItemText primary="Agregar Producto" />
             </ListItem>
         </List>
@@ -185,7 +187,7 @@ const Header = (props) =>{
         }
         <List>
             <ListItem button component={RouterLink} to="/lastproducts">
-              <ListItemIcon ><Timelapse/></ListItemIcon>
+              <ListItemIcon ><Timelapse style={{ color: orange[500] }}/></ListItemIcon>
               <ListItemText primary="Productos casi Agotados" />
             </ListItem>
         </List>
@@ -193,7 +195,7 @@ const Header = (props) =>{
         <div>
         <List>
             <ListItem button component={RouterLink} to="/favorites">
-              <ListItemIcon ><FavoriteBorder/></ListItemIcon>
+              <ListItemIcon ><Favorite style={{ color: red[500] }}/></ListItemIcon>
               <ListItemText primary="Ver Favoritos" />
             </ListItem>
         </List>

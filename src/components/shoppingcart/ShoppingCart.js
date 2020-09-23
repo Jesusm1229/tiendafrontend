@@ -102,7 +102,7 @@ const ShoppingCart = () => {
          if(products[index].id === child.val().product_id){
             let shopRef = firebase.database().ref('shoppingcart/' + child.key);
             shopRef.remove();
-            window.location.reload(false);
+            window.location.reload();
          }
         });
       });

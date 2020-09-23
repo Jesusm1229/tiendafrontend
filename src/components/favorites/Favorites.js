@@ -8,7 +8,7 @@ import {useStyles} from './styles';
 // Importando los iconos de Material-UI.
 import {HighlightOff} from '@material-ui/icons';
 
-const Favorites = (props) => {
+const Favorites = () => {
   const classes = useStyles();
 
   // Hook para almacenar todos los productos.
@@ -63,7 +63,7 @@ const Favorites = (props) => {
       // Eliminando los favoritos del producto.
       firebase.database().ref().child('favorites').orderByKey().once('value', snap => {
       snap.forEach(child => {
-            if(products[index].id === child.val().product_id){
+            if(products[index].id === child.val().product_id && child.val().user_id === firebase.auth().currentUser.uid){
                 firebase.database().ref('favorites/' + child.key).remove();
                 window.location.reload();
             }
@@ -74,6 +74,7 @@ const Favorites = (props) => {
   return (
   <Fragment>
     <ul>
+    <Grid container justify="center" alignItems="center">
         {/*Si hay productos almacenados en el Hook se itera sobre ese arreglo Hook donde estarán almacenados todos los productos.*/}
         { products && products.map((item, index) => {
             return(
@@ -117,6 +118,7 @@ const Favorites = (props) => {
             ); // Termina el return, mostrando cada una de las tarjetas de productos.
           })
           }
+      </Grid>
       </ul>
     </Fragment>
   );

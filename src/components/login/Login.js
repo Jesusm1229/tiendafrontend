@@ -32,7 +32,6 @@ const Login = (props) => {
       ],
       callbacks: {   
         SignInSuccessWithAuthResult: (authResult, redirectUrl) => {
-
             return true;
         }
     }
@@ -148,7 +147,7 @@ return (
         <Avatar className={classes.avatar}>
           <LockOutlined />
         </Avatar>
-        <Typography align='center' component="h1" variant="h5">Ingresar a Tienda E-Commerce</Typography>
+        <Typography align='center' component="h1" variant="h5">Ingresar a Tienda Medina y Gonzalez</Typography>
         <form className={classes.form} onSubmit={handleLogin}>
         <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>

@@ -230,28 +230,25 @@ const Home = (props) =>{
       e.preventDefault();
       setsnack({ appear: false, });
 
-     if(userIn === null){
-         props.history.push('/login');
-         return;
-     }
+        if(userIn === null){
+            props.history.push('/login');
+            return;
+        }
 
-     if(!press){
-        setPress(true);
-      if(e.target.checked){
-
+        if(e.target.checked){
             const newFavorite = {
                 product_id: productid,
                 user_id: userIn,
             };
 
-              firebase.database().ref('/favorites').push(newFavorite)
-              .then(response =>{
+            firebase.database().ref('/favorites').push(newFavorite)
+            .then(response =>{
 
-                // Actualizando el Hook con el ultimo favorito agregado mas reciente.
-                const refFavorites = firebase.database().ref().child('favorites').orderByKey();
-                let favoritesArray = []
-                refFavorites.once('value', snap => {
-                snap.forEach(child => {
+              // Actualizando el Hook con el ultimo favorito agregado mas reciente.
+              const refFavorites = firebase.database().ref().child('favorites').orderByKey();
+              let favoritesArray = []
+              refFavorites.once('value', snap => {
+              snap.forEach(child => {
 
                     var favoriteElement = {
                         id:          child.key, 
@@ -260,41 +257,41 @@ const Home = (props) =>{
                     };
 
                     favoritesArray.push(favoriteElement);
-                  });
-                  setFavorites(favoritesArray);
                 });
-
-                setsnack({
-                  motive: 'success', text: 'Agregado a Favoritos', appear: true,
-                });
-                setPress(false);
-              })
-              .catch(error => {
-                console.log(error);
-                alert(error.message);
+                setFavorites(favoritesArray);
               });
 
-       }else{ // Se eliminara el like de ese producto.
-           let userRef = firebase.database().ref('favorites/' + obtainID(productid));
-           userRef.remove();
+              setsnack({ motive: 'success', text: 'Agregado a Favoritos', appear: true, });
+            })
+            .catch(error => {
+                console.log(error);
+                alert(error.message);
+            });
+
+        }else{ // Se eliminara el like de ese producto.
+           //let userRef = firebase.database().ref('favorites/' + obtainID(productid));
+           //userRef.remove();
+
+           firebase.database().ref().child('favorites').orderByKey().once('value', snap => { 
+           snap.forEach(child => {
+                if(productid === child.val().product_id && child.val().user_id === firebase.auth().currentUser.uid)
+                    firebase.database().ref('favorites/' + child.key).remove();
+              });
+           });
 
            const name = e.target.getAttribute("name");
            setFavorites(favorites.filter(item => item.product_id !== name));
 
-           setsnack({
-            motive: 'success', text: 'Removido de Favoritos.', appear: true,
-           });
-           setPress(false);
+           setsnack({ motive: 'success', text: 'Removido de Favoritos.', appear: true, });
         }
-      }
    }
 
     // Obtener el indice del producto a eliminar.
-    function obtainID(productid){
+    /*function obtainID(productid){
        for(var i = 0; i < favorites.length; i++)
             if(favorites[i].product_id === productid && favorites[i].user_id === firebase.auth().currentUser.uid)
                 return favorites[i].id;
-    }
+    }*/
 
     // Conocer si el usuario posee un favorito en un producto.
     function obtainFavorites(product_id){
@@ -381,7 +378,7 @@ return(
         { products && products.map((item, index) => {
             return(
             // Comienza la tarjeta.
-                <Card className={classes.card}>
+                <Card className={classes.card} key={index}>
                   <CardHeader
                     avatar={
                       <Avatar aria-label="recipe" src={item.image} className={classes.avatar}/>
