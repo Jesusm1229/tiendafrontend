@@ -437,9 +437,11 @@ return(
                           <Add fontSize="small" />
                         </Button>
                     </ButtonGroup>
-                    <Typography variant="body2" color="textSecondary" component="p">
-                      {"Cantidad: " + products[index].quantity}
-                    </Typography>
+                    <Grid container justify="center" alignItems="center">
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          {"Cantidad: " + products[index].quantity}
+                        </Typography>
+                    </Grid>
                     </div>
                     : <div/>
                     }
@@ -448,12 +450,12 @@ return(
                   <CardActions disableSpacing>
                   <Grid container justify="center" alignItems="center">
                       <div>
-                          <FormControlLabel
+                          <FormControlLabel style={{maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}}
                             control={<Checkbox checked={obtainFavorites(products[index].id)} icon={<FavoriteBorder fontSize="default" />} checkedIcon={<Favorite fontSize="default" />} name={products[index].id} />}
                             onChange={(event) => addtoFavorites(event, products[index].id)}
                           />
                       </div>
-                            <Button
+                            <Button style={{maxWidth: '45px', maxHeight: '30px', minWidth: '45px', minHeight: '30px'}}
                                 onClick={(event) => addtoShoppingCart(event, products[index].id, index)}
                                 entry = {index}>
                                 {obtainRoleUser() !== undefined?
@@ -473,13 +475,13 @@ return(
 
                       {obtainRoleUser() === true?
                       <div>
-                      <Button 
+                      <Button style={{maxWidth: '45px', maxHeight: '30px', minWidth: '45px', minHeight: '30px'}}
                           onClick={(event) => removeTarget(event, products[index].id)}
                           entry = {index}>
                             <Delete color="primary" fontSize="default"/>
                       </Button>
                         
-                      <Button onClick={() => handleButtonClick(index)} entry={index}>
+                      <Button style={{maxWidth: '45px', maxHeight: '30px', minWidth: '45px', minHeight: '30px'}} onClick={() => handleButtonClick(index)} entry={index}>
                           <Edit color="primary" fontSize="default" />
                       </Button>
 

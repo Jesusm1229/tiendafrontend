@@ -55,7 +55,7 @@ const handleChange = (e) => {
 
   // Limite para campo de descripcion.
   if(e.target.name === 'description')
-      if(e.target.value.length > 65)
+      if(e.target.value.length > 60)
         return;   
   
   if(e.target.name === 'price' || e.target.name === 'stock')
