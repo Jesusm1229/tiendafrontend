@@ -67,8 +67,11 @@ const handleChange = (e) => {
   var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
     // Validación del campo Nombre y Descripción, solo se podrán introducir letras.
-    if(e.target.name === 'name' || e.target.name === 'description')
-        if( key !== 32 && (key < 97 || key > 122)) return;
+    if(e.target.name === 'name' || e.target.name === 'description'){
+        if((e.target.value.length -1 === 0) && (key < 65 || key > 90) && (key < 97 || key > 122)) return;
+        
+        if((e.target.value.length -1 !== 0) && key !== 32 && (key < 97 || key > 122)) return;
+    }
 
     // Validación del campo Precio, solo se podrán introducir numeros y un maximo de 5 digitos.
     if(e.target.name === 'price' || e.target.name === 'stock')
@@ -358,7 +361,7 @@ return (
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Tienda E-Commerce ' + new Date().getFullYear()}
+      {'Copyright © Tienda Medina y Gonzalez ' + new Date().getFullYear()}
     </Typography>
   );
 }

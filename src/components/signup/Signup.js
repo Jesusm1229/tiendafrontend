@@ -77,8 +77,11 @@ const Signup = (props) => {
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
 
     // Validación del campo Nombre y Apellido, solo se podrán introducir letras.
-    if(e.target.name === 'name' || e.target.name === 'lastname')
-        if(key < 97 || key > 122) return;
+    if(e.target.name === 'name' || e.target.name === 'lastname'){
+      if((e.target.value.length -1 === 0) && (key < 65 || key > 90) && (key < 97 || key > 122)) return;
+        
+      if((e.target.value.length -1 !== 0) && (key < 97 || key > 122)) return;
+    }
 
     // Validación del campo email.
     if(e.target.name === 'email')
