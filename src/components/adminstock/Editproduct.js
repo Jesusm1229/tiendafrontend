@@ -1,8 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 // Componentes de Material-UI.
 import {Avatar, Button, CssBaseline, TextField, Grid, Box, Typography, Container, FormLabel, MenuItem, FormControl, InputLabel, Select, OutlinedInput, InputAdornment, FormHelperText, Link, CircularProgress} from '@material-ui/core';
-// Iconos de Materia-UI.
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Componente para el Selector de Avatar de Usuario.
@@ -16,6 +14,8 @@ import { Link as RouterLink, withRouter} from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
+// Iconos de Materia-UI.
+import EditIcon from '@material-ui/icons/Edit';
 
 // Componente Funcional Addproduct.
 const Editproduct = (props) => {
@@ -253,7 +253,7 @@ return (
       <div>
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
+            <EditIcon/>
         </Avatar>
         <Typography align="center" component="h1" variant="h5"> Editar producto </Typography>
         <form className={classes.form} onSubmit={handleSubmit}>

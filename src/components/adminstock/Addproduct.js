@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 // Componentes de Material-UI.
 import {Avatar, Button, CssBaseline, TextField, Grid, Box, Typography, Container, FormLabel, MenuItem, FormControl, InputLabel, Select, OutlinedInput, InputAdornment, FormHelperText, CircularProgress} from '@material-ui/core';
 // Iconos de Materia-UI.
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Componente para el Selector de Avatar de Usuario.
@@ -37,8 +37,8 @@ const [category, setCategory] = useState('');
 // Hook para presionar o no el boton de agregar producto.
 const [showProgress, setshowProgress] = useState(false);
 
-// Hook para almacenar el usuario logueado.
-const [userin, setUserin] = useState(false);
+// Hook para almacenar role del usuario logueado.
+const [role, setRole] = useState();
 
  // Contenido del Snackbar.
  const[snack, setsnack] = useState({
@@ -93,17 +93,21 @@ const handleChange = (e) => {
   const [labelWidth, setLabelWidth] = React.useState(0);
   
   useEffect(() => {
-     // Verificamos si hay un usuario logueado.
-     firebase.auth().onAuthStateChanged(function(user) { 
-      if(user)
-        setUserin(true);
+
+    // Verificamos si hay un usuario logueado.
+    firebase.auth().onAuthStateChanged(response =>{
+      if(response){
+        firebase.database().ref(`/users/${response.uid}`).once('value').then(snapshot =>{
+            setRole(snapshot.val().role);
+        });
+      }
     });
 
-    if(!userin)
+    if(!role)
       return;
 
     setLabelWidth(inputLabel.current.offsetWidth);
-  }, [userin]);
+  }, [role]);
 
 // Funcion dedicada para modificar las categorias de los productos.
 const handleModified = (event) => {
@@ -207,11 +211,11 @@ const handleSubmit = (e) => {
 return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
-      {userin?
+      {role?
       <div>
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
+            <AddCircleOutlineIcon/>
         </Avatar>
         <Typography align="center" component="h1" variant="h5"> Agregar un producto </Typography>
         <form className={classes.form} onSubmit={handleSubmit}>
