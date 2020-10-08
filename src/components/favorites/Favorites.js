@@ -8,7 +8,7 @@ import {useStyles} from './styles';
 // Importando los iconos de Material-UI.
 import {HighlightOff} from '@material-ui/icons';
 
-const Favorites = () => {
+const Favorites = (props) => {
   const classes = useStyles();
 
   // Hook para almacenar todos los productos.
@@ -65,7 +65,7 @@ const Favorites = () => {
       snap.forEach(child => {
             if(products[index].id === child.val().product_id && child.val().user_id === firebase.auth().currentUser.uid){
                 firebase.database().ref('favorites/' + child.key).remove();
-                window.location.reload();
+                props.history.push('/');
             }
         });
       });

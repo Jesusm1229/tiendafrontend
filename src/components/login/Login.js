@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 // Componentes de Material-UI.
-import {Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, Container, FormControl, InputLabel, Select, MenuItem, CircularProgress} from '@material-ui/core';
+import {Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, Container, FormControl, InputLabel, Select, MenuItem, CircularProgress} from '@material-ui/core';
 // Iconos de Material-UI.
 import {LockOutlined, Cancel} from '@material-ui/icons';
 // Redireccionamientos.
@@ -198,10 +198,6 @@ return (
             defaultValue={user.password}
             onChange={handleChange}
           />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Recuerdame"
-          />
            </Grid>
           {showProgress?
           <Grid container justify="center" alignItems="center">
@@ -223,12 +219,7 @@ return (
           </div>
           }
           <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Olvidaste tu contraseña?
-              </Link>
-            </Grid>
-            <Grid item>
+            <Grid item container justify="center" alignItems="center">
               {/* Creacion de Link RouterDOM para cambio de paginas sin renderizar todo nuevamente.*/}
               <Link to="/signup" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} variant="body2">
               <Cancel/>{"No tengo una cuenta"}
