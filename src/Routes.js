@@ -13,6 +13,7 @@ import Favorites from './components/favorites/Favorites';
 import Stock from './components/stock/Stock';
 import ShoppingCart from './components/shoppingcart/ShoppingCart';
 import ChangeAvatar from './components/changeavatar/ChangeAvatar';
+import Carrusel from './components/carousel/Carrusel';
 
 // Componente Funcional Routes.
 const Routes = () =>(
@@ -30,6 +31,7 @@ const Routes = () =>(
       <Route exact path = "/category/:category" component={Home}/>
       <Route exact path = "/search/results/:search" component={Home}/>
       <Route exact path = "/changeavatar" component={ChangeAvatar}/>
+      <Route exact path = "/carousel" component={Carrusel}/>
     </Switch>
 );
 

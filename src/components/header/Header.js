@@ -21,7 +21,7 @@ import { withRouter } from 'react-router-dom';
 import { Base64 } from 'js-base64';
 
 // Componente Funcional Header.
-const Header = (props) =>{
+const Header = (props) =>{  
 
   // Llamado de la Función de Estilos.
   const classes = useStyles();
@@ -99,6 +99,7 @@ const Header = (props) =>{
         className={clsx(classes.appBar, {
           [classes.appBarShift]: open,
         })}
+        
       >
         <Toolbar>
               <div>

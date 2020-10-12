@@ -3,6 +3,8 @@ import React, {useState, useEffect , Fragment} from 'react'
 import firebase from '../../FirebaseConfig';
 // Componentes de Material-UI.
 import {Card,CardHeader, CardMedia, CardContent, CardActions, Avatar, Typography, Grid, Button, FormControlLabel, Checkbox, ButtonGroup, Badge} from '@material-ui/core';
+//Auxiliar para control de Typography
+import Box from '@material-ui/core/Box';
 // Iconos de Material-UI.
 import {Favorite, AddShoppingCart, Edit, Delete, Remove, Add} from '@material-ui/icons';
 // Importando Estilos.
@@ -15,6 +17,8 @@ import { Redirect } from 'react-router-dom';
 import { Base64 } from 'js-base64';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
+
+import Carrusel from '../carousel/Carrusel';
 
 // Componente Funcional Home.
 const Home = (props) =>{
@@ -371,30 +375,32 @@ const Home = (props) =>{
   }
 
 return( 
-  <Fragment>
+    <Fragment>
+      <Carrusel/>
     <ul>
     <Grid container justify="center" alignItems="center">
         {/*Si hay productos almacenados en el Hook se itera sobre ese arreglo Hook donde estarán almacenados todos los productos.*/}
         { products && products.map((item, index) => {
-            return(
+          return(            
             // Comienza la tarjeta.
                 <Card className={classes.card} key={index}>
                   <CardHeader
                     avatar={
                       <Avatar aria-label="recipe" src={item.image} className={classes.avatar}/>
                     }
-                    
-                    title={item.name}
+                    title={item.name}  
                     subheader={"Categoria: " + item.category}
-                  />
+                    />
                   <CardMedia
                     className={classes.media}
                     image={item.image}
                     title={item.image.title}
                   />
                   <CardContent>
-                    <Typography variant="body2" color="textSecondary" component="p" align="justify">
+                    <Typography component="p" variant="body2" color="textSecondary"  align="justify">
+                    <Box fontWeight="fontWeightBold">
                       {item.description}
+                    </Box>
                     </Typography>
                     {obtainRoleUser() === true?
                     <div>
@@ -404,7 +410,7 @@ return(
                     </div>
                     : <div/>
                     }
-                    <Typography variant="subtitle1" color="textSecondary" component="p">
+                    <Typography variant="subtitle1" color="textSecondary" component="p" alig>
                       {item.price + "Bs / Kg"}
                     </Typography>
                     <Grid container justify="center" alignItems="center">
@@ -500,6 +506,7 @@ return(
                   </Grid>
                   </CardActions>
                 </Card>
+            
             ); // Termina el return, mostrando cada una de las tarjetas de productos.
         })
       }

@@ -10,8 +10,11 @@ import {HowToReg, VpnKey} from '@material-ui/icons';
 import Header from './components/header/Header';
 import User from './components/user/User';
 import Routes from './Routes';
+
 // Base de Datos Firebase.
 import firebase from './FirebaseConfig';
+//Footer
+import Footer from './components/footer/Footer';
 
 // Componente Funcional Principal.
 const App = () => {
@@ -50,10 +53,12 @@ return (
 
               {/* Mostrar icono de usuario o administrador y opciones al momento de iniciar sesion. */}
               {user && <User user={user} onLogout={onLogout} />}
-
-          </Header>
-          <Routes/>
+          
+          </Header>          
+          <Routes/>          
+          <Footer/>
     </Router>
+    
   );
 }
 

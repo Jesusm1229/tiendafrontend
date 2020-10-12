@@ -1,5 +1,5 @@
 import React from 'react';
-import { blue } from '@material-ui/core/colors';
+import { green } from '@material-ui/core/colors';
 import {Menu, MenuItem, makeStyles, withStyles} from '@material-ui/core';
 
 // Estilo para las tarjetas.
@@ -7,11 +7,11 @@ export const useStyles = makeStyles(theme => ({
     card: {
       maxWidth: 265,
       maxHeight: 510,
-      backgroundColor: '#CED8F7',
+      backgroundColor: '#FFFFF0',
       marginTop: theme.spacing(2),
       marginLeft: theme.spacing(0),
       marginRight: theme.spacing(5),
-    },
+      },
     root: {
         '& > *': {
           margin: theme.spacing(1),
@@ -25,7 +25,7 @@ export const useStyles = makeStyles(theme => ({
       paddingTop: '56.25%', // 16:9
     },
     avatar: {
-      backgroundColor: blue[500],
+      backgroundColor: green[500],
     },
   }));
 
