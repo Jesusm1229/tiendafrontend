@@ -15,7 +15,7 @@ import {PhotoCamera} from '@material-ui/icons';
 import Snackbar from '../snackbar/Snackbar';
 
 // Componente Funcional User.
-const ChangeAvatar = (props) => {
+const ChangeAvatar = () => {
 
   // Llamado de la Función de Estilos.
   const classes = useStyles();
@@ -43,16 +43,18 @@ const ChangeAvatar = (props) => {
 
     firebase.auth().onAuthStateChanged(function(user) { 
         if(user){
-            setUserin(true);
-            firebase.database().ref().child('users').orderByKey()
-            .once('value', snap => {
-            snap.forEach(child => {
-                if(user.uid === child.key){
-                    setUserPhoto(child.val().avatar);
-                    setAvatarImage(child.val().avatar);
-                }
-            })
-          })
+              setUserin(true);
+              firebase.database().ref().child('users').orderByKey()
+              .once('value', snap => {
+              snap.forEach(child => {
+                  if(user.uid === child.key){
+                      setUserPhoto(child.val().avatar);
+                      setAvatarImage(child.val().avatar);
+                  }
+              })
+            }).catch(error => {
+              console.log(error.message);
+           });
         }
         else
             setUserPhoto(null);
@@ -109,22 +111,21 @@ const ChangeAvatar = (props) => {
 
             // Eliminar avatar existente.
             if(userphoto !== "" && avatarImage === ""){
-                firebase.database().ref(`users/${firebase.auth().currentUser.uid}`).update({ 
-                    avatar: "",
+                  firebase.database().ref(`users/${firebase.auth().currentUser.uid}`).update({ 
+                      avatar: "",
                   })
                   .catch(error => {
-                    console.log(error.message);
-                    setsnack({
-                      motive: 'error', text: 'Error al actualizar el avatar.', appear: true,
-                    });
-                    setshowProgress(false);
+                      setsnack({
+                        motive: 'error', text: 'Error al actualizar el avatar.', appear: true,
+                      });
+                      setshowProgress(false);
                   });
-
-                  window.location.reload();
 
                   setsnack({
                     motive: 'success', text: 'Avatar Eliminado.', appear: true,
                   });
+
+                  window.location.reload();
             }
 
             // Editar Avatar existente.
@@ -139,18 +140,17 @@ const ChangeAvatar = (props) => {
                             avatar: url,
                         })
                         .catch(error => {
-                            console.log(error.message);
                             setsnack({
                               motive: 'error', text: 'Error al actualizar el avatar.', appear: true,
                             });
                             setshowProgress(false);
                         });
                           
-                          window.location.reload();
-
-                          setsnack({
-                            motive: 'success', text: 'Avatar Editado con Exito.', appear: true,
-                          });
+                        setsnack({
+                          motive: 'success', text: 'Avatar Cambiado con Exito.', appear: true,
+                        });
+                        
+                        window.location.reload();
                     })
                     .catch(error => {
                           console.log(error.message);

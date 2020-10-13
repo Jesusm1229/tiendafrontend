@@ -35,6 +35,9 @@ const Header = (props) =>{
   // Hook para saber si hay un usuario logueado.
   const[userin, setUserin] = useState(false);
 
+  // Hook para almacenar la busqueda del usuario.
+  const [busqueda, setBusqueda] = useState('');
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -59,28 +62,30 @@ const Header = (props) =>{
     });
   }, []);
 
-  const [busqueda, setbusqueda] = useState();
-
+  // Funcion para obtener la URL Actual.
   function HeaderView() {
     let location = useLocation();
     return location.pathname
   }
 
+  // Evento de cambio de contenido del InputBase de Busqueda
   const handleChangeSearch = (e) => {
-
-      console.log(e.target.value);
-
       // Transforma el caracter ingresado a código ASCII.
       var key = e.target.value.charCodeAt(e.target.value.length - 1);
-      console.log(key);
 
-      // Validación del campo Nombre y Descripción, solo se podrán introducir letras.
-      if( key !== 32 && (key < 97 || key > 122)) 
-          return;
+      // No se admiten espacios al inicio.
+      if((e.target.value.length - 1 === 0 && key === 32) || e.target.value.length > 20)
+         return;
 
-      setbusqueda(e.target.value);
+      if((key >= 33 && key <= 64) || (key >= 91 && key <= 96) || key >= 123)
+           return;
+
+      setBusqueda(
+        e.target.value,
+      );
   }
 
+  // Evento de Presion de tecla sobre el InputBase de Busqueda
   const handleEnterKey = (e) => {
 
       if(e.key === 'Enter' && busqueda === '')
@@ -115,7 +120,7 @@ const Header = (props) =>{
               </div>
           <Button to="/" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"><Home/></Button>
           <Typography variant="h6" className={classes.title}>
-            Tienda Medina y Gonzalez
+            El Vecino Tarazona
           </Typography>
             {HeaderView() === '/login' || HeaderView() === '/signup' || HeaderView() === '/adminlogin' || HeaderView() === '/adminsignup' || HeaderView() === '/lastproducts' 
             || HeaderView() === '/favorites' || HeaderView() === '/shoppingcart' || HeaderView() === '/addproduct' || HeaderView() === '/editproduct' || HeaderView() === '/changeavatar' ?
@@ -131,12 +136,12 @@ const Header = (props) =>{
                             root: classes.inputRoot,
                             input: classes.inputInput,
                           }}
+                          value={busqueda}
                           inputProps={{ 'aria-label': 'search' }}
                         />
                     </div>
                 </div>
             }
-          
           {props.user?
               <div>
                   <Button to="/shoppingcart" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit">
@@ -150,7 +155,6 @@ const Header = (props) =>{
               </div>
               : <div/>
           }
-          
           {props.children}
         </Toolbar>
       </AppBar>

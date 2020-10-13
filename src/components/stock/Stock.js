@@ -20,10 +20,12 @@ const Stock = () => {
           const refProducts = firebase.database().ref().child('products').orderByKey();
           refProducts.once('value', snap => {
           snap.forEach(child => {
-                        if(parseInt(child.val().stock, 10) <= 10)
-                            productsArray.push(child.val());
-                  });
-              });
+                if(parseInt(child.val().stock, 10) <= 10)
+                    productsArray.push(child.val());
+           });
+          }).catch(error => {
+             console.log(error.message);
+        });
           setProducts(productsArray);
     });
     }, []);

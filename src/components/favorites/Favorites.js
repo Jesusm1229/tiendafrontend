@@ -49,11 +49,17 @@ const Favorites = (props) => {
                       stock:        snapshot.val().stock,
                     };
                     productsArray.push(favorite);
-                  });
+
+                  }).catch(error => {
+                    console.log(error.message);
+                 });
+
                   setProducts(productsArray);
                 }
               });
-          });
+          }).catch(error => {
+            console.log(error.message);
+         });
     },[userin]);
 
      // Funcion para que un Admin o Usuario pueda eliminar un favorito.
@@ -68,7 +74,9 @@ const Favorites = (props) => {
                 props.history.push('/');
             }
         });
-      });
+      }).catch(error => {
+        console.log(error.message);
+     });
     }
 
   return (

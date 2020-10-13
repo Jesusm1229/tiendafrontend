@@ -56,7 +56,9 @@ const PaypalCheckout = (props) => {
             firebase.database().ref('/orders').push(newOrder)
             .catch(error => {
                 console.log(error);
-                alert(error.message);
+                setsnack({
+                    motive: 'error', text: 'Se ha producido un error en Proceso de Pago', appear: true,
+                });
             });
         }
 
@@ -67,10 +69,14 @@ const PaypalCheckout = (props) => {
 
             for(var counter = 0; counter < props.order.shoppingcart.length; counter++)
                 if(props.order.shoppingcart[counter].id === child.val().product_id && firebase.auth().currentUser.uid === child.val().user_id){
-                   let shopRef = firebase.database().ref('shoppingcart/' + child.key);
-                   shopRef.remove();
+                   firebase.database().ref('shoppingcart/' + child.key).remove()
+                   .catch(error => {
+                      console.log(error);
+                   });
                 }
             });
+        }).catch(error => {
+            console.log(error);
         });
 
         // Disminuir el stock de productos comprados por el usuario.
@@ -96,6 +102,8 @@ const PaypalCheckout = (props) => {
                     console.log(error);
                 });
 
+            }).catch(error => {
+                console.log(error);
             });
         }
 
@@ -105,7 +113,7 @@ const PaypalCheckout = (props) => {
     // Funcion que realizara la cancelacion del pago.
     const onCancel = (data) => {
         setsnack({ appear: false, });
-        console.log('El pago ha sido cancelado.', data);
+
         setsnack({
             motive: 'info', text: 'El pago ha sido cancelado.', appear: true,
         });
@@ -114,7 +122,7 @@ const PaypalCheckout = (props) => {
     // Funcion que arrojara algun error ocurrido en la operacion del pago electronico.
     const onError = (err) => {
         setsnack({ appear: false, });
-        console.log("Error!", err);	
+        
         setsnack({
             motive: 'error', text: 'Ha ocurrido un error.', appear: true,
         });	

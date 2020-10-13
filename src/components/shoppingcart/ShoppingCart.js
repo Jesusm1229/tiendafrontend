@@ -9,6 +9,8 @@ import {useStyles} from './styles';
 import {RemoveShoppingCart} from '@material-ui/icons';
 // Importando el componente de Button de PayPal.
 import PaypalCheckout from '../paypalcheckout/PaypalCheckout';
+// Importando Alert de SnackBar.
+import Snackbar from '../snackbar/Snackbar';
 
 const ShoppingCart = () => {
   const classes = useStyles();
@@ -22,8 +24,15 @@ const ShoppingCart = () => {
   // Hook para almacenar la informacion del usuario logueado.
   const [user, setUser] = useState();
 
-   // Hook para almacenar el usuario logueado.
-   const [userin, setUserin] = useState(false);
+  // Hook para almacenar el usuario logueado.
+  const [userin, setUserin] = useState(false);
+
+  // Contenido del Snackbar.
+   const[snack, setsnack] = useState({
+    motive: '',
+    text: '',
+    appear: false,
+  });
 
   // Orden el shoppingCart completo para enviar a PayPal.
   const order = {
@@ -48,8 +57,10 @@ const ShoppingCart = () => {
               firebase.database().ref(`/users/${response.uid}`)
               .once('value')
               .then(snapshot =>{
-                setUser(snapshot.val());
-              });
+                  setUser(snapshot.val());
+              }).catch(error => {
+                  console.log(error.message);
+            });
             }
           });
 
@@ -83,29 +94,40 @@ const ShoppingCart = () => {
 
                     productsArray.push(shopping);
                     settoPay(total);
-                  });
+                  }).catch(error => {
+                    console.log(error.message);
+                });
                 }
               });
             setProducts(productsArray);
-          });
+          }).catch(error => {
+            console.log(error.message);
+        });
     },[userin]);
 
      // Funcion para que un Admin o Usuario pueda eliminar un producto de su carrito de compra.
      function removeShopping(event, index){
       event.preventDefault();
 
-      // Eliminando un producto del carrito de compra.
+      setsnack({ appear: false, });
+
       const shoppingRef = firebase.database().ref().child('shoppingcart').orderByKey();
       shoppingRef.once('value', snap => {
       snap.forEach(child => {
 
-         if(products[index].id === child.val().product_id){
-            let shopRef = firebase.database().ref('shoppingcart/' + child.key);
-            shopRef.remove();
-            window.location.reload();
+         if(products[index].id === child.val().product_id && firebase.auth().currentUser.uid === child.val().user_id){
+              firebase.database().ref('shoppingcart/' + child.key).remove()
+              .catch(error => {
+                  setsnack({
+                    motive: 'error', text: 'Se ha producido un error de Eliminacion', appear: true,
+                  });
+              });
+              window.location.reload();
          }
         });
-      });
+      }).catch(error => {
+        console.log(error);
+    });
     }
 
   return (
@@ -191,6 +213,10 @@ const ShoppingCart = () => {
           })
           }
       </ul>
+      {snack.appear?
+          <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
+           : <div/>
+      }
     </Fragment>
   );
 }

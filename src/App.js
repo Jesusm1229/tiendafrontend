@@ -29,7 +29,7 @@ const App = () => {
 
   // Evento para que este pendiente del status autenticado.
   useEffect(() =>{
-    document.title = "Tienda Medina y Gonzalez"
+    document.title = "Tienda El Vecino Tarazona"
     firebase.auth().onAuthStateChanged(response =>{
       // Si ocurre un response, hay un usuario autenticado.
       if(response){

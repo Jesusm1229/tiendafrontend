@@ -54,16 +54,14 @@ const[snack, setsnack] = useState({
 const handleChange = (e) => {
 
   // Limite para campo de descripcion.
-  if(e.target.name === 'description')
-      if(e.target.value.length > 35)
+  if(e.target.name === 'description' && e.target.value.length > 35)
         return;   
   
   if(e.target.name === 'price' || e.target.name === 'stock')
       if(e.target.value.length > 5)
         return;
 
-  if(e.target.name === 'name')
-      if(e.target.value.length > 20)
+  if(e.target.name === 'name' && e.target.value.length > 20)
         return;
 
   // Transforma el caracter ingresado a código ASCII.
@@ -118,10 +116,14 @@ const handleModified = (event) => {
 // Verificando el tamaño de la imagen y almacenando la propiedad image del Hook.
 const onBeforeFileLoad = (elem) => {
 
+  setsnack({ appear: false, });
+
   if(elem.target.files[0].type === "image/jpeg" || elem.target.files[0].type === "image/jpg" || elem.target.files[0].type === "image/png"){
 
     if(elem.target.files[0].size > 91680){
-      alert("La imagen es demasiado grande, elija otra.");
+      setsnack({
+        motive: 'warning', text: 'La imagen es demasiado grande, elija otra.', appear: true,
+      });
       elem.target.value = "";
       return;
     };
@@ -132,7 +134,9 @@ const onBeforeFileLoad = (elem) => {
 
   }else{
     elem.target.value = "";
-    alert("Formato de imagen incorrecto. Elija una imagen.");
+    setsnack({
+      motive: 'error', text: 'Formato incorrecto. Elija una imagen.', appear: true,
+    });
     return;
   }
 }

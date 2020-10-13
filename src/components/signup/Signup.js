@@ -64,9 +64,11 @@ const Signup = (props) => {
   const handleChange = (e) => {
 
     // Limites para la contrasena.
-    if(e.target.name === 'password')
-        if(e.target.value.length > 20)
-          return;
+    if(e.target.name === 'password' && e.target.value.length > 20)
+        return;
+    
+    if(e.target.name === 'email' && e.target.value.length > 64)
+        return;
 
     // Limites para el nombre y apellido.
     if(e.target.name === 'name' || e.target.name === 'lastname')
@@ -224,7 +226,7 @@ const onBeforeFileLoad = (elem) => {
   }else{
     elem.target.value = "";
     setsnack({
-        motive: 'error', text: 'Formato de imagen incorrecto. Elija una imagen.', appear: true,
+        motive: 'error', text: 'Formato incorrecto. Elija una imagen.', appear: true,
     });
     return;
   }
@@ -243,7 +245,7 @@ return (
           <LockOutlined />
         </Avatar>
         <Typography align="center" component="h1" variant="h5">
-          Registro de Usuario
+          Registro de Usuario - El Vecino Tarazona
         </Typography>
         <form className={classes.form} onSubmit={handleSubmit}>
           <Grid container spacing={2}>
@@ -378,7 +380,7 @@ return (
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright© Tienda Medina y Gonzalez ' + new Date().getFullYear()}
+      {'Copyright© El Vecino Tarazona ' + new Date().getFullYear()}
     </Typography>
   );
 }

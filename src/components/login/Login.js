@@ -69,9 +69,11 @@ const Login = (props) => {
   const handleChange = (e) => {
 
     // Limites para la contrasena.
-    if(e.target.name === 'password')
-      if(e.target.value.length > 20)
-          return;
+    if(e.target.name === 'password' && e.target.value.length > 20)
+        return;
+
+    if(e.target.name === 'email' && e.target.value.length > 64)
+        return;
 
     // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
@@ -112,7 +114,7 @@ const Login = (props) => {
                   })
                   .catch(error => {
                       setsnack({
-                        motive: 'error', text: 'Se ha producido un error de autenticacion.', appear: true,
+                        motive: 'error', text: 'Los Datos Ingresados son Incorrectos.', appear: true,
                       });
                       setshowProgress(false);
                   });
@@ -132,7 +134,12 @@ const Login = (props) => {
                     motive: 'error', text: 'Has introducido credenciales erroneas o una cuenta no existente.', appear: true,
                   });
               }
-          });
+          }).catch(error => {
+            setsnack({
+              motive: 'warning', text: 'Se ha producido un error en Inicio de Sesion', appear: true,
+            });
+            setshowProgress(false);
+        });
   };
 
 // Funcion dedicada para modificar las direcciones del correo.
@@ -147,7 +154,7 @@ return (
         <Avatar className={classes.avatar}>
           <LockOutlined />
         </Avatar>
-        <Typography align='center' component="h1" variant="h5">Ingresar a Tienda Medina y Gonzalez</Typography>
+        <Typography align='center' component="h1" variant="h5">Ingresar a Tienda El Vecino Tarazona</Typography>
         <form className={classes.form} onSubmit={handleLogin}>
         <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -194,8 +201,9 @@ return (
             label="Contraseña"
             type="password"
             id="password"
+            autoFocus
             autoComplete="current-password"
-            defaultValue={user.password}
+            value={user.password}
             onChange={handleChange}
           />
            </Grid>
@@ -248,7 +256,7 @@ return (
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright© Tienda Medina y Gonzalez ' + new Date().getFullYear()}
+      {'Copyright© El Vecino Tarazona ' + new Date().getFullYear()}
     </Typography>
   );
 }

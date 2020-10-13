@@ -24,7 +24,7 @@ const CustomizeSnackbar = (props) => {
 
   return (
     <div className={classes.root}>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={1500} onClose={handleClose}>
         <Alert onClose={handleClose} severity={props.motive}>
           {props.text}
         </Alert>

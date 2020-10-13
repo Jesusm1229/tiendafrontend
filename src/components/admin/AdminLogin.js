@@ -1,20 +1,40 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Link, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Typography, Container, Checkbox, FormControl, InputLabel, Select, MenuItem, CircularProgress} from '@material-ui/core';
+import {Link, Grid, Box, Avatar, Button, CssBaseline, TextField, Typography, Container, FormControl, InputLabel, Select, MenuItem, CircularProgress} from '@material-ui/core';
 import {LockOutlined, Cancel} from '@material-ui/icons';
 // Base de Datos Firebase.
-import firebase from '../../FirebaseConfig';
+//import firebase from '../../FirebaseConfig';
+import 'firebase/database';
+import 'firebase/auth';
+import firebase from 'firebase/app';
 // Redireccionamientos.
 import { Link as RouterLink, withRouter} from 'react-router-dom';
 // Importando los Estilos. (Se importa el mismo estilo del Login de Usuario para resumir código).
 import {useStyles} from '../login/styles';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
+// Firebase autenticacion con Google y Facebook.
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
 // Componente Funcional AdminLogin.
 const AdminLogin = (props) => {
 
   // Llamando a la función del estilo.
   const classes = useStyles();
+
+  // Login con Facebook y Google.
+  const uiConfig = {
+    signInFlow: 'popup',
+    signInSuccessUrl: '/',
+    signInOptions: [
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+      firebase.auth.FacebookAuthProvider.PROVIDER_ID
+    ],
+    callbacks: {   
+      SignInSuccessWithAuthResult: (authResult, redirectUrl) => {
+          return true;
+      }
+   }
+  };
 
   // Hook para almacenar las credenciales del administrador.
   const [admin, setAdmin] = useState({
@@ -50,6 +70,9 @@ const AdminLogin = (props) => {
     // Limites para la contrasena.
     if(e.target.name === 'password' && e.target.value.length > 20)
         return;
+    
+    if(e.target.name === 'email' && e.target.value.length > 64)
+        return;
 
     // Transforma el caracter ingresado a código ASCII.
     var key = e.target.value.charCodeAt(e.target.value.length - 1);
@@ -81,6 +104,7 @@ const AdminLogin = (props) => {
             ref.orderByChild("email").equalTo(admin.email + direction).on("child_added", function(snapshot) {
               // Si el role es 'true', iniciara sesion como administrador, sino no podrá iniciar sesion por ser usuario.
               if(snapshot.val().role){
+
                   firebase.auth().signInWithEmailAndPassword(admin.email + direction, admin.password)
                   .then(response => {
                       // Una vez autenticado el administrador, redirecciona a la home.
@@ -89,7 +113,7 @@ const AdminLogin = (props) => {
                   .catch(error => {
                     setshowProgress(false);
                     setsnack({
-                      motive: 'error', text: 'Error en autenticacion.', appear: true,
+                      motive: 'error', text: 'Los Datos Ingresados Son Incorrectos.', appear: true,
                     });
                   });
               }
@@ -108,7 +132,13 @@ const AdminLogin = (props) => {
                     motive: 'error', text: 'Has introducido credenciales erroneas o una cuenta no existente.', appear: true,
                   });
               }
-          });
+          }).catch(error => {
+            console.log(error.message);
+            setsnack({
+              motive: 'warning', text: 'Se ha producido un error en Inicio de Sesion', appear: true,
+            });
+            setshowProgress(false);
+        });
   };
 
   // Funcion dedicada para modificar las direcciones del correo.
@@ -123,7 +153,7 @@ const AdminLogin = (props) => {
         <Avatar className={classes.avatar}>
           <LockOutlined />
         </Avatar>
-        <Typography align="center" component="h1" variant="h5">Ingreso de Administrador</Typography>
+        <Typography align="center" component="h1" variant="h5">Ingreso de Administrador - El Vecino Tarazona</Typography>
         <form className={classes.form} onSubmit={handleLogin}>
         <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -174,10 +204,6 @@ const AdminLogin = (props) => {
             value={admin.password}
             onChange={handleChange}
           />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Recuerdame"
-          />
            </Grid>
            {showProgress?
           <Grid container justify="center" alignItems="center">
@@ -198,12 +224,7 @@ const AdminLogin = (props) => {
           </Button>
           </div>
           }
-          <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Olvidaste tu contraseña?
-              </Link>
-            </Grid>
+          <Grid container justify="center" alignItems="center">
             <Grid item>
               <Link to="/adminsignup" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} variant="body2">
               <Cancel/>{"No tengo cuenta"}
@@ -212,6 +233,13 @@ const AdminLogin = (props) => {
           </Grid>
         </form>
       </div>
+      <Grid container justify="center" alignItems="center">
+      {/*Modulo de Login con Google y Facebook*/}
+        <StyledFirebaseAuth 
+          uiConfig={uiConfig} 
+          firebaseAuth={firebase.auth()}
+        />
+      </Grid>
       <Box mt={5}><Copyright /></Box>
       {snack.appear?
         <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
@@ -225,7 +253,7 @@ const AdminLogin = (props) => {
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright© Administradores - Tienda Medina y Gonzalez ' + new Date().getFullYear()}
+      {'Copyright© Administradores - El Vecino Tarazona ' + new Date().getFullYear()}
     </Typography>
   );
 }

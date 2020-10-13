@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Link, Grid, Box, Typography, Container, FormLabel, Checkbox, FormControlLabel, TextField, CssBaseline, Button, Avatar, FormControl, InputLabel, Select, MenuItem, CircularProgress} from '@material-ui/core';
+import {Link, Grid, Box, Typography, Container, FormLabel, TextField, CssBaseline, Button, Avatar, FormControl, InputLabel, Select, MenuItem, CircularProgress} from '@material-ui/core';
 // Iconos de material.
 import {LockOpen, LockOutlined} from '@material-ui/icons';
 // Redireccionamientos.
@@ -63,8 +63,10 @@ const AdminSignup = (props) => {
   const handleChange = (e) => {
 
     // Limites para la contrasena.
-    if(e.target.name === 'password')
-      if(e.target.value.length > 20)
+    if(e.target.name === 'password' && e.target.value.length > 20)
+        return;
+    
+    if(e.target.name === 'email' && e.target.value.length > 64)
         return;
 
     // Limites para el nombre y apellido.
@@ -209,10 +211,14 @@ const AdminSignup = (props) => {
    // Verificando el tamaño de la imagen y 
    const onBeforeFileLoad = (elem) => {
 
+    setsnack({ appear: false, });
+
     if(elem.target.files[0].type === "image/jpeg" || elem.target.files[0].type === "image/jpg" || elem.target.files[0].type === "image/png"){
 
       if(elem.target.files[0].size > 71680){
-         alert("La imagen es demasiado grande, elija otra.");
+         setsnack({
+          motive: 'warning', text: 'La imagen es demasiado grande, elija otra.', appear: true,
+         });
          elem.target.value = "";
          return;
       };
@@ -221,7 +227,9 @@ const AdminSignup = (props) => {
       avatarC.image = elem.target.files[0];
     }else{
       elem.target.value = "";
-      alert("Formato de imagen incorrecto. Elija una imagen.");
+      setsnack({
+        motive: 'error', text: 'Formato incorrecto. Elija una imagen.', appear: true,
+      });
       return;  
     }
   }
@@ -238,7 +246,7 @@ const AdminSignup = (props) => {
         <Avatar className={classes.avatar}>
           <LockOutlined/>
         </Avatar>
-        <Typography align="center" component="h1" variant="h5">Registro de Administrador</Typography>
+        <Typography align="center" component="h1" variant="h5">Registro de Administrador - El Vecino Tarazona</Typography>
         <form className={classes.form} onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -329,12 +337,6 @@ const AdminSignup = (props) => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={<Checkbox value="allowExtraEmails" color="primary" />}
-                label="Quiero recibir informacion de productos y noticia de la tienda via email."
-              />
-            </Grid>
           </Grid>
           {showProgress?
           <Grid container justify="center" alignItems="center">
@@ -377,7 +379,7 @@ const AdminSignup = (props) => {
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright© Administradores - Tienda Medina y Gonzalez ' + new Date().getFullYear()}
+      {'Copyright© Administradores - El Vecino Tarazona ' + new Date().getFullYear()}
     </Typography>
   );
 }
