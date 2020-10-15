@@ -12,7 +12,7 @@ import PaypalCheckout from '../paypalcheckout/PaypalCheckout';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
 
-const ShoppingCart = () => {
+const ShoppingCart = (props) => {
   const classes = useStyles();
 
   // Hook para almacenar todos los productos.
@@ -40,7 +40,7 @@ const ShoppingCart = () => {
     shoppingcart: products,
   };
 
-   useEffect(() =>{
+  useEffect(() =>{
 
           // Verificamos si hay un usuario logueado.
           firebase.auth().onAuthStateChanged(function(user) { 
@@ -105,24 +105,53 @@ const ShoppingCart = () => {
         });
     },[userin]);
 
-     // Funcion para que un Admin o Usuario pueda eliminar un producto de su carrito de compra.
-     function removeShopping(event, index){
-      event.preventDefault();
-
-      setsnack({ appear: false, });
+  // Funcion para que un Admin o Usuario pueda eliminar un producto de su carrito de compra.
+  function removeShopping(event, index){
+    
+    event.preventDefault();
+    setsnack({ appear: false, });
 
       const shoppingRef = firebase.database().ref().child('shoppingcart').orderByKey();
       shoppingRef.once('value', snap => {
       snap.forEach(child => {
 
          if(products[index].id === child.val().product_id && firebase.auth().currentUser.uid === child.val().user_id){
+              
+              //Devolvemos el stock correspondiente.
+              firebase.database().ref(`products/${child.val().product_id}`)
+              .once('value')
+              .then(snapshot =>{ 
+
+                  const editProduct = {
+                      name:        snapshot.val().name,
+                      image:       snapshot.val().image,
+                      price:       snapshot.val().price,
+                      category:    snapshot.val().category,
+                      description: snapshot.val().description,
+                      stock:       snapshot.val().stock + child.val().quantity,
+                  };
+
+                  firebase.database().ref(`products/${child.val().product_id}`).update(editProduct)
+                  .catch(error => {
+                      console.log(error);
+                  });
+
+              }).catch(error => {
+                  console.log(error);
+              });
+
+              
               firebase.database().ref('shoppingcart/' + child.key).remove()
               .catch(error => {
                   setsnack({
                     motive: 'error', text: 'Se ha producido un error de Eliminacion', appear: true,
                   });
               });
-              window.location.reload();
+              
+              setsnack({
+                motive: 'success', text: 'Producto Eliminado del Carrito', appear: true,
+              });
+
          }
         });
       }).catch(error => {

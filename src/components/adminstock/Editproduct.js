@@ -75,8 +75,11 @@ const handleChange = (e) => {
     }
 
     // Validación del campo Precio, solo se podrán introducir numeros y un maximo de 5 digitos.
-    if(e.target.name === 'price' || e.target.name === 'stock')
-            if(key < 48 || key > 57) return;
+    if(e.target.name === 'price' || e.target.name === 'stock'){
+        if(key < 48 || key > 57) return;
+
+        if(e.target.value.length -1 === 0 && key === 48) return;
+    }
 
     // Almacenando en el Hook el producto.
     setProduct({

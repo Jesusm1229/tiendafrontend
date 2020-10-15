@@ -1,31 +1,19 @@
 import React, {useState, useEffect , Fragment} from 'react';
 // Componentes de Material-UI.
-import {Grid, Paper, Typography, ButtonBase, Button} from '@material-ui/core';
+import {Grid, Paper, Typography, ButtonBase} from '@material-ui/core';
 // Base de Datos Firebase.
 import firebase from '../../FirebaseConfig';
 // Importando los Estilos.
 import {useStyles} from './styles';
-// Importando los iconos de Material-UI.
-import {HighlightOff} from '@material-ui/icons';
-// Importando Alert de SnackBar.
-import Snackbar from '../snackbar/Snackbar';
 
-const Favorites = (props) => {
+const Orders = () => {
   const classes = useStyles();
 
   // Hook para almacenar todos los productos.
-  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
 
   // Hook para almacenar el usuario logueado.
   const [userin, setUserin] = useState(false);
-
-  // Contenido del Snackbar.
-  const[snack, setsnack] = useState({
-      motive: '',
-      text: '',
-      appear: false,
-  });
-
 
    useEffect(() =>{
 
@@ -38,9 +26,9 @@ const Favorites = (props) => {
           if(!userin)
             return;
 
-          // Buscamos los favoritos del usuario logueado en la coleccion 'favorites'.
-          const reffavorites = firebase.database().ref().child('favorites').orderByKey();
-          let productsArray = []
+          // Buscamos las compras del usuario logueado en la coleccion 'orders'.
+          const reffavorites = firebase.database().ref().child('orders').orderByKey();
+          let ordersArray = []
           reffavorites.once('value', snap => {
           snap.forEach(child => {
 
@@ -49,54 +37,32 @@ const Favorites = (props) => {
                    .once('value')
                    .then(snapshot =>{
 
-                      const favorite = {
-                      id:           snapshot.key,
+                      const order = {
                       name:         snapshot.val().name,
                       category:     snapshot.val().category,
                       description:  snapshot.val().description,
                       image:        snapshot.val().image,
-                      price:        snapshot.val().price,
-                      stock:        snapshot.val().stock,
+                      total:        child.val().total,
+                      quantity:     child.val().quantity,
                     };
-                    productsArray.push(favorite);
+                    ordersArray.push(order);
 
                   }).catch(error => {
                     console.log(error.message);
                  });
-
-                  setProducts(productsArray);
                 }
               });
+            setOrders(ordersArray);
           }).catch(error => {
             console.log(error.message);
          });
     },[userin]);
 
-     // Funcion para que un Admin o Usuario pueda eliminar un favorito.
-     function removeFavorite(event, index){
-      
-      event.preventDefault();
-      setsnack({ appear: false, });
-
-      // Eliminando los favoritos del producto.
-      firebase.database().ref().child('favorites').orderByKey().once('value', snap => {
-      snap.forEach(child => {
-            if(products[index].id === child.val().product_id && child.val().user_id === firebase.auth().currentUser.uid){
-                firebase.database().ref('favorites/' + child.key).remove();
-                setsnack({ motive: 'info', text: 'Favorito Eliminado', appear: true, });
-            }
-        });
-      }).catch(error => {
-        console.log(error.message);
-     });
-    }
-
   return (
   <Fragment>
     <ul>
-    <Grid container justify="center" alignItems="center">
-        {/*Si hay productos almacenados en el Hook se itera sobre ese arreglo Hook donde estarán almacenados todos los productos.*/}
-        { products && products.map((item, index) => {
+        {/*Si hay productos almacenados en el Hook se itera sobre ese arreglo Hook donde estarán almacenados todos las ordenes.*/}
+        { orders && orders.map((item, index) => {
             return(
               <Grid container justify="center" alignItems="center" key={index}>
                   <div className={classes.root}>
@@ -116,19 +82,16 @@ const Favorites = (props) => {
                               <Typography variant="body2" gutterBottom>
                                 {"Categoria: " + item.category}
                               </Typography>
+                              <Typography variant="body2" gutterBottom>
+                                {"Cantidad: " + item.quantity}
+                              </Typography>
                               <Typography variant="body2" color="textSecondary">
                                 {item.description}
                               </Typography>
                             </Grid>
-                            <Grid item>
-                            <Button 
-                                onClick={(event) => removeFavorite(event, index)}>
-                                  <HighlightOff/> Eliminar de Favoritos
-                           </Button>
-                            </Grid>
                           </Grid>
                           <Grid item>
-                              <Typography variant="subtitle1">{"Bs " + item.price + "/ Kg"}</Typography>
+                              <Typography variant="subtitle1">{"Total: "+ item.total + " Bs"}</Typography>
                           </Grid>
                         </Grid>
                       </Grid>
@@ -138,14 +101,9 @@ const Favorites = (props) => {
             ); // Termina el return, mostrando cada una de las tarjetas de productos.
           })
           }
-      </Grid>
       </ul>
-      {snack.appear?
-          <div> <Snackbar motive={snack.motive} text={snack.text}/> </div>
-          : <div/>
-      }
     </Fragment>
   );
 }
 
-export default Favorites;
+export default Orders;

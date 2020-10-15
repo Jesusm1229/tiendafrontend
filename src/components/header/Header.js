@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 // Componentes y Estilo makeStyle de Material-UI.
 import {AppBar, Toolbar, Typography, Button, Drawer, CssBaseline, List, Divider, IconButton, ListItem, ListItemIcon, ListItemText, Badge, InputBase } from '@material-ui/core';
 // Icono de Tienda en el Header.
-import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, Timelapse, ShoppingCartSharp, Favorite, Search} from '@material-ui/icons';
+import {Menu, ChevronLeft, ChevronRight, AddCircleOutline, Home, Timelapse, ShoppingCartSharp, Favorite, Search, Shop} from '@material-ui/icons';
 // Importando colores.
 import { orange, red, blue } from '@material-ui/core/colors';
 // Redireccionamientos.
@@ -122,7 +122,7 @@ const Header = (props) =>{
           <Typography variant="h6" className={classes.title}>
             El Vecino Tarazona
           </Typography>
-            {HeaderView() === '/login' || HeaderView() === '/signup' || HeaderView() === '/adminlogin' || HeaderView() === '/adminsignup' || HeaderView() === '/lastproducts' 
+            {HeaderView() === '/login' || HeaderView() === '/signup' || HeaderView() === '/adminlogin' || HeaderView() === '/adminsignup' || HeaderView() === '/lastproducts' || HeaderView() === '/orders' 
             || HeaderView() === '/favorites' || HeaderView() === '/shoppingcart' || HeaderView() === '/addproduct' || HeaderView() === '/editproduct' || HeaderView() === '/changeavatar' ?
                 <div> </div>
                 : <div> 
@@ -144,6 +144,7 @@ const Header = (props) =>{
             }
           {props.user?
               <div>
+                  <Button to="/orders" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit"> <Shop/></Button>
                   <Button to="/shoppingcart" component={React.forwardRef((props, ref) => <RouterLink innerRef={ref} {...props} />)} color="inherit">
                   <Badge badgeContent={props.cantidad} color="secondary" max={999}>
                     <ShoppingCartSharp />

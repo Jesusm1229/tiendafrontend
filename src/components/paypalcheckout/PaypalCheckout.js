@@ -80,7 +80,7 @@ const PaypalCheckout = (props) => {
         });
 
         // Disminuir el stock de productos comprados por el usuario.
-        for(var shopCart = 0; shopCart < props.order.shoppingcart.length; shopCart++){
+        /*for(var shopCart = 0; shopCart < props.order.shoppingcart.length; shopCart++){
 
             const product = props.order.shoppingcart[shopCart];
 
@@ -105,7 +105,7 @@ const PaypalCheckout = (props) => {
             }).catch(error => {
                 console.log(error);
             });
-        }
+        }*/
 
         props.history.push("/");
     }		

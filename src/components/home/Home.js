@@ -17,7 +17,7 @@ import { Redirect } from 'react-router-dom';
 import { Base64 } from 'js-base64';
 // Importando Alert de SnackBar.
 import Snackbar from '../snackbar/Snackbar';
-
+// Carrusel de imagenes.
 import Carrusel from '../carousel/Carrusel';
 
 // Componente Funcional Home.
@@ -144,37 +144,37 @@ const Home = (props) =>{
 
       }, [props.match.params.category, props.match.params.search]);
 
-      // Funcion para la busqueda por nombre de los productos.
-      function searchProducts(search){
+    // Funcion para la busqueda por nombre de los productos.
+    function searchProducts(search){
 
-                const refProducts = firebase.database().ref().child('products').orderByKey();
-                let productsArray = []
-                refProducts.once('value', snap => {
-                snap.forEach(child => {   
+          const refProducts = firebase.database().ref().child('products').orderByKey();
+          let productsArray = []
+          refProducts.once('value', snap => {
+          snap.forEach(child => {   
 
-                        if(child.val().name.includes(search) || child.val().name.includes(search[0].toUpperCase()) || child.val().name.includes(search.toLowerCase())){
-                              var productElement = {
-                                  id:          child.key, 
-                                  name:        child.val().name, 
-                                  price:       child.val().price,
-                                  image:       child.val().image,
-                                  category:    child.val().category,
-                                  description: child.val().description,
-                                  stock:       child.val().stock,
-                                  quantity:       1,
-                              };
+                  if(child.val().name.includes(search) || child.val().name.includes(search[0].toUpperCase()) || child.val().name.includes(search.toLowerCase())){
+                        var productElement = {
+                            id:          child.key, 
+                            name:        child.val().name, 
+                            price:       child.val().price,
+                            image:       child.val().image,
+                            category:    child.val().category,
+                            description: child.val().description,
+                            stock:       child.val().stock,
+                            quantity:       1,
+                        };
                 
-                              productsArray.push(productElement);
-                          }
-                  });
-                    setProduct(productsArray);
-                }).catch(error => {
-                    console.log(error.message);
+                        productsArray.push(productElement);
+                  }
               });
-      }
+                  setProduct(productsArray);
+            }).catch(error => {
+                  console.log(error.message);
+          });
+    }
 
-      // Funcion para obtener el role del usuario logueado.
-      function obtainRoleUser(){
+    // Funcion para obtener el role del usuario logueado.
+    function obtainRoleUser(){
 
           firebase.auth().onAuthStateChanged(response =>{
               // Si ocurre un response, hay un usuario autenticado.
@@ -194,7 +194,7 @@ const Home = (props) =>{
           });
 
         return role;
-      }
+    }
 
     // Funcion para que un Admin pueda eliminar un producto del Home.
     function removeTarget(event, productid){
@@ -223,6 +223,16 @@ const Home = (props) =>{
             snap.forEach(child => {
                 if(productid === child.val().product_id)
                     firebase.database().ref('shoppingcart/' + child.key).remove();
+            });
+          }).catch(error => {
+            console.log(error.message);
+         });
+
+          // Eliminando los shoppingCart asociados al producto.
+          firebase.database().ref().child('orders').orderByKey().once('value', snap => {
+            snap.forEach(child => {
+                if(productid === child.val().product_id)
+                    firebase.database().ref('orders/' + child.key).remove();
             });
             setsnack({
               motive: 'warning', text: 'Producto Eliminado - Actualiza la aplicacion para ver cambios', appear: true,
@@ -256,65 +266,47 @@ const Home = (props) =>{
             return;
         }
 
-        if(e.target.checked){
-            const newFavorite = {
-                product_id: productid,
-                user_id: userIn,
-            };
+            if(e.target.checked){
+                  const newFavorite = {
+                      product_id: productid,
+                      user_id: userIn,
+                  };
 
-            firebase.database().ref('/favorites').push(newFavorite)
-            .then(response =>{
+                  if(!obtainFavorites(productid)){
 
-              setsnack({ motive: 'success', text: 'Agregado a Favoritos', appear: true, });
-
-              // Actualizando el Hook con el ultimo favorito agregado mas reciente.
-              const refFavorites = firebase.database().ref().child('favorites').orderByKey();
-              let favoritesArray = []
-              refFavorites.once('value', snap => {
-              snap.forEach(child => {
-
-                    var favoriteElement = {
-                        id:          child.key, 
-                        product_id:  child.val().product_id, 
-                        user_id:     child.val().user_id
-                    };
-
-                    favoritesArray.push(favoriteElement);
-                });
-                setFavorites(favoritesArray);
-              }).catch(error => {
-                console.log(error.message);
-             });
-
-            })
-            .catch(error => {
-                console.log(error);
-            });
-
-        }else{ // Se eliminara el like de ese producto.
-           //let userRef = firebase.database().ref('favorites/' + obtainID(productid));
-           //userRef.remove();
-
-           firebase.database().ref().child('favorites').orderByKey().once('value', snap => { 
-           snap.forEach(child => {
-                  if(productid === child.val().product_id && child.val().user_id === firebase.auth().currentUser.uid){
-                      setsnack({ motive: 'warning', text: 'Removido de Favoritos.', appear: true, });
-                      
-                      firebase.database().ref('favorites/' + child.key).remove().catch(error => {
-                        console.log(error);
-                        setsnack({
-                            motive: 'error', text: 'Se ha producido un error de Eliminacion', appear: true,
-                        });
-                    });
+                      firebase.database().ref('/favorites').push(newFavorite)
+                      .then(response =>{
+                        setsnack({ motive: 'success', text: 'Agregado a Favoritos', appear: true, });
+                        actFavorites();
+                      })
+                      .catch(error => {
+                          console.log(error);
+                      });
                   }
-            });
-           }).catch(error => {
-                console.log(error);
-           });
+            }else{
+                //let userRef = firebase.database().ref('favorites/' + obtainID(productid));
+                //userRef.remove();
 
-           const name = e.target.getAttribute("name");
-           setFavorites(favorites.filter(item => item.product_id !== name));
-        }
+                    firebase.database().ref().child('favorites').orderByKey().once('value', snap => { 
+                    snap.forEach(child => {
+                            if(productid === child.val().product_id && child.val().user_id === firebase.auth().currentUser.uid){
+                                setsnack({ motive: 'warning', text: 'Removido de Favoritos.', appear: true, });
+                                
+                                firebase.database().ref('favorites/' + child.key).remove().catch(error => {
+                                  console.log(error);
+                                  setsnack({
+                                      motive: 'error', text: 'Se ha producido un error de Eliminacion', appear: true,
+                                  });
+                              });
+                            }
+                      });
+                    }).catch(error => {
+                          console.log(error);
+                    });
+
+                    const name = e.target.getAttribute("name");
+                    setFavorites(favorites.filter(item => item.product_id !== name));
+            }
    }
 
     // Obtener el indice del producto a eliminar.
@@ -323,6 +315,28 @@ const Home = (props) =>{
             if(favorites[i].product_id === productid && favorites[i].user_id === firebase.auth().currentUser.uid)
                 return favorites[i].id;
     }*/
+
+    // Funcion para actualizar el Hook con el ultimo favorito agregado mas reciente.
+    function actFavorites(){
+
+        const refFavorites = firebase.database().ref().child('favorites').orderByKey();
+        let favoritesArray = []
+        refFavorites.once('value', snap => {
+        snap.forEach(child => {
+
+                var favoriteElement = {
+                    id:          child.key, 
+                    product_id:  child.val().product_id, 
+                    user_id:     child.val().user_id
+                };
+
+                favoritesArray.push(favoriteElement);
+            });
+          setFavorites(favoritesArray);
+        }).catch(error => {
+          console.log(error.message);
+        });
+    }
 
     // Conocer si el usuario posee un favorito en un producto.
     function obtainFavorites(product_id){
@@ -373,6 +387,8 @@ const Home = (props) =>{
                 setsnack({
                   motive: 'success', text: 'Agregado a Carro de Compra', appear: true,
                 });
+
+                disminuirStock(productid, newShoppingCart.quantity);
               })
               .catch(error => {
                 console.log(error);
@@ -400,13 +416,39 @@ const Home = (props) =>{
         }
 }
 
-   // Verifica la existencia de un shoppingCart asociado al usuario logueado.
-   function obtainShopping(productid){
+// Verifica la existencia de un shoppingCart asociado al usuario logueado.
+function obtainShopping(productid){
     for(var i = 0; i < shoppingCart.length; i++)
           if(shoppingCart[i].product_id === productid && shoppingCart[i].user_id === userIn)
                 return true;
     return false;
-  }
+}
+
+// Funcion para disminuir el stock de un producto al momento de anadirlo al carrito.
+function disminuirStock(productid, quantity){
+
+      firebase.database().ref(`products/${productid}`)
+      .once('value')
+      .then(snapshot =>{ 
+
+          const editProduct = {
+              name:        snapshot.val().name,
+              image:       snapshot.val().image,
+              price:       snapshot.val().price,
+              category:    snapshot.val().category,
+              description: snapshot.val().description,
+              stock:       snapshot.val().stock - quantity,
+          };
+
+          firebase.database().ref(`products/${productid}`).update(editProduct)
+          .catch(error => {
+              console.log(error);
+          });
+
+      }).catch(error => {
+          console.log(error);
+      });
+}
 
 return( 
     <Fragment>
@@ -539,7 +581,6 @@ return(
                   </Grid>
                   </CardActions>
                 </Card>
-            
             ); // Termina el return, mostrando cada una de las tarjetas de productos.
         })
       }
