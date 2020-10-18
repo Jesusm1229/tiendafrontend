@@ -11,21 +11,22 @@ import './styles.css';
 // Redireccionamientos.
 import { withRouter } from 'react-router-dom';
 
+
 const items = [
   {
     src : require('../../images/bg_1.jpg'),
     altText: 'Img 1',
-    caption: 'Slide 1'
+    
   },
   {
     src : require('../../images/bg_2.jpg'),
     altText: 'Img 2',
-    caption: 'Slide 2'
+    
   },
   {
     src : require('../../images/bg_3.jpg'),
     altText: 'Img 3',
-    caption: 'Slide 3'
+    
   }
 ];
 
@@ -50,8 +51,10 @@ const Carrusel = (props) => {
     setActiveIndex(newIndex);
   }
 
+     
   const slides = items.map((item) => {
-    return (
+      return (     
+      
       <CarouselItem
         onExiting={() => setAnimating(true)}
         onExited={() => setAnimating(false)}

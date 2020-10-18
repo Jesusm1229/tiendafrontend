@@ -20,6 +20,10 @@ import Snackbar from '../snackbar/Snackbar';
 // Carrusel de imagenes.
 import Carrusel from '../carousel/Carrusel';
 
+import Logo from '../carousel/Logo';
+
+
+
 // Componente Funcional Home.
 const Home = (props) =>{
 
@@ -452,7 +456,8 @@ function disminuirStock(productid, quantity){
 
 return( 
     <Fragment>
-      <Carrusel/>
+      <Logo/> 
+      <Carrusel/>      
     <ul>
     <Grid container justify="center" alignItems="center">
         {/*Si hay productos almacenados en el Hook se itera sobre ese arreglo Hook donde estarán almacenados todos los productos.*/}

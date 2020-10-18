@@ -1,4 +1,74 @@
 .Carrusel{
     position: fixed;
     width: 100%;
+    z-index:0;
+  }
+  .Logo{
+    position: absolute;
+    z-index: 1000;
+    width: 50%;
+    height: 300;
+    display: block;
+    margin-left: 580px;
+    margin-right: 600px;
+    width: 50%; 
+    animation: fadeIn ease 3s;
+    -webkit-animation: fadeIn ease 3s;
+    -moz-animation: fadeIn ease 3s;
+    -o-animation: fadeIn ease 3s;
+    -ms-animation: fadeIn ease 3s;
+    
+  }
+ 
+  .frescura{
+    position: absolute;
+    z-index: 1000;
+    display: block;
+    margin-left: 400px;
+    margin-right: 400px;
+    margin-top: 350px;
+    animation: fadeIn ease 7s;
+    -webkit-animation: fadeIn ease 7s;
+    -moz-animation: fadeIn ease 7s;
+    -o-animation: fadeIn ease 7s;
+    -ms-animation: fadeIn ease 7s;
+  
+  }
+  .alcance{
+    position: absolute;
+    z-index: 1000;
+    display: block;
+    margin-left: 400px;
+    margin-right: 400px;
+    margin-top: 450px;
+    animation: fadeIn ease 9s;
+    -webkit-animation: fadeIn ease 9s;
+    -moz-animation: fadeIn ease 9s;
+    -o-animation: fadeIn ease 9s;
+    -ms-animation: fadeIn ease 9s;
+  }
+ 
+  @keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+  }
+  
+  @-moz-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+  }
+  
+  @-webkit-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+  }
+  
+  @-o-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
+  }
+  
+  @-ms-keyframes fadeIn {
+    0% {opacity:0;}
+    100% {opacity:1;}
   }
