@@ -5,7 +5,7 @@ function Logo(){
 return(
     <div>
     <div className = "Logo" >
-      <img src = {require('../../images/LOGO.png')} alt = "Logo" width= "50%"/> 
+      <img src = {require('../../images/LOGO.png')} alt = "Logo" width= "50%" object-fit = "cover"/> 
       
     </div>
 

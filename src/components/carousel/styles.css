@@ -2,16 +2,22 @@
     position: fixed;
     width: 100%;
     z-index:0;
+    background-size: cover;
   }
   .Logo{
     position: absolute;
     z-index: 1000;
-    width: 50%;
-    height: 300;
+       
+    object-fit: cover;
+   
+    height: auto;
     display: block;
-    margin-left: 580px;
-    margin-right: 600px;
-    width: 50%; 
+
+    margin: auto;
+    margin-left: 500px;
+
+    padding: auto;
+     
     animation: fadeIn ease 3s;
     -webkit-animation: fadeIn ease 3s;
     -moz-animation: fadeIn ease 3s;
@@ -19,6 +25,7 @@
     -ms-animation: fadeIn ease 3s;
     
   }
+
  
   .frescura{
     position: absolute;
@@ -26,7 +33,7 @@
     display: block;
     margin-left: 400px;
     margin-right: 400px;
-    margin-top: 350px;
+    margin-top: 380px;
     animation: fadeIn ease 7s;
     -webkit-animation: fadeIn ease 7s;
     -moz-animation: fadeIn ease 7s;
@@ -40,7 +47,7 @@
     display: block;
     margin-left: 400px;
     margin-right: 400px;
-    margin-top: 450px;
+    margin-top: 480px;
     animation: fadeIn ease 9s;
     -webkit-animation: fadeIn ease 9s;
     -moz-animation: fadeIn ease 9s;
