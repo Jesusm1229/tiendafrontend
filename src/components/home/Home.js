@@ -19,10 +19,8 @@ import { Base64 } from 'js-base64';
 import Snackbar from '../snackbar/Snackbar';
 // Carrusel de imagenes.
 import Carrusel from '../carousel/Carrusel';
-
+// Logo para el carrusel de imagenes.
 import Logo from '../carousel/Logo';
-
-
 
 // Componente Funcional Home.
 const Home = (props) =>{
@@ -362,62 +360,77 @@ const Home = (props) =>{
           return;
         }
 
-        // Validar que el producto ya se encuentre agregado al carrito.
-        const refShopping = firebase.database().ref().child('shoppingcart').orderByKey();
-        refShopping.once('value', snap => {
-        snap.forEach(child => {
-              if(child.val().product_id === productid && firebase.auth().currentUser.uid === child.val().user_id){
-                  setsnack({
-                    motive: 'warning', text: 'No puedes agregar al carrito de compra. Ya existe el producto.', appear: true,
-                  });
-                  return;
-              }
-          });
-        }).catch(error => {
-          console.log(error);
-        });
+        firebase.database().ref(`products/${productid}`)
+        .once('value')
+        .then(snapshot =>{ 
+              if(snapshot.val().stock !== 0){
+                   
+                    // Validar que el producto ya se encuentre agregado al carrito.
+                    const refShopping = firebase.database().ref().child('shoppingcart').orderByKey();
+                    refShopping.once('value', snap => {
+                    snap.forEach(child => {
+                          if(child.val().product_id === productid && firebase.auth().currentUser.uid === child.val().user_id){
+                              setsnack({
+                                motive: 'warning', text: 'No puedes agregar al carrito de compra. Ya existe el producto.', appear: true,
+                              });
+                              return;
+                          }
+                      });
+                    }).catch(error => {
+                      console.log(error);
+                    });
 
-        if(!obtainShopping(productid)){
+                    if(!obtainShopping(productid)){
 
-              const newShoppingCart = {
-                product_id: productid,
-                user_id: userIn,
-                price: products[index].quantity * products[index].price,
-                quantity: products[index].quantity 
-              };
-              
-              firebase.database().ref('/shoppingcart').push(newShoppingCart)
-              .then(response =>{
+                          const newShoppingCart = {
+                            product_id: productid,
+                            user_id: userIn,
+                            price: products[index].quantity * products[index].price,
+                            quantity: products[index].quantity 
+                          };
+                          
+                          firebase.database().ref('/shoppingcart').push(newShoppingCart)
+                          .then(response =>{
+                            setsnack({
+                              motive: 'success', text: 'Agregado a Carro de Compra', appear: true,
+                            });
+
+                            disminuirStock(productid, newShoppingCart.quantity);
+                          })
+                          .catch(error => {
+                            console.log(error);
+                          });
+
+                          // Actualizando el Hook con el ultimo favorito agregado mas reciente.
+                          const refShopping = firebase.database().ref().child('shoppingcart').orderByKey();
+                          let shoppingArray = []
+                          refShopping.once('value', snap => {
+                          snap.forEach(child => {
+
+                                const newShoppingCart = {
+                                  product_id: child.val().product_id,
+                                  user_id: child.val().user_id,
+                                  quantity: child.val().quantity, 
+                                };
+
+                                if(newShoppingCart.user_id === userIn)
+                                  shoppingArray.push(newShoppingCart);
+                          });
+                            setshoppingCart(shoppingArray);
+                          }).catch(error => {
+                            console.log(error);
+                          });
+                    }
+              }else{
                 setsnack({
-                  motive: 'success', text: 'Agregado a Carro de Compra', appear: true,
+                  motive: 'warning', text: 'Producto sin Stock.', appear: true,
                 });
+                return;
+              }
 
-                disminuirStock(productid, newShoppingCart.quantity);
-              })
-              .catch(error => {
-                console.log(error);
-              });
-
-              // Actualizando el Hook con el ultimo favorito agregado mas reciente.
-              const refShopping = firebase.database().ref().child('shoppingcart').orderByKey();
-              let shoppingArray = []
-              refShopping.once('value', snap => {
-              snap.forEach(child => {
-
-                    const newShoppingCart = {
-                      product_id: child.val().product_id,
-                      user_id: child.val().user_id,
-                      quantity: child.val().quantity, 
-                    };
-
-                    if(newShoppingCart.user_id === userIn)
-                      shoppingArray.push(newShoppingCart);
-              });
-                setshoppingCart(shoppingArray);
-              }).catch(error => {
-                console.log(error);
-              });
-        }
+            }).catch(error => {
+              console.log(error);
+          });
 }
 
 // Verifica la existencia de un shoppingCart asociado al usuario logueado.

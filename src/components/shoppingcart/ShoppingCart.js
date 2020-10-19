@@ -152,6 +152,8 @@ const ShoppingCart = (props) => {
                 motive: 'success', text: 'Producto Eliminado del Carrito', appear: true,
               });
 
+              props.history.push('/');
+
          }
         });
       }).catch(error => {
