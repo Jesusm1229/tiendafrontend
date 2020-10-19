@@ -67,7 +67,7 @@ const ChangeAvatar = () => {
     console.log("Quitaste la foto");
   }
   
-  // Verificando el tamaño de la imagen y 
+  // Verificando el tamaño de la imagen  
   const onBeforeFileLoad = (elem) => {
   
     setsnack({ appear: false, });
