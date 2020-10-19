@@ -4,6 +4,9 @@
     z-index:0;
     background-size: cover;
   }
+  .carousel-item > img { 
+    width: 100%; 
+  }
   .Logo{
     position: absolute;
     z-index: 1000;

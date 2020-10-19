@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+/*import React, { useState } from 'react';
 import {
   Carousel,
   CarouselItem,
@@ -32,7 +32,7 @@ const items = [
 
 const Carrusel = (props) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [animating, setAnimating] = useState(false);
+  const [animating, setAnimating] = useState(true);
 
   const next = () => {
     if (animating) return;
@@ -51,7 +51,7 @@ const Carrusel = (props) => {
     setActiveIndex(newIndex);
   }
 
-     
+    
   const slides = items.map((item) => {
       return (     
       
@@ -80,4 +80,35 @@ const Carrusel = (props) => {
   );
 }
 
-export default withRouter(Carrusel);
+export default withRouter(Carrusel);*/
+
+//Uncontrolled Carrusel. Mejor
+
+import React from 'react';
+import { UncontrolledCarousel } from 'reactstrap';
+import './styles.css';
+import 'bootstrap/dist/css/bootstrap.min.css'
+// Redireccionamientos.
+import { withRouter } from 'react-router-dom';
+
+const items = [
+  {
+    src: require('../../images/bg_1.jpg'),
+    altText: 'Slide 1',
+     key: '1'
+  },
+  {
+    src: require('../../images/bg_2.jpg'),
+    altText: 'Slide 2',
+    key: '2'
+  },
+  {
+    src: require('../../images/bg_3.jpg'),
+    altText: 'Slide 3',
+    key: '3'
+  }
+];
+
+const Carrusel = () => <UncontrolledCarousel items={items} />;
+
+export default Carrusel;
