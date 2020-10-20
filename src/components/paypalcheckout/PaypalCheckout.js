@@ -39,10 +39,6 @@ const PaypalCheckout = (props) => {
         setsnack({ appear: false, });
         console.log("El Pago ha sido realizado con exito.", payment);
 
-        setsnack({
-            motive: 'success', text: 'El Pago ha sido realizado con exito.', appear: true,
-        });
-
         // Agregando la orden del shopping cart a la coleccion Orders.
         for(var counter = 0; counter < props.order.shoppingcart.length; counter++){
 
@@ -79,35 +75,13 @@ const PaypalCheckout = (props) => {
             console.log(error);
         });
 
-        // Disminuir el stock de productos comprados por el usuario.
-        /*for(var shopCart = 0; shopCart < props.order.shoppingcart.length; shopCart++){
-
-            const product = props.order.shoppingcart[shopCart];
-
-            firebase.database().ref(`products/${product.id}`)
-            .once('value')
-            .then(snapshot =>{ 
-
-                const editProduct = {
-                    name:        product.name,
-                    image:       product.image,
-                    price:       product.price,
-                    category:    product.category,
-                    description: product.description,
-                    stock:       snapshot.val().stock - product.quantity,
-                };
-
-                firebase.database().ref(`products/${product.id}`).update(editProduct)
-                .catch(error => {
-                    console.log(error);
-                });
-
-            }).catch(error => {
-                console.log(error);
-            });
-        }*/
+        setsnack({
+            motive: 'success', text: 'El Pago ha sido realizado con exito.', appear: true,
+        });
 
         props.history.push("/");
+
+        alert("El Pago ha sido realizado con exito.");
     }		
 
     // Funcion que realizara la cancelacion del pago.
@@ -130,7 +104,7 @@ const PaypalCheckout = (props) => {
     
     return (
         <div>
-            <PaypalBtn 
+            <PaypalBtn
                 env={paypalConfig.env} 
                 client={paypalConfig.client} 
                 currency={paypalConfig.currency} 

@@ -88,8 +88,6 @@ import React from 'react';
 import { UncontrolledCarousel } from 'reactstrap';
 import './styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
-// Redireccionamientos.
-import { withRouter } from 'react-router-dom';
 
 const items = [
   {

@@ -122,13 +122,15 @@ const ShoppingCart = (props) => {
               .once('value')
               .then(snapshot =>{ 
 
+                  console.log("Stock: " + snapshot.val().stock + " Quantity: " + child.val().quantity);
+
                   const editProduct = {
                       name:        snapshot.val().name,
                       image:       snapshot.val().image,
                       price:       snapshot.val().price,
                       category:    snapshot.val().category,
                       description: snapshot.val().description,
-                      stock:       snapshot.val().stock + child.val().quantity,
+                      stock:       parseInt(snapshot.val().stock) + parseInt(child.val().quantity),
                   };
 
                   firebase.database().ref(`products/${child.val().product_id}`).update(editProduct)
